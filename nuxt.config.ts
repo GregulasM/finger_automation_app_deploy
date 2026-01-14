@@ -22,6 +22,8 @@ export default defineNuxtConfig({
     "@nuxt/image",
     "@nuxt/test-utils",
     "@vueuse/motion/nuxt",
+    "@pinia/nuxt",
+    "nuxt-auth-utils",
   ],
   runtimeConfig: {
     authSecret:
@@ -29,6 +31,18 @@ export default defineNuxtConfig({
       process.env.NUXT_JWT_SECRET ||
       process.env.JWT_SECRET ||
       "",
+    authIssuer: process.env.AUTH_ISSUER || "finger-automation",
+    accessTokenTtl: Number(process.env.ACCESS_TOKEN_TTL || 60 * 15),
+    refreshTokenTtl: Number(process.env.REFRESH_TOKEN_TTL || 60 * 60 * 24 * 7),
+    authCookieSecure: process.env.AUTH_COOKIE_SECURE === "true",
+    resendApiKey: process.env.RESEND_API_KEY || "",
+    resendFrom: process.env.RESEND_FROM || "",
+    qstashToken: process.env.QSTASH_TOKEN || "",
+    qstashCurrentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY || "",
+    qstashNextSigningKey: process.env.QSTASH_NEXT_SIGNING_KEY || "",
+    public: {
+      appUrl: process.env.APP_URL || "http://localhost:3000",
+    },
   },
   nitro: {
     externals: {

@@ -12,3 +12,120 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum WorkflowStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum TriggerType {
+  WEBHOOK
+  CRON
+  EMAIL
+}
+
+enum ExecutionStatus {
+  PENDING
+  RUNNING
+  SUCCESS
+  FAIL
+  PAUSED
+}
+
+enum ExecutionStepStatus {
+  PENDING
+  SUCCESS
+  FAIL
+}
+
+model User {
+  id              String                   @id @default(uuid()) @db.Uuid
+  name            String?                  @db.VarChar(120)
+  email           String                   @unique @db.VarChar(255)
+  passwordHash    String                   @map("password_hash") @db.Text
+  emailVerifiedAt DateTime?
+  workflows       Workflow[]
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
+  emailTokens     EmailVerificationToken[]
+  loginTokens     LoginVerificationToken[]
+  passwordTokens  PasswordResetToken[]
+}
+
+model Workflow {
+  id          String         @id @default(uuid()) @db.Uuid
+  userId      String         @db.Uuid
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String         @db.VarChar(255)
+  status      WorkflowStatus @default(ACTIVE)
+  triggerType TriggerType
+  graphData   Json           @db.JsonB
+  executions  Execution[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([userId])
+}
+
+model Execution {
+  id         String          @id @default(uuid()) @db.Uuid
+  workflowId String          @db.Uuid
+  workflow   Workflow        @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  status     ExecutionStatus @default(PENDING)
+  logs       Json?           @db.JsonB
+  startedAt  DateTime        @default(now())
+  finishedAt DateTime?
+  steps      ExecutionStep[]
+  createdAt  DateTime        @default(now())
+
+  @@index([workflowId])
+}
+
+model ExecutionStep {
+  id          String              @id @default(uuid()) @db.Uuid
+  executionId String              @db.Uuid
+  execution   Execution           @relation(fields: [executionId], references: [id], onDelete: Cascade)
+  stepKey     String              @db.VarChar(255)
+  stepOrder   Int
+  status      ExecutionStepStatus @default(PENDING)
+  input       Json?               @db.JsonB
+  output      Json?               @db.JsonB
+  duration    Int?
+  createdAt   DateTime            @default(now())
+
+  @@index([executionId, stepOrder])
+}
+
+model EmailVerificationToken {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String   @unique @db.Char(64)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model LoginVerificationToken {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String   @unique @db.Char(64)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique @db.Char(64)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}

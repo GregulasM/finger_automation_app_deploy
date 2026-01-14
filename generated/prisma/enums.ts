@@ -9,7 +9,38 @@
 * 🟢 You can import this file directly.
 */
 
+export const WorkflowStatus = {
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE'
+} as const
+
+export type WorkflowStatus = (typeof WorkflowStatus)[keyof typeof WorkflowStatus]
 
 
-// This file is empty because there are no enums in the schema.
-export {}
+export const TriggerType = {
+  WEBHOOK: 'WEBHOOK',
+  CRON: 'CRON',
+  EMAIL: 'EMAIL'
+} as const
+
+export type TriggerType = (typeof TriggerType)[keyof typeof TriggerType]
+
+
+export const ExecutionStatus = {
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+  SUCCESS: 'SUCCESS',
+  FAIL: 'FAIL',
+  PAUSED: 'PAUSED'
+} as const
+
+export type ExecutionStatus = (typeof ExecutionStatus)[keyof typeof ExecutionStatus]
+
+
+export const ExecutionStepStatus = {
+  PENDING: 'PENDING',
+  SUCCESS: 'SUCCESS',
+  FAIL: 'FAIL'
+} as const
+
+export type ExecutionStepStatus = (typeof ExecutionStepStatus)[keyof typeof ExecutionStepStatus]

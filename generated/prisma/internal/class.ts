@@ -20,7 +20,7 @@ const config: runtime.GetPrismaClientConfig = {
   "clientVersion": "7.2.0",
   "engineVersion": "0c8ef2ce45c83248ab3df073180d5eda9e8be7a3",
   "activeProvider": "postgresql",
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nenum WorkflowStatus {\n  ACTIVE\n  INACTIVE\n}\n\nenum TriggerType {\n  WEBHOOK\n  CRON\n  EMAIL\n}\n\nenum ExecutionStatus {\n  PENDING\n  RUNNING\n  SUCCESS\n  FAIL\n  PAUSED\n}\n\nenum ExecutionStepStatus {\n  PENDING\n  SUCCESS\n  FAIL\n}\n\nmodel User {\n  id              String                   @id @default(uuid()) @db.Uuid\n  name            String?                  @db.VarChar(120)\n  email           String                   @unique @db.VarChar(255)\n  passwordHash    String                   @map(\"password_hash\") @db.Text\n  emailVerifiedAt DateTime?\n  workflows       Workflow[]\n  createdAt       DateTime                 @default(now())\n  updatedAt       DateTime                 @updatedAt\n  emailTokens     EmailVerificationToken[]\n  loginTokens     LoginVerificationToken[]\n  passwordTokens  PasswordResetToken[]\n}\n\nmodel Workflow {\n  id          String         @id @default(uuid()) @db.Uuid\n  userId      String         @db.Uuid\n  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)\n  name        String         @db.VarChar(255)\n  status      WorkflowStatus @default(ACTIVE)\n  triggerType TriggerType\n  graphData   Json           @db.JsonB\n  executions  Execution[]\n  createdAt   DateTime       @default(now())\n  updatedAt   DateTime       @updatedAt\n\n  @@index([userId])\n}\n\nmodel Execution {\n  id         String          @id @default(uuid()) @db.Uuid\n  workflowId String          @db.Uuid\n  workflow   Workflow        @relation(fields: [workflowId], references: [id], onDelete: Cascade)\n  status     ExecutionStatus @default(PENDING)\n  logs       Json?           @db.JsonB\n  startedAt  DateTime        @default(now())\n  finishedAt DateTime?\n  steps      ExecutionStep[]\n  createdAt  DateTime        @default(now())\n\n  @@index([workflowId])\n}\n\nmodel ExecutionStep {\n  id          String              @id @default(uuid()) @db.Uuid\n  executionId String              @db.Uuid\n  execution   Execution           @relation(fields: [executionId], references: [id], onDelete: Cascade)\n  stepKey     String              @db.VarChar(255)\n  stepOrder   Int\n  status      ExecutionStepStatus @default(PENDING)\n  input       Json?               @db.JsonB\n  output      Json?               @db.JsonB\n  duration    Int?\n  createdAt   DateTime            @default(now())\n\n  @@index([executionId, stepOrder])\n}\n\nmodel EmailVerificationToken {\n  id        String   @id @default(uuid()) @db.Uuid\n  userId    String   @db.Uuid\n  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n  tokenHash String   @unique @db.Char(64)\n  expiresAt DateTime\n  createdAt DateTime @default(now())\n\n  @@index([userId])\n}\n\nmodel LoginVerificationToken {\n  id        String   @id @default(uuid()) @db.Uuid\n  userId    String   @db.Uuid\n  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n  tokenHash String   @unique @db.Char(64)\n  expiresAt DateTime\n  createdAt DateTime @default(now())\n\n  @@index([userId])\n}\n\nmodel PasswordResetToken {\n  id        String    @id @default(uuid()) @db.Uuid\n  userId    String    @db.Uuid\n  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)\n  tokenHash String    @unique @db.Char(64)\n  expiresAt DateTime\n  usedAt    DateTime?\n  createdAt DateTime  @default(now())\n\n  @@index([userId])\n}\n",
   "runtimeDataModel": {
     "models": {},
     "enums": {},
@@ -28,7 +28,7 @@ const config: runtime.GetPrismaClientConfig = {
   }
 }
 
-config.runtimeDataModel = JSON.parse("{\"models\":{},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"passwordHash\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"password_hash\"},{\"name\":\"emailVerifiedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"workflows\",\"kind\":\"object\",\"type\":\"Workflow\",\"relationName\":\"UserToWorkflow\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"emailTokens\",\"kind\":\"object\",\"type\":\"EmailVerificationToken\",\"relationName\":\"EmailVerificationTokenToUser\"},{\"name\":\"loginTokens\",\"kind\":\"object\",\"type\":\"LoginVerificationToken\",\"relationName\":\"LoginVerificationTokenToUser\"},{\"name\":\"passwordTokens\",\"kind\":\"object\",\"type\":\"PasswordResetToken\",\"relationName\":\"PasswordResetTokenToUser\"}],\"dbName\":null},\"Workflow\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"UserToWorkflow\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"WorkflowStatus\"},{\"name\":\"triggerType\",\"kind\":\"enum\",\"type\":\"TriggerType\"},{\"name\":\"graphData\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"executions\",\"kind\":\"object\",\"type\":\"Execution\",\"relationName\":\"ExecutionToWorkflow\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Execution\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"workflowId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"workflow\",\"kind\":\"object\",\"type\":\"Workflow\",\"relationName\":\"ExecutionToWorkflow\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"ExecutionStatus\"},{\"name\":\"logs\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"startedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"finishedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"steps\",\"kind\":\"object\",\"type\":\"ExecutionStep\",\"relationName\":\"ExecutionToExecutionStep\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"ExecutionStep\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"executionId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"execution\",\"kind\":\"object\",\"type\":\"Execution\",\"relationName\":\"ExecutionToExecutionStep\"},{\"name\":\"stepKey\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"stepOrder\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"ExecutionStepStatus\"},{\"name\":\"input\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"output\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"duration\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"EmailVerificationToken\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"EmailVerificationTokenToUser\"},{\"name\":\"tokenHash\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"expiresAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"LoginVerificationToken\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"LoginVerificationTokenToUser\"},{\"name\":\"tokenHash\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"expiresAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"PasswordResetToken\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"PasswordResetTokenToUser\"},{\"name\":\"tokenHash\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"expiresAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"usedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 
 async function decodeBase64AsWasm(wasmBase64: string): Promise<WebAssembly.Module> {
   const { Buffer } = await import('node:buffer')
@@ -174,7 +174,75 @@ export interface PrismaClient<
     extArgs: ExtArgs
   }>>
 
-    
+      /**
+   * `prisma.user`: Exposes CRUD operations for the **User** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Users
+    * const users = await prisma.user.findMany()
+    * ```
+    */
+  get user(): Prisma.UserDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.workflow`: Exposes CRUD operations for the **Workflow** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Workflows
+    * const workflows = await prisma.workflow.findMany()
+    * ```
+    */
+  get workflow(): Prisma.WorkflowDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.execution`: Exposes CRUD operations for the **Execution** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Executions
+    * const executions = await prisma.execution.findMany()
+    * ```
+    */
+  get execution(): Prisma.ExecutionDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.executionStep`: Exposes CRUD operations for the **ExecutionStep** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ExecutionSteps
+    * const executionSteps = await prisma.executionStep.findMany()
+    * ```
+    */
+  get executionStep(): Prisma.ExecutionStepDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.emailVerificationToken`: Exposes CRUD operations for the **EmailVerificationToken** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more EmailVerificationTokens
+    * const emailVerificationTokens = await prisma.emailVerificationToken.findMany()
+    * ```
+    */
+  get emailVerificationToken(): Prisma.EmailVerificationTokenDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.loginVerificationToken`: Exposes CRUD operations for the **LoginVerificationToken** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more LoginVerificationTokens
+    * const loginVerificationTokens = await prisma.loginVerificationToken.findMany()
+    * ```
+    */
+  get loginVerificationToken(): Prisma.LoginVerificationTokenDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.passwordResetToken`: Exposes CRUD operations for the **PasswordResetToken** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PasswordResetTokens
+    * const passwordResetTokens = await prisma.passwordResetToken.findMany()
+    * ```
+    */
+  get passwordResetToken(): Prisma.PasswordResetTokenDelegate<ExtArgs, { omit: OmitOpts }>;
 }
 
 export function getPrismaClientClass(): PrismaClientConstructor {

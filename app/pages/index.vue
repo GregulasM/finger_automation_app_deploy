@@ -1,76 +1,102 @@
 <template>
-  <div>
-    <UPageHero
-      title="Nuxt Starter Template"
-      description="A production-ready starter template powered by Nuxt UI. Build beautiful, accessible, and performant applications in minutes, not hours."
-      :links="[{
-        label: 'Get started',
-        to: 'https://ui.nuxt.com/docs/getting-started/installation/nuxt',
-        target: '_blank',
-        trailingIcon: 'i-lucide-arrow-right',
-        size: 'xl'
-      }, {
-        label: 'Use this template',
-        to: 'https://github.com/nuxt-ui-templates/starter',
-        target: '_blank',
-        icon: 'i-simple-icons-github',
-        size: 'xl',
-        color: 'neutral',
-        variant: 'subtle'
-      }]"
+  <div class="relative overflow-hidden">
+    <div
+      class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.15),_transparent_50%),radial-gradient(circle_at_bottom_right,_rgba(14,116,144,0.15),_transparent_45%)]"
     />
+    <UContainer class="relative py-16">
+      <div class="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]">
+        <div>
+          <p
+            class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-500"
+          >
+            Finger Automation
+          </p>
+          <h1 class="mt-4 text-4xl font-semibold text-slate-900 md:text-5xl">
+            Automate your stack with visual workflows.
+          </h1>
+          <p class="mt-4 text-base text-slate-600">
+            Build triggers, chain actions, and ship workflows in minutes.
+            Connect Webhooks, Schedules, and HTTP requests with resilient
+            serverless execution.
+          </p>
+          <div class="mt-6 flex flex-wrap items-center gap-3">
+            <UButton to="/workflows/editor" color="primary" size="lg">
+              Open workflow editor
+            </UButton>
+            <UButton
+              to="/workflows"
+              variant="outline"
+              color="neutral"
+              size="lg"
+            >
+              View dashboard
+            </UButton>
+            <UButton
+              to="/auth/login"
+              variant="outline"
+              color="neutral"
+              size="lg"
+            >
+              Sign in
+            </UButton>
+          </div>
+          <div
+            class="mt-6 flex flex-wrap items-center gap-4 text-xs text-slate-500"
+          >
+            <span
+              class="rounded-full border border-slate-200 bg-white px-3 py-1"
+            >
+              Webhook triggers
+            </span>
+            <span
+              class="rounded-full border border-slate-200 bg-white px-3 py-1"
+            >
+              Cron schedules
+            </span>
+            <span
+              class="rounded-full border border-slate-200 bg-white px-3 py-1"
+            >
+              JSON-first workflows
+            </span>
+          </div>
+        </div>
 
-    <UPageSection
-      id="features"
-      title="Everything you need to build modern Nuxt apps"
-      description="Start with a solid foundation. This template includes all the essentials for building production-ready applications with Nuxt UI's powerful component system."
-      :features="[{
-        icon: 'i-lucide-rocket',
-        title: 'Production-ready from day one',
-        description: 'Pre-configured with TypeScript, ESLint, Tailwind CSS, and all the best practices. Focus on building features, not setting up tooling.'
-      }, {
-        icon: 'i-lucide-palette',
-        title: 'Beautiful by default',
-        description: 'Leveraging Nuxt UI\'s design system with automatic dark mode, consistent spacing, and polished components that look great out of the box.'
-      }, {
-        icon: 'i-lucide-zap',
-        title: 'Lightning fast',
-        description: 'Optimized for performance with SSR/SSG support, automatic code splitting, and edge-ready deployment. Your users will love the speed.'
-      }, {
-        icon: 'i-lucide-blocks',
-        title: '100+ components included',
-        description: 'Access Nuxt UI\'s comprehensive component library. From forms to navigation, everything is accessible, responsive, and customizable.'
-      }, {
-        icon: 'i-lucide-code-2',
-        title: 'Developer experience first',
-        description: 'Auto-imports, hot module replacement, and TypeScript support. Write less boilerplate and ship more features.'
-      }, {
-        icon: 'i-lucide-shield-check',
-        title: 'Built for scale',
-        description: 'Enterprise-ready architecture with proper error handling, SEO optimization, and security best practices built-in.'
-      }]"
-    />
-
-    <UPageSection>
-      <UPageCTA
-        title="Ready to build your next Nuxt app?"
-        description="Join thousands of developers building with Nuxt and Nuxt UI. Get this template and start shipping today."
-        variant="subtle"
-        :links="[{
-          label: 'Start building',
-          to: 'https://ui.nuxt.com/docs/getting-started/installation/nuxt',
-          target: '_blank',
-          trailingIcon: 'i-lucide-arrow-right',
-          color: 'neutral'
-        }, {
-          label: 'View on GitHub',
-          to: 'https://github.com/nuxt-ui-templates/starter',
-          target: '_blank',
-          icon: 'i-simple-icons-github',
-          color: 'neutral',
-          variant: 'outline'
-        }]"
-      />
-    </UPageSection>
+        <div class="space-y-4">
+          <div
+            class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+          >
+            <div class="text-sm font-semibold text-slate-900">
+              From trigger to action
+            </div>
+            <p class="mt-2 text-sm text-slate-500">
+              Design flows visually, then store the graph as JSONB with full
+              execution history.
+            </p>
+          </div>
+          <div
+            class="rounded-2xl border border-slate-200 bg-gradient-to-br from-emerald-50 via-white to-cyan-50 p-5 shadow-sm"
+          >
+            <div class="text-sm font-semibold text-slate-900">
+              Reliable execution
+            </div>
+            <p class="mt-2 text-sm text-slate-500">
+              QStash handles queueing and retries while the runner isolates each
+              workflow run.
+            </p>
+          </div>
+          <div
+            class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+          >
+            <div class="text-sm font-semibold text-slate-900">
+              Audit-ready logs
+            </div>
+            <p class="mt-2 text-sm text-slate-500">
+              Step-by-step logging, timings, and outputs stay available for
+              every run.
+            </p>
+          </div>
+        </div>
+      </div>
+    </UContainer>
   </div>
 </template>
