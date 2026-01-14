@@ -25,7 +25,7 @@ export default defineNuxtConfig({
     "@pinia/nuxt",
     "nuxt-auth-utils",
   ],
-  ssr: false,
+
   
   runtimeConfig: {
     authSecret:
