@@ -1,15 +1,21 @@
+import { existsSync } from "node:fs";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
+const adapterPgPath = require.resolve("@prisma/adapter-pg");
+const adapterPgEsmPath = adapterPgPath.endsWith(".js")
+  ? adapterPgPath.replace(/\.js$/, ".mjs")
+  : adapterPgPath;
 const prismaTraceInclude = [
   require.resolve("@prisma/client"),
   require.resolve("@prisma/client/runtime/client"),
   require.resolve("@prisma/client/runtime/query_compiler_bg.postgresql.mjs"),
   require.resolve("@prisma/client/runtime/query_compiler_bg.postgresql.wasm-base64.mjs"),
-  require.resolve("@prisma/adapter-pg"),
+  adapterPgPath,
+  existsSync(adapterPgEsmPath) ? adapterPgEsmPath : undefined,
   require.resolve("@prisma/driver-adapter-utils"),
   require.resolve("@prisma/client-runtime-utils"),
-];
+].filter(Boolean);
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -26,7 +32,6 @@ export default defineNuxtConfig({
     "nuxt-auth-utils",
   ],
 
-  
   runtimeConfig: {
     authSecret:
       process.env.NUXT_AUTH_SECRET ||
@@ -57,16 +62,16 @@ export default defineNuxtConfig({
     prerender: {
       crawlLinks: false,
       routes: [],
-      ignore: ['/'],
+      ignore: ["/"],
       failOnError: false,
     },
     esbuild: {
       options: {
-        target: 'esnext'
-      }
+        target: "esnext",
+      },
     },
     // Disable prerendering completely
-    static: false
+    static: false,
   },
   devtools: {
     enabled: true,
@@ -100,8 +105,8 @@ export default defineNuxtConfig({
       applyLayout(pages);
     },
     close: () => {
-      process.exit(0)
-    }
+      process.exit(0);
+    },
   },
   colorMode: {
     preference: "light",
