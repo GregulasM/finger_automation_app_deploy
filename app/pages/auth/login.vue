@@ -1,28 +1,28 @@
 <template>
-  <div class="relative overflow-hidden px-6 py-16">
-    <div
-      class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(148,163,184,0.25),_transparent_55%)]"
-    />
-    <div
-      class="pointer-events-none absolute -right-24 top-10 h-40 w-40 rounded-full bg-emerald-200/40 blur-3xl"
-    />
+  <div class="relative overflow-hidden min-h-screen bg-zinc-950 px-2 4xs:px-3 3xs:px-4 xs:px-6 py-8 4xs:py-12 3xs:py-16">
     <UContainer>
       <div class="mx-auto w-full max-w-md">
-        <div class="mb-6 text-center">
+        <div class="mb-4 4xs:mb-6 text-center">
           <p
-            class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-500"
+            class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold uppercase tracking-[0.3em] text-orange-500"
           >
             Finger Automation
           </p>
-          <h1 class="mt-3 text-3xl font-semibold text-slate-900">
+          <h1
+            class="mt-2 4xs:mt-3 text-[7px] 4xs:text-[8px] 3xs:text-[9px] 2xs:text-[10px] xs:text-[11px] sm:text-sm md:text-md lg:text-md 2xl:text-lg 3xl:text-lg/6 4xl:text-2xl/8 5xl:text-3xl/10 font-bold text-zinc-100"
+          >
             Welcome back
           </h1>
-          <p class="mt-2 text-sm text-slate-500">
+          <p
+            class="mt-2 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
+          >
             Sign in to manage your workflows and triggers.
           </p>
         </div>
 
-        <UCard class="border-slate-200/70 shadow-sm">
+        <div
+          class="rounded-xl 4xs:rounded-2xl border border-orange-500/30 bg-zinc-800/70 backdrop-blur-lg opacity-90 p-4 4xs:p-5 3xs:p-6"
+        >
           <UAlert
             v-if="errorMessage"
             color="red"
@@ -32,13 +32,14 @@
             class="mb-4"
           />
           <UForm :schema="schema" :state="state" @submit="onSubmit">
-            <div class="space-y-4">
+            <div class="space-y-3 4xs:space-y-4">
               <UFormField label="Email" name="email">
                 <UInput
                   v-model="state.email"
                   type="email"
                   placeholder="you@company.com"
                   autocomplete="email"
+                  :ui="{ root: 'ring-0' }"
                 />
               </UFormField>
               <UFormField label="Password" name="password">
@@ -47,29 +48,36 @@
                   type="password"
                   placeholder="********"
                   autocomplete="current-password"
+                  :ui="{ root: 'ring-0' }"
                 />
               </UFormField>
-              <UButton
+              <button
                 type="submit"
-                color="primary"
-                class="w-full"
-                :loading="loading"
+                :disabled="loading"
+                class="w-full rounded-md border border-orange-500 bg-orange-500 px-4 py-2.5 text-zinc-950 transition hover:brightness-110 disabled:opacity-50"
               >
-                Sign in
-              </UButton>
+                <span
+                  class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold"
+                >
+                  <span v-if="loading">Loading...</span>
+                  <span v-else>Sign in</span>
+                </span>
+              </button>
             </div>
           </UForm>
 
-          <div class="mt-6 text-center text-sm text-slate-500">
+          <div
+            class="mt-4 4xs:mt-6 text-center text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
+          >
             Don't have an account?
             <NuxtLink
               to="/auth/register"
-              class="font-semibold text-emerald-600 hover:text-emerald-700"
+              class="font-semibold text-orange-500 hover:text-orange-400"
             >
               Create one
             </NuxtLink>
           </div>
-        </UCard>
+        </div>
       </div>
     </UContainer>
   </div>

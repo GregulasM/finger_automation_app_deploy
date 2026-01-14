@@ -56,7 +56,7 @@ watch(
 <template>
   <UApp class="min-h-screen bg-zinc-950 text-zinc-100">
     <header
-      class="sticky top-0 z-40 border-b border-orange-500/60 bg-zinc-950/95 backdrop-blur"
+      class="sticky top-0 z-40 border-b border-orange-500/60 bg-zinc-950/95 backdrop-blur-lg opacity-90"
     >
       <!-- тонкая линия-акцент -->
       <div
@@ -264,7 +264,7 @@ watch(
       </div>
     </header>
 
-    <UMain class="bg-zinc-950">
+    <UMain class="bg-zinc-950 min-h-screen pt-12 4xs:pt-14 3xs:pt-16 2xs:pt-18 xs:pt-20 sm:pt-24">
       <NuxtPage />
     </UMain>
   </UApp>

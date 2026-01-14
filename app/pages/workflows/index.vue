@@ -1,62 +1,97 @@
 <template>
-  <div class="px-6 py-8">
-    <div class="flex flex-wrap items-center justify-between gap-4">
+  <div class="min-h-screen bg-zinc-950 px-2 4xs:px-3 3xs:px-4 xs:px-6 py-4 4xs:py-6 3xs:py-8">
+    <div class="flex flex-wrap items-center justify-between gap-3 4xs:gap-4">
       <div>
-        <h1 class="text-2xl font-semibold text-slate-900">Workflows</h1>
-        <p class="text-sm text-slate-500">
+        <h1
+          class="text-[7px] 4xs:text-[8px] 3xs:text-[9px] 2xs:text-[10px] xs:text-[11px] sm:text-sm md:text-md lg:text-md 2xl:text-lg 3xl:text-lg/6 4xl:text-2xl/8 5xl:text-3xl/10 font-bold text-zinc-100"
+        >
+          Workflows
+        </h1>
+        <p
+          class="mt-1 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
+        >
           Track activity, performance, and recent executions.
         </p>
       </div>
-      <UButton to="/workflows/editor" color="primary">New workflow</UButton>
+      <NuxtLink
+        to="/workflows/editor"
+        class="rounded-md border border-orange-500 bg-orange-500 px-3 4xs:px-4 3xs:px-5 xs:px-6 py-2 4xs:py-2.5 3xs:py-3 text-zinc-950 transition hover:brightness-110"
+      >
+        <span
+          class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold"
+        >
+          New workflow
+        </span>
+      </NuxtLink>
     </div>
 
-    <div class="mt-6 grid gap-6 lg:grid-cols-[280px_1fr]">
-      <UCard class="border-slate-200/70">
+    <div class="mt-4 4xs:mt-6 grid gap-4 4xs:gap-6 lg:grid-cols-[280px_1fr]">
+      <div
+        class="rounded-xl 4xs:rounded-2xl border border-orange-500/30 bg-zinc-800/70 backdrop-blur-lg opacity-90 p-3 4xs:p-4"
+      >
         <div
-          class="text-xs font-semibold uppercase tracking-wider text-slate-400"
+          class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold uppercase tracking-wider text-zinc-100/60"
         >
           Workflow list
         </div>
-        <div class="mt-4 h-[70vh] space-y-2 overflow-y-auto pr-1">
-          <div v-if="workflowsPending" class="text-sm text-slate-500">
+        <div class="mt-3 4xs:mt-4 h-[70vh] space-y-2 overflow-y-auto pr-1">
+          <div
+            v-if="workflowsPending"
+            class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
+          >
             Loading workflows...
           </div>
-          <div v-else-if="workflowError" class="text-sm text-red-500">
+          <div
+            v-else-if="workflowError"
+            class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-red-400"
+          >
             {{ workflowError }}
           </div>
           <button
             v-for="workflow in workflows"
             :key="workflow.id"
             type="button"
-            class="flex w-full flex-col gap-1 rounded-lg border px-3 py-2 text-left text-sm transition"
+            class="flex w-full flex-col gap-1 rounded-lg border px-2 4xs:px-3 py-2 text-left transition"
             :class="
               workflow.id === selectedWorkflowId
-                ? 'border-emerald-400/60 bg-emerald-50'
-                : 'border-slate-200 hover:border-slate-300'
+                ? 'border-orange-500/80 bg-zinc-800 text-zinc-100'
+                : 'border-orange-500/25 bg-zinc-800/50 text-zinc-100/90 hover:border-orange-500/70 hover:bg-zinc-800/80'
             "
             @click="selectedWorkflowId = workflow.id"
           >
-            <span class="font-semibold text-slate-900">
+            <span
+              class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold"
+            >
               {{ workflow.name }}
             </span>
-            <span class="text-xs text-slate-500">
+            <span
+              class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
+            >
               {{ workflow.triggerType }} • {{ workflow.status }}
             </span>
-            <span class="text-[11px] text-slate-400">
+            <span
+              class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/50"
+            >
               Updated {{ formatDate(workflow.updatedAt) }}
             </span>
           </button>
         </div>
-      </UCard>
+      </div>
 
-      <div class="space-y-6">
-        <UCard class="border-slate-200/70">
+      <div class="space-y-4 4xs:space-y-6">
+        <div
+          class="rounded-xl 4xs:rounded-2xl border border-orange-500/30 bg-zinc-800/70 backdrop-blur-lg opacity-90 p-3 4xs:p-4 3xs:p-5"
+        >
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <div class="text-xs uppercase tracking-wider text-slate-400">
+              <div
+                class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 uppercase tracking-wider text-zinc-100/60"
+              >
                 Overview
               </div>
-              <div class="mt-1 text-lg font-semibold text-slate-900">
+              <div
+                class="mt-1 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold text-zinc-100"
+              >
                 {{ selectedWorkflow?.name || "Select a workflow" }}
               </div>
             </div>
@@ -65,87 +100,156 @@
                 v-if="selectedWorkflow"
                 :color="badgeColor(selectedWorkflow.status)"
                 variant="soft"
+                :ui="{ root: 'ring-0' }"
               >
                 {{ selectedWorkflow.status }}
               </UBadge>
-              <UButton
+              <NuxtLink
                 v-if="selectedWorkflow"
-                color="neutral"
-                variant="outline"
                 :to="`/workflows/editor?workflowId=${selectedWorkflow.id}`"
+                class="rounded-md border border-orange-500/30 bg-zinc-800/70 backdrop-blur-lg opacity-90 px-3 4xs:px-4 py-2 4xs:py-2.5 text-zinc-100 transition hover:border-orange-500/70 hover:bg-zinc-800/90"
               >
-                Edit
-              </UButton>
+                <span
+                  class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold"
+                >
+                  Edit
+                </span>
+              </NuxtLink>
             </div>
           </div>
 
-          <div v-if="statsPending" class="mt-4 text-sm text-slate-500">
+          <div
+            v-if="statsPending"
+            class="mt-4 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
+          >
             Loading stats...
           </div>
           <div v-else class="mt-4 space-y-4">
             <div v-if="selectedWorkflow" class="grid gap-4 sm:grid-cols-2">
-              <div class="rounded-xl border border-slate-200 bg-white p-4">
-                <div class="text-xs text-slate-500">Trigger type</div>
-                <div class="mt-1 text-sm font-semibold text-slate-900">
+              <div
+                class="rounded-xl border border-orange-500/30 bg-zinc-800/50 p-3 4xs:p-4"
+              >
+                <div
+                  class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
+                >
+                  Trigger type
+                </div>
+                <div
+                  class="mt-1 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold text-zinc-100"
+                >
                   {{ selectedWorkflow.triggerType }}
                 </div>
-                <div v-if="triggerEndpoint" class="mt-2 text-xs text-slate-500">
+                <div
+                  v-if="triggerEndpoint"
+                  class="mt-2 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
+                >
                   Endpoint: {{ triggerEndpoint }}
                 </div>
               </div>
-              <div class="rounded-xl border border-slate-200 bg-white p-4">
-                <div class="text-xs text-slate-500">Last updated</div>
-                <div class="mt-1 text-sm font-semibold text-slate-900">
+              <div
+                class="rounded-xl border border-orange-500/30 bg-zinc-800/50 p-3 4xs:p-4"
+              >
+                <div
+                  class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
+                >
+                  Last updated
+                </div>
+                <div
+                  class="mt-1 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold text-zinc-100"
+                >
                   {{ formatDate(selectedWorkflow.updatedAt) }}
                 </div>
-                <div class="text-xs text-slate-500">
+                <div
+                  class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
+                >
                   Created {{ formatDate(selectedWorkflow.createdAt) }}
                 </div>
               </div>
             </div>
             <div v-if="stats" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                <div class="text-xs text-slate-500">Total runs</div>
-                <div class="mt-1 text-xl font-semibold text-slate-900">
+              <div
+                class="rounded-xl border border-orange-500/30 bg-zinc-800/50 p-3 4xs:p-4"
+              >
+                <div
+                  class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
+                >
+                  Total runs
+                </div>
+                <div
+                  class="mt-1 text-[7px] 4xs:text-[8px] 3xs:text-[9px] 2xs:text-[10px] xs:text-[11px] sm:text-sm md:text-md lg:text-md 2xl:text-lg 3xl:text-lg/6 4xl:text-2xl/8 5xl:text-3xl/10 font-bold text-zinc-100"
+                >
                   {{ stats.total }}
                 </div>
               </div>
-              <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                <div class="text-xs text-slate-500">Success rate</div>
-                <div class="mt-1 text-xl font-semibold text-slate-900">
+              <div
+                class="rounded-xl border border-orange-500/30 bg-zinc-800/50 p-3 4xs:p-4"
+              >
+                <div
+                  class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
+                >
+                  Success rate
+                </div>
+                <div
+                  class="mt-1 text-[7px] 4xs:text-[8px] 3xs:text-[9px] 2xs:text-[10px] xs:text-[11px] sm:text-sm md:text-md lg:text-md 2xl:text-lg 3xl:text-lg/6 4xl:text-2xl/8 5xl:text-3xl/10 font-bold text-zinc-100"
+                >
                   {{ formatPercent(stats.successRate) }}
                 </div>
               </div>
-              <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                <div class="text-xs text-slate-500">Avg duration</div>
-                <div class="mt-1 text-xl font-semibold text-slate-900">
+              <div
+                class="rounded-xl border border-orange-500/30 bg-zinc-800/50 p-3 4xs:p-4"
+              >
+                <div
+                  class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
+                >
+                  Avg duration
+                </div>
+                <div
+                  class="mt-1 text-[7px] 4xs:text-[8px] 3xs:text-[9px] 2xs:text-[10px] xs:text-[11px] sm:text-sm md:text-md lg:text-md 2xl:text-lg 3xl:text-lg/6 4xl:text-2xl/8 5xl:text-3xl/10 font-bold text-zinc-100"
+                >
                   {{ formatDuration(stats.avgDurationMs) }}
                 </div>
               </div>
-              <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                <div class="text-xs text-slate-500">Last run</div>
-                <div class="mt-1 text-sm font-semibold text-slate-900">
+              <div
+                class="rounded-xl border border-orange-500/30 bg-zinc-800/50 p-3 4xs:p-4"
+              >
+                <div
+                  class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
+                >
+                  Last run
+                </div>
+                <div
+                  class="mt-1 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold text-zinc-100"
+                >
                   {{ stats.lastRunAt ? formatDate(stats.lastRunAt) : "-" }}
                 </div>
-                <div class="text-xs text-slate-500">
+                <div
+                  class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
+                >
                   {{ stats.lastStatus || "No runs yet" }}
                 </div>
               </div>
             </div>
           </div>
-        </UCard>
+        </div>
 
-        <UCard class="border-slate-200/70">
-          <div class="text-xs uppercase tracking-wider text-slate-400">
+        <div
+          class="rounded-xl 4xs:rounded-2xl border border-orange-500/30 bg-zinc-800/70 backdrop-blur-lg opacity-90 p-3 4xs:p-4 3xs:p-5"
+        >
+          <div
+            class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 uppercase tracking-wider text-zinc-100/60"
+          >
             Execution history
           </div>
-          <div class="mt-4">
-            <div v-if="executionsPending" class="text-sm text-slate-500">
+          <div class="mt-3 4xs:mt-4">
+            <div
+              v-if="executionsPending"
+              class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
+            >
               Loading executions...
             </div>
             <div
               v-else-if="executions && executions.length === 0"
-              class="text-sm text-slate-500"
+              class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
             >
               No executions yet.
             </div>
@@ -153,28 +257,38 @@
               <div
                 v-for="execution in executions"
                 :key="execution.id"
-                class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 px-3 py-2"
+                class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-orange-500/30 bg-zinc-800/50 px-3 py-2"
               >
                 <div>
-                  <div class="text-sm font-semibold text-slate-900">
+                  <div
+                    class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold text-zinc-100"
+                  >
                     {{ formatDate(execution.startedAt) }}
                   </div>
-                  <div class="text-xs text-slate-500">
+                  <div
+                    class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
+                  >
                     Steps: {{ execution.steps.length }}
                   </div>
                 </div>
                 <div class="flex items-center gap-2">
-                  <UBadge :color="badgeColor(execution.status)" variant="soft">
+                  <UBadge
+                    :color="badgeColor(execution.status)"
+                    variant="soft"
+                    :ui="{ root: 'ring-0' }"
+                  >
                     {{ execution.status }}
                   </UBadge>
-                  <span class="text-xs text-slate-500">
+                  <span
+                    class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
+                  >
                     {{ formatDuration(durationMs(execution)) }}
                   </span>
                 </div>
               </div>
             </div>
           </div>
-        </UCard>
+        </div>
       </div>
     </div>
   </div>

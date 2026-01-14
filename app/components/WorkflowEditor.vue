@@ -1,30 +1,39 @@
 <template>
-  <div class="space-y-4">
+  <div class="h-full flex flex-col space-y-3 4xs:space-y-4">
     <div
-      class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3"
+      class="flex flex-wrap items-center justify-between gap-3 rounded-xl 4xs:rounded-2xl border border-orange-500/30 bg-zinc-800/70 backdrop-blur-lg opacity-90 px-3 4xs:px-4 py-3"
     >
       <div class="flex flex-1 flex-wrap items-center gap-3">
         <UInput
           v-model="workflowName"
           placeholder="Workflow name"
           class="min-w-[220px] flex-1"
+          :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
         />
-        <div class="flex items-center gap-2 text-sm text-slate-500">
-          <USwitch v-model="workflowActive" />
+        <div
+          class="flex items-center gap-2 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
+        >
+          <USwitch v-model="workflowActive" :ui="{ root: 'ring-0' }" />
           <span>Active</span>
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <UBadge color="neutral" variant="subtle">
+        <UBadge color="neutral" variant="soft" :ui="{ root: 'ring-0' }">
           Trigger: {{ triggerLabel }}
         </UBadge>
-        <UButton
-          color="primary"
-          :loading="saving || loadingWorkflow"
+        <button
+          type="button"
+          :disabled="saving || loadingWorkflow"
+          class="rounded-md border border-orange-500 bg-orange-500 px-3 4xs:px-4 py-2 4xs:py-2.5 text-zinc-950 transition hover:brightness-110 disabled:opacity-50"
           @click="saveWorkflow"
         >
-          Save
-        </UButton>
+          <span
+            class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold"
+          >
+            <span v-if="saving || loadingWorkflow">Saving...</span>
+            <span v-else>Save</span>
+          </span>
+        </button>
       </div>
     </div>
 
@@ -34,6 +43,7 @@
       variant="soft"
       title="Save failed"
       :description="saveError"
+      :ui="{ root: 'ring-0' }"
     />
     <UAlert
       v-if="loadError"
@@ -41,6 +51,7 @@
       variant="soft"
       title="Load failed"
       :description="loadError"
+      :ui="{ root: 'ring-0' }"
     />
     <UAlert
       v-if="saveSuccess"
@@ -48,26 +59,27 @@
       variant="soft"
       title="Saved"
       :description="saveSuccess"
+      :ui="{ root: 'ring-0' }"
     />
 
     <div
-      class="flex h-[80vh] w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-50"
+      class="flex flex-1 min-h-0 w-full overflow-hidden rounded-xl 4xs:rounded-2xl border border-orange-500/30 bg-zinc-800/50"
     >
-      <aside class="w-64 border-r border-slate-200 bg-white p-4">
+      <aside class="flex w-64 flex-col border-r border-orange-500/30 bg-zinc-800/70 backdrop-blur-lg opacity-90 p-3 4xs:p-4">
         <div
-          class="text-xs font-semibold uppercase tracking-wider text-slate-400"
+          class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold uppercase tracking-wider text-zinc-100/60"
         >
           Blocks
         </div>
-        <div class="mt-4 space-y-2">
+        <div class="mt-3 4xs:mt-4 flex-1 overflow-y-auto space-y-2 pr-1">
           <div
             v-for="item in palette"
             :key="item.id"
-            class="group flex w-full select-none flex-col gap-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-white cursor-grab active:cursor-grabbing"
+            class="group flex w-full select-none flex-col gap-1 rounded-lg border px-2 4xs:px-3 py-2 text-left transition cursor-grab active:cursor-grabbing"
             :class="
               item.id === selectedPaletteId
-                ? 'border-emerald-400/70 bg-emerald-50'
-                : ''
+                ? 'border-orange-500/80 bg-zinc-800 text-zinc-100'
+                : 'border-orange-500/25 bg-zinc-800/50 text-zinc-100/90 hover:border-orange-500/70 hover:bg-zinc-800/80'
             "
             draggable="true"
             role="button"
@@ -79,52 +91,72 @@
             @keydown.space.prevent="addNodeFromPalette(item)"
           >
             <div class="flex items-center justify-between gap-2">
-              <span>{{ item.label }}</span>
-              <span class="text-xs uppercase text-slate-400">{{
-                item.role
-              }}</span>
+              <span
+                class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold"
+              >
+                {{ item.label }}
+              </span>
+              <span
+                class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 uppercase text-zinc-100/50"
+              >
+                {{ item.role }}
+              </span>
             </div>
-            <span class="text-xs font-normal text-slate-500">
+            <span
+              class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-normal text-zinc-100/70"
+            >
               {{ item.summary }}
             </span>
           </div>
         </div>
-        <div class="mt-6 rounded-lg border border-slate-200 bg-white p-3">
+        <div class="mt-4 4xs:mt-6 rounded-lg border border-orange-500/30 bg-zinc-800/50 p-3 max-h-[40vh] overflow-y-auto">
           <div
-            class="text-xs font-semibold uppercase tracking-wider text-slate-400"
+            class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold uppercase tracking-wider text-zinc-100/60"
           >
             Block details
           </div>
           <div v-if="selectedPalette" class="mt-2 space-y-2">
-            <div class="text-sm font-semibold text-slate-900">
+            <div
+              class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold text-zinc-100"
+            >
               {{ selectedPalette.label }}
             </div>
-            <p class="text-xs text-slate-600">
+            <p
+              class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
+            >
               {{ selectedPalette.details }}
             </p>
             <div
               v-if="selectedPalette.tips?.length"
-              class="space-y-1 text-xs text-slate-500"
+              class="space-y-1 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
             >
               <div v-for="tip in selectedPalette.tips" :key="tip">
                 - {{ tip }}
               </div>
             </div>
             <div class="flex flex-wrap items-center gap-2">
-              <UButton
-                size="xs"
-                color="primary"
-                variant="soft"
+              <button
+                type="button"
+                class="rounded-md border border-orange-500/30 bg-zinc-800/70 backdrop-blur-lg opacity-90 px-2 4xs:px-3 py-1.5 4xs:py-2 text-zinc-100 transition hover:border-orange-500/70 hover:bg-zinc-800/90"
                 @click="addNodeFromPalette(selectedPalette)"
               >
-                Add to canvas
-              </UButton>
-              <span class="text-[11px] text-slate-400">
+                <span
+                  class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold"
+                >
+                  Add to canvas
+                </span>
+              </button>
+              <span
+                class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/50"
+              >
                 Tip: drag to place it precisely.
               </span>
             </div>
           </div>
-          <div v-else class="mt-2 text-xs text-slate-500">
+          <div
+            v-else
+            class="mt-2 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
+          >
             Click a block to see what it does and how to configure it.
           </div>
         </div>
@@ -150,47 +182,61 @@
         </ClientOnly>
       </div>
 
-      <aside class="flex w-96 flex-col border-l border-slate-200 bg-white">
-        <div class="border-b border-slate-200 px-6 py-4">
+      <aside class="flex w-96 flex-col border-l border-orange-500/30 bg-zinc-800/70 backdrop-blur-lg opacity-90">
+        <div class="border-b border-orange-500/30 px-4 4xs:px-6 py-3 4xs:py-4">
           <div class="flex items-start justify-between gap-3">
             <div>
               <div
-                class="text-xs font-semibold uppercase tracking-wider text-slate-400"
+                class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold uppercase tracking-wider text-zinc-100/60"
               >
                 Node settings
               </div>
-              <div class="mt-1 text-lg font-semibold text-slate-900">
+              <div
+                class="mt-1 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold text-zinc-100"
+              >
                 {{ selectedLabel }}
               </div>
             </div>
-            <UButton
+            <button
               v-if="selectedNode"
-              color="red"
-              variant="soft"
-              size="xs"
+              type="button"
+              class="rounded-md border border-red-500/30 bg-red-500/20 backdrop-blur-lg opacity-90 px-2 4xs:px-3 py-1.5 4xs:py-2 text-red-400 transition hover:border-red-500/70 hover:bg-red-500/30"
               @click="removeSelectedNode"
             >
-              Delete
-            </UButton>
+              <span
+                class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold"
+              >
+                Delete
+              </span>
+            </button>
           </div>
         </div>
-        <div class="flex-1 space-y-4 overflow-y-auto px-6 py-4">
-          <div v-if="!selectedNode" class="text-sm text-slate-500">
+        <div class="flex-1 space-y-4 overflow-y-auto px-4 4xs:px-6 py-3 4xs:py-4">
+          <div
+            v-if="!selectedNode"
+            class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
+          >
             Select a node to edit its settings.
           </div>
 
           <template v-else>
             <div class="space-y-6" :key="selectedNodeId || 'empty'">
-              <div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
+              <div
+                class="rounded-lg border border-orange-500/30 bg-zinc-800/50 p-3"
+              >
                 <div
-                  class="text-[11px] font-semibold uppercase tracking-wider text-slate-400"
+                  class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold uppercase tracking-wider text-zinc-100/60"
                 >
                   About this block
                 </div>
-                <div class="mt-1 text-sm font-semibold text-slate-900">
+                <div
+                  class="mt-1 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold text-zinc-100"
+                >
                   {{ selectedHelp?.label || selectedLabel }}
                 </div>
-                <p class="mt-1 text-xs text-slate-600">
+                <p
+                  class="mt-1 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
+                >
                   {{
                     selectedHelp?.details ||
                     "Configure this block to control how it behaves."
@@ -198,7 +244,7 @@
                 </p>
                 <div
                   v-if="selectedHelp?.tips?.length"
-                  class="mt-2 space-y-1 text-xs text-slate-500"
+                  class="mt-2 space-y-1 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
                 >
                   <div v-for="tip in selectedHelp.tips" :key="tip">
                     - {{ tip }}
@@ -213,6 +259,7 @@
                       :model-value="webhookEndpoint"
                       placeholder="Save to generate the webhook URL"
                       readonly
+                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
                     />
                   </UFormField>
                   <div v-if="!workflowId" class="flex items-center gap-2">
@@ -221,11 +268,14 @@
                       color="primary"
                       variant="soft"
                       :loading="saving"
+                      :ui="{ root: 'ring-0' }"
                       @click="saveWorkflow"
                     >
                       Generate endpoint
                     </UButton>
-                    <span class="text-xs text-slate-500">
+                    <span
+                      class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
+                    >
                       Saving creates a stable URL for this trigger.
                     </span>
                   </div>
@@ -236,6 +286,7 @@
                     <UInput
                       :model-value="String(selectedConfig.cron ?? '')"
                       placeholder="*/5 * * * *"
+                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
                       @update:model-value="
                         (value) => updateTextConfig('cron', String(value))
                       "
@@ -245,6 +296,7 @@
                     <UInput
                       :model-value="String(selectedConfig.timezone ?? 'UTC')"
                       placeholder="UTC"
+                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
                       @update:model-value="
                         (value) => updateTextConfig('timezone', String(value))
                       "
@@ -258,6 +310,7 @@
                       :model-value="emailEndpoint"
                       placeholder="Save to generate the inbound endpoint"
                       readonly
+                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
                     />
                   </UFormField>
                   <div v-if="!workflowId" class="flex items-center gap-2">
@@ -266,15 +319,20 @@
                       color="primary"
                       variant="soft"
                       :loading="saving"
+                      :ui="{ root: 'ring-0' }"
                       @click="saveWorkflow"
                     >
                       Generate endpoint
                     </UButton>
-                    <span class="text-xs text-slate-500">
+                    <span
+                      class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
+                    >
                       Save once to get the inbound URL.
                     </span>
                   </div>
-                  <div class="text-xs text-slate-500">
+                  <div
+                    class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
+                  >
                     Configure your inbound email provider to POST to this URL.
                   </div>
                 </div>
@@ -289,6 +347,7 @@
                     <UInput
                       :model-value="String(selectedConfig.url ?? '')"
                       placeholder="https://api.example.com"
+                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
                       @update:model-value="
                         (value) => updateTextConfig('url', String(value))
                       "
@@ -298,6 +357,7 @@
                     <USelect
                       :items="httpMethods"
                       :model-value="String(selectedConfig.method ?? 'POST')"
+                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 focus:bg-zinc-800 focus:border-orange-500/50' }"
                       @update:model-value="
                         (value) => updateTextConfig('method', String(value))
                       "
@@ -309,6 +369,7 @@
                         formatJsonConfig(selectedConfig.headers, '{}')
                       "
                       placeholder='{"Authorization":"Bearer ..."}'
+                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
                       @update:model-value="
                         (value) => updateTextConfig('headers', String(value))
                       "
@@ -318,6 +379,7 @@
                     <UTextarea
                       :model-value="String(selectedConfig.body ?? '')"
                       placeholder='{"id":"123"}'
+                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
                       @update:model-value="
                         (value) => updateTextConfig('body', String(value))
                       "
@@ -330,6 +392,7 @@
                     <UInput
                       :model-value="String(selectedConfig.to ?? '')"
                       placeholder="user@example.com"
+                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
                       @update:model-value="
                         (value) => updateTextConfig('to', String(value))
                       "
@@ -339,6 +402,7 @@
                     <UInput
                       :model-value="String(selectedConfig.subject ?? '')"
                       placeholder="Workflow update"
+                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
                       @update:model-value="
                         (value) => updateTextConfig('subject', String(value))
                       "
@@ -348,6 +412,7 @@
                     <UTextarea
                       :model-value="String(selectedConfig.html ?? '')"
                       placeholder="<p>Hello!</p>"
+                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
                       @update:model-value="
                         (value) => updateTextConfig('html', String(value))
                       "
@@ -357,6 +422,7 @@
                     <UTextarea
                       :model-value="String(selectedConfig.text ?? '')"
                       placeholder="Plain text fallback"
+                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
                       @update:model-value="
                         (value) => updateTextConfig('text', String(value))
                       "
@@ -369,6 +435,7 @@
                     <UInput
                       :model-value="String(selectedConfig.botToken ?? '')"
                       placeholder="123456:ABC..."
+                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
                       @update:model-value="
                         (value) => updateTextConfig('botToken', String(value))
                       "
@@ -378,6 +445,7 @@
                     <UInput
                       :model-value="String(selectedConfig.chatId ?? '')"
                       placeholder="123456789"
+                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
                       @update:model-value="
                         (value) => updateTextConfig('chatId', String(value))
                       "
@@ -387,6 +455,7 @@
                     <UTextarea
                       :model-value="String(selectedConfig.message ?? '')"
                       placeholder="Workflow completed"
+                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
                       @update:model-value="
                         (value) => updateTextConfig('message', String(value))
                       "
@@ -398,6 +467,7 @@
                       :model-value="
                         String(selectedConfig.parseMode ?? 'Markdown')
                       "
+                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 focus:bg-zinc-800 focus:border-orange-500/50' }"
                       @update:model-value="
                         (value) => updateTextConfig('parseMode', String(value))
                       "
@@ -410,6 +480,7 @@
                     <UInput
                       :model-value="String(selectedConfig.model ?? '')"
                       placeholder="user"
+                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
                       @update:model-value="
                         (value) => updateTextConfig('model', String(value))
                       "
@@ -421,6 +492,7 @@
                       :model-value="
                         String(selectedConfig.operation ?? 'create')
                       "
+                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 focus:bg-zinc-800 focus:border-orange-500/50' }"
                       @update:model-value="
                         (value) => updateTextConfig('operation', String(value))
                       "
@@ -430,6 +502,7 @@
                     <UTextarea
                       :model-value="formatJsonConfig(selectedConfig.args, '{}')"
                       placeholder='{"data":{"email":"user@example.com"}}'
+                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
                       @update:model-value="
                         (value) => updateTextConfig('args', String(value))
                       "
@@ -445,6 +518,7 @@
                     <UTextarea
                       :model-value="String(selectedConfig.expression ?? '')"
                       placeholder="input.amount > 100"
+                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
                       @update:model-value="
                         (value) => updateTextConfig('expression', String(value))
                       "
@@ -456,6 +530,7 @@
                         formatJsonConfig(selectedConfig.mapping, '{}')
                       "
                       placeholder='{"total":"input.amount"}'
+                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
                       @update:model-value="
                         (value) => updateTextConfig('mapping', String(value))
                       "
@@ -463,8 +538,10 @@
                   </UFormField>
                 </div>
 
-                <div class="border-t border-slate-200 pt-4">
-                  <div class="text-sm font-semibold text-slate-700">
+                <div class="border-t border-orange-500/30 pt-4">
+                  <div
+                    class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold text-zinc-100"
+                  >
                     Error handling
                   </div>
                   <div class="mt-3 space-y-3">
@@ -472,6 +549,7 @@
                       <UInput
                         type="number"
                         :model-value="String(selectedConfig.retryCount ?? 0)"
+                        :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
                         @update:model-value="
                           (value) => updateNumberConfig('retryCount', value)
                         "
@@ -481,6 +559,7 @@
                       <UInput
                         type="number"
                         :model-value="String(selectedConfig.retryDelayMs ?? 0)"
+                        :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
                         @update:model-value="
                           (value) => updateNumberConfig('retryDelayMs', value)
                         "
@@ -490,6 +569,7 @@
                       <USelect
                         :items="errorModes"
                         :model-value="String(selectedConfig.onError ?? 'fail')"
+                        :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 focus:bg-zinc-800 focus:border-orange-500/50' }"
                         @update:model-value="
                           (value) => updateTextConfig('onError', String(value))
                         "
@@ -499,6 +579,7 @@
                       <UInput
                         :model-value="String(selectedConfig.notifyEmail ?? '')"
                         placeholder="alerts@example.com"
+                        :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
                         @update:model-value="
                           (value) =>
                             updateTextConfig('notifyEmail', String(value))

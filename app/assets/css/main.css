@@ -6,6 +6,14 @@
 @theme static {
   --font-sans: "Public Sans", sans-serif;
 
+  --breakpoint-4xs: 14rem;
+  --breakpoint-3xs: 20rem;
+  --breakpoint-2xs: 24rem;
+  --breakpoint-xs: 36rem;
+  --breakpoint-3xl: 128rem;
+  --breakpoint-4xl: 160rem;
+  --breakpoint-5xl: 200rem;
+
   --color-green-50: #effdf5;
   --color-green-100: #d9fbe8;
   --color-green-200: #b3f5d1;
@@ -20,9 +28,9 @@
 }
 
 .workflow-canvas {
-  background-color: #f8fafc;
+  background-color: rgb(24 24 27);
   background-image:
-    linear-gradient(to right, rgba(148, 163, 184, 0.2) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(148, 163, 184, 0.2) 1px, transparent 1px);
+    linear-gradient(to right, rgba(249, 115, 22, 0.15) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(249, 115, 22, 0.15) 1px, transparent 1px);
   background-size: 28px 28px;
 }
