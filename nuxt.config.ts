@@ -44,6 +44,7 @@ export default defineNuxtConfig({
       appUrl: process.env.APP_URL || "http://localhost:3000",
     },
   },
+
   nitro: {
     externals: {
       traceInclude: prismaTraceInclude,
@@ -52,7 +53,13 @@ export default defineNuxtConfig({
       external: [/^@prisma\//, /\.wasm$/],
     },
     prerender: {
+      crawlLinks: false,
       routes: []
+    },
+    esbuild: {
+      options: {
+        target: 'esnext'
+      }
     }
   },
   devtools: {
