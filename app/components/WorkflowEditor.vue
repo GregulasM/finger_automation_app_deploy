@@ -57,12 +57,12 @@
     <div
       class="flex flex-row flex-1 min-h-0 w-full overflow-hidden rounded-xl 4xs:rounded-2xl border border-orange-500/30 bg-zinc-800/50 relative"
     >
-      <!-- Mobile menu buttons -->
+      <!-- Mobile menu buttons with helper text -->
       <button
         v-if="!blocksMenuOpen"
         type="button"
         @click="blocksMenuOpen = true"
-        class="lg:hidden fixed left-2 top-1/2 -translate-y-1/2 z-30 rounded-md border border-orange-500/30 bg-zinc-800/90 px-2 py-2 text-zinc-100 hover:border-orange-500/70 hover:bg-zinc-800 transition"
+        class="lg:hidden fixed left-2 top-16 z-60 rounded-md border border-orange-500/30 bg-zinc-800/90 px-2 py-2 text-zinc-100 hover:border-orange-500/70 hover:bg-zinc-800 transition"
         aria-label="Open blocks menu"
       >
         <svg
@@ -79,7 +79,7 @@
         v-if="!nodeSettingsMenuOpen"
         type="button"
         @click="nodeSettingsMenuOpen = true"
-        class="lg:hidden fixed right-2 top-1/2 -translate-y-1/2 z-30 rounded-md border border-orange-500/30 bg-zinc-800/90 px-2 py-2 text-zinc-100 hover:border-orange-500/70 hover:bg-zinc-800 transition"
+        class="lg:hidden fixed right-2 top-16 z-60 rounded-md border border-orange-500/30 bg-zinc-800/90 px-2 py-2 text-zinc-100 hover:border-orange-500/70 hover:bg-zinc-800 transition"
         aria-label="Open node settings menu"
       >
         <svg
@@ -92,18 +92,34 @@
         </svg>
       </button>
 
+      <!-- Mobile helper hint (dismissible) -->
+      <div
+        v-if="!mobileHintDismissed"
+        class="lg:hidden fixed left-2 right-2 top-28 z-50 flex items-center gap-2 rounded-lg border border-orange-500/30 bg-zinc-900/95 px-3 py-2 text-zinc-100 text-[10px] xs:text-[11px] sm:text-xs shadow-lg"
+      >
+        <span class="flex-1">{{ t("editor.mobileHint") }}</span>
+        <button
+          @click="mobileHintDismissed = true"
+          class="flex-shrink-0 rounded p-1 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-100 transition-colors"
+          :aria-label="t('common.close')"
+        >
+          <UIcon name="i-lucide-x" class="w-4 h-4" />
+        </button>
+      </div>
+
       <!-- Overlay for mobile -->
       <div
         v-if="blocksMenuOpen || nodeSettingsMenuOpen"
-        class="lg:hidden fixed inset-0 bg-zinc-950/50 z-20"
+        class="lg:hidden fixed inset-0 bg-zinc-950/70 z-40"
         @click="blocksMenuOpen = false; nodeSettingsMenuOpen = false"
       ></div>
 
       <!-- Blocks sidebar -->
       <aside
         :class="[
-          'flex w-64 flex-shrink-0 flex-col border-r border-orange-500/30 bg-zinc-800/90 p-3 4xs:p-4',
-          'fixed lg:static inset-y-0 left-0 z-30 lg:z-auto',
+          'flex w-64 flex-shrink-0 flex-col border-r border-orange-500/30 bg-zinc-800 p-3 4xs:p-4',
+          'fixed lg:static left-0 bottom-0 z-50 lg:z-auto',
+          'top-10 4xs:top-10 3xs:top-11 2xs:top-12 xs:top-14 sm:top-16 md:top-20 lg:top-0 rounded-t-md',
           'transform transition-transform duration-300 ease-in-out',
           blocksMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         ]"
@@ -133,7 +149,7 @@
           <div
             v-for="item in translatedPalette"
             :key="item.id"
-            class="group flex w-full select-none flex-col gap-1 rounded-lg border px-2 4xs:px-3 py-2 text-left transition cursor-grab active:cursor-grabbing"
+            class="group flex w-full select-none flex-col gap-1 rounded-lg border px-2 4xs:px-3 py-2 text-left transition-colors cursor-grab active:cursor-grabbing hover:border-orange-500/50 hover:bg-zinc-700/50"
             :class="
               item.id === selectedPaletteId
                 ? 'border-orange-500/80 bg-zinc-800 text-zinc-100'
@@ -145,6 +161,7 @@
             @dragstart="onDragStart($event, palette.find(p => p.id === item.id)!)"
             @dragend="onDragEnd"
             @click="selectPalette(palette.find(p => p.id === item.id)!)"
+            @dblclick="addNodeFromPalette(palette.find(p => p.id === item.id)!)"
             @keydown.enter.prevent="addNodeFromPalette(palette.find(p => p.id === item.id)!)"
             @keydown.space.prevent="addNodeFromPalette(palette.find(p => p.id === item.id)!)"
           >
@@ -255,8 +272,7 @@
             :fit-view-on-init="true"
             :min-zoom="0.1"
             :max-zoom="2"
-            :snap-to-grid="true"
-            :snap-grid="[20, 20]"
+            :snap-to-grid="false"
             :only-render-visible-elements="true"
             @connect="onConnect"
             @node-click="onNodeClick"
@@ -268,8 +284,9 @@
       <!-- Node settings sidebar -->
       <aside
         :class="[
-          'flex w-80 flex-shrink-0 flex-col border-l border-orange-500/30 bg-zinc-800/90 max-w-[30vw] min-w-0',
-          'fixed lg:static inset-y-0 right-0 z-30 lg:z-auto',
+          'flex w-80 flex-shrink-0 flex-col border-l border-orange-500/30 bg-zinc-800 max-w-[30vw] min-w-0',
+          'fixed lg:static right-0 bottom-0 z-50 lg:z-auto',
+          'top-10 4xs:top-10 3xs:top-11 2xs:top-12 xs:top-14 sm:top-12 lg:top-0',
           'transform transition-transform duration-300 ease-in-out',
           nodeSettingsMenuOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'
         ]"
@@ -341,21 +358,21 @@
                 <div
                   class="mt-1 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold text-zinc-100"
                 >
-                  {{ selectedHelp?.label || selectedLabel }}
+                  {{ translatedSelectedHelp?.label || selectedLabel }}
                 </div>
                 <p
                   class="mt-1 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
                 >
                   {{
-                    selectedHelp?.details ||
+                    translatedSelectedHelp?.details ||
                     t("editor.configureBlock")
                   }}
                 </p>
                 <div
-                  v-if="selectedHelp?.tips?.length"
+                  v-if="translatedSelectedHelp?.tips?.length"
                   class="mt-2 space-y-1 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
                 >
-                  <div v-for="tip in selectedHelp.tips" :key="tip">
+                  <div v-for="tip in translatedSelectedHelp.tips" :key="tip">
                     - {{ tip }}
                   </div>
                 </div>
@@ -867,6 +884,7 @@ const draggingItem = ref<PaletteItem | null>(null);
 const blockDetailsExpanded = ref(true);
 const blocksMenuOpen = ref(false);
 const nodeSettingsMenuOpen = ref(false);
+const mobileHintDismissed = ref(false);
 
 // Стили для полей ввода - убираем ring ring-inset ring-accented в пассивном состоянии
 // При фокусе добавляем ring-2 для визуального отличия
@@ -963,6 +981,10 @@ const translatedPalette = computed(() =>
 
 const translatedSelectedPalette = computed(() => 
   selectedPalette.value ? getTranslatedPaletteItem(selectedPalette.value) : null
+);
+
+const translatedSelectedHelp = computed(() => 
+  selectedHelp.value ? getTranslatedPaletteItem(selectedHelp.value) : null
 );
 
 const triggerLabel = computed(() => {
@@ -1212,6 +1234,9 @@ function createNodeFromPalette(
   return nodeId;
 }
 
+// Счетчик для смещения новых узлов
+let nodeAddOffset = 0;
+
 function addNodeFromPalette(item: PaletteItem) {
   selectPalette(item);
   if (!flowWrapper.value) {
@@ -1219,9 +1244,14 @@ function addNodeFromPalette(item: PaletteItem) {
   }
 
   const bounds = flowWrapper.value.getBoundingClientRect();
+  
+  // Смещаем каждый новый узел, чтобы они не накладывались
+  const offset = nodeAddOffset * 40;
+  nodeAddOffset = (nodeAddOffset + 1) % 10; // Сбрасываем после 10 узлов
+  
   const position = project({
-    x: bounds.width / 2,
-    y: bounds.height / 2,
+    x: bounds.width / 2 + offset,
+    y: bounds.height / 2 + offset,
   });
 
   const nodeId = createNodeFromPalette(item, position);
@@ -1314,6 +1344,11 @@ function onNodeClick(
     return;
   }
   selectedNodeId.value = String(node.id);
+  
+  // Open right panel on mobile when node is clicked
+  if (typeof window !== "undefined" && window.innerWidth < 1024) {
+    nodeSettingsMenuOpen.value = true;
+  }
 }
 
 function clearSelection() {
@@ -1580,11 +1615,32 @@ function getErrorMessage(error: unknown) {
 :deep(.vue-flow__node.selectable) {
   background-color: rgb(249 115 22) !important; /* bg-orange-500 */
   color: rgb(9 9 11) !important; /* text-zinc-950 */
+  border-radius: 8px !important;
+  padding: 10px 16px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: background-color 0.15s ease !important;
+}
+
+/* Hover - только изменение цвета */
+:deep(.vue-flow__node:hover) {
+  background-color: rgb(251, 146, 60) !important; /* orange-400 */
+}
+
+/* Выбранный узел */
+:deep(.vue-flow__node.selected) {
+  background-color: rgb(234, 88, 12) !important; /* orange-600 */
 }
 
 /* Стили для текста внутри узлов */
 :deep(.vue-flow__node *),
 :deep(.vue-flow__node.vue-flow__node-default *) {
   color: rgb(9 9 11) !important; /* text-zinc-950 */
+}
+
+/* Стили для соединений */
+:deep(.vue-flow__edge-path) {
+  stroke: rgb(249 115 22) !important;
+  stroke-width: 2px !important;
 }
 </style>

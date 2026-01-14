@@ -18,6 +18,7 @@ export const useI18n = () => {
       "common.new": "New",
       "common.home": "Home",
       "common.editor": "Editor",
+      "common.close": "Close",
 
       // Navigation
       "nav.home": "Home",
@@ -81,6 +82,7 @@ export const useI18n = () => {
       "editor.blockDetails": "Block details",
       "editor.addToCanvas": "Add to canvas",
       "editor.tipDrag": "Tip: drag to place it precisely.",
+      "editor.mobileHint": "Open the blocks menu to drag blocks onto the canvas or tap a block and use \"Add to canvas\".",
       "editor.clickBlock": "Click a block to see what it does and how to configure it.",
       "editor.nodeSettings": "Node settings",
       "editor.delete": "Delete",
@@ -202,6 +204,7 @@ export const useI18n = () => {
       "common.new": "Новый",
       "common.home": "Главная",
       "common.editor": "Редактор",
+      "common.close": "Закрыть",
 
       // Navigation
       "nav.home": "Главная",
@@ -265,6 +268,7 @@ export const useI18n = () => {
       "editor.blockDetails": "Детали блока",
       "editor.addToCanvas": "Добавить на холст",
       "editor.tipDrag": "Подсказка: перетащите для точного размещения.",
+      "editor.mobileHint": "Откройте меню блоков, перетащите блоки на холст или нажмите «Добавить на холст» в деталях блока.",
       "editor.clickBlock": "Нажмите на блок, чтобы увидеть, что он делает и как его настроить.",
       "editor.nodeSettings": "Настройки узла",
       "editor.delete": "Удалить",
