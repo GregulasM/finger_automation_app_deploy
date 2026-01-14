@@ -429,35 +429,106 @@
               </div>
 
               <div v-if="selectedRole === 'trigger'" class="space-y-4">
-                <div v-if="selectedType === 'Webhook'" class="space-y-3">
+                <!-- Webhook Trigger -->
+                <div v-if="selectedType === 'Webhook'" class="space-y-4">
+                  <!-- How it works -->
+                  <div class="rounded-lg border border-cyan-500/20 bg-cyan-500/5 p-3">
+                    <div class="flex items-start gap-2">
+                      <svg class="h-4 w-4 text-cyan-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                      <div class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]">
+                        <div class="font-semibold text-cyan-400 mb-1">{{ t('editor.webhook.howItWorks') }}</div>
+                        {{ t('editor.webhook.description') }}
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Webhook URL -->
                   <UFormField :label="t('editor.webhookUrl')" :ui="formFieldStyles">
-                    <UInput
-                      :model-value="webhookEndpoint"
-                      :placeholder="t('editor.saveToGenerateWebhook')"
-                      readonly
-                      :ui="inputStyles"
-                    />
+                    <div class="flex gap-2">
+                      <UInput
+                        :model-value="webhookEndpoint"
+                        :placeholder="t('editor.saveToGenerateWebhook')"
+                        readonly
+                        :ui="inputStyles"
+                        class="flex-1"
+                      />
+                      <button
+                        v-if="webhookEndpoint"
+                        type="button"
+                        class="px-3 py-2 rounded-md border border-orange-500/50 bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 transition text-[9px] xs:text-[10px] font-semibold"
+                        @click="copyToClipboard(webhookEndpoint)"
+                      >
+                        {{ clipboardCopied === 'webhook' ? '✓' : t('editor.webhook.copy') }}
+                      </button>
+                    </div>
+                    <template #hint>
+                      <span class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]">
+                        {{ t('editor.webhook.urlHint') }}
+                      </span>
+                    </template>
                   </UFormField>
-                  <div v-if="!workflowId" class="flex items-center gap-2">
-                    <UButton
-                      size="xs"
-                      color="primary"
-                      variant="soft"
-                      :loading="saving"
-                      :ui="{ root: 'ring-0' }"
+
+                  <!-- Generate button if no ID -->
+                  <div v-if="!workflowId" class="flex items-center gap-3">
+                    <button
+                      type="button"
+                      :disabled="saving"
+                      class="rounded-md border border-orange-500 bg-orange-500 px-4 py-2 text-zinc-950 transition hover:brightness-110 disabled:opacity-50"
                       @click="saveWorkflow"
                     >
-                      {{ t("editor.generateEndpoint") }}
-                    </UButton>
-                    <span
-                      class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
-                    >
-                      {{ t("editor.savingCreatesUrl") }}
+                      <span class="text-[9px] xs:text-[10px] sm:text-[11px] font-semibold">
+                        {{ saving ? t('editor.saving') : t('editor.webhook.generate') }}
+                      </span>
+                    </button>
+                    <span class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]">
+                      {{ t('editor.webhook.saveFirst') }}
                     </span>
+                  </div>
+
+                  <!-- Usage examples -->
+                  <div class="rounded-lg border border-orange-500/20 bg-zinc-900/50 p-3">
+                    <div class="text-[9px] xs:text-[10px] sm:text-[11px] font-semibold text-zinc-400 mb-2">
+                      {{ t('editor.webhook.usageExamples') }}
+                    </div>
+                    <div class="space-y-2">
+                      <div class="text-[8px] xs:text-[9px] text-zinc-500">cURL:</div>
+                      <code class="block text-[8px] xs:text-[9px] text-orange-400 font-mono bg-zinc-800/50 p-2 rounded break-all">
+                        curl -X POST {{ webhookEndpoint || 'YOUR_URL' }} -H "Content-Type: application/json" -d '{"data": "test"}'
+                      </code>
+                    </div>
+                  </div>
+
+                  <!-- Data flow info -->
+                  <div class="rounded-lg border border-green-500/20 bg-green-500/5 p-3">
+                    <div class="flex items-start gap-2">
+                      <svg class="h-4 w-4 text-green-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]">
+                        {{ t('editor.webhook.dataFlowHint') }}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                <div v-if="selectedType === 'Schedule'" class="space-y-3">
+                <!-- Schedule Trigger -->
+                <div v-if="selectedType === 'Schedule'" class="space-y-4">
+                  <!-- How it works -->
+                  <div class="rounded-lg border border-cyan-500/20 bg-cyan-500/5 p-3">
+                    <div class="flex items-start gap-2">
+                      <svg class="h-4 w-4 text-cyan-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <div class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]">
+                        <div class="font-semibold text-cyan-400 mb-1">{{ t('editor.schedule.howItWorks') }}</div>
+                        {{ t('editor.schedule.description') }}
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Cron Expression -->
                   <UFormField :label="t('editor.cronExpression')" :ui="formFieldStyles">
                     <UInput
                       :model-value="String(selectedConfig.cron ?? '')"
@@ -467,143 +538,448 @@
                         (value) => updateTextConfig('cron', String(value))
                       "
                     />
+                    <template #hint>
+                      <span class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]">
+                        {{ t('editor.schedule.cronHint') }}
+                      </span>
+                    </template>
                   </UFormField>
+
+                  <!-- Quick cron presets -->
+                  <div class="flex flex-wrap gap-1">
+                    <button
+                      v-for="preset in cronPresets"
+                      :key="preset.value"
+                      type="button"
+                      class="px-2 py-1 rounded text-[8px] xs:text-[9px] font-semibold transition-colors"
+                      :class="String(selectedConfig.cron ?? '') === preset.value
+                        ? 'bg-orange-500 text-zinc-950'
+                        : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'"
+                      @click="updateTextConfig('cron', preset.value)"
+                    >
+                      {{ preset.label }}
+                    </button>
+                  </div>
+
+                  <!-- Cron format explanation -->
+                  <div class="rounded-lg border border-orange-500/20 bg-zinc-900/50 p-3">
+                    <div class="text-[9px] xs:text-[10px] sm:text-[11px] font-semibold text-zinc-400 mb-2">
+                      {{ t('editor.schedule.cronFormat') }}
+                    </div>
+                    <div class="font-mono text-[9px] xs:text-[10px] text-orange-400 mb-2">
+                      ┌───────────── {{ t('editor.schedule.minute') }} (0-59)<br>
+                      │ ┌─────────── {{ t('editor.schedule.hour') }} (0-23)<br>
+                      │ │ ┌───────── {{ t('editor.schedule.dayMonth') }} (1-31)<br>
+                      │ │ │ ┌─────── {{ t('editor.schedule.month') }} (1-12)<br>
+                      │ │ │ │ ┌───── {{ t('editor.schedule.dayWeek') }} (0-6)<br>
+                      * * * * *
+                    </div>
+                    <div class="text-zinc-500 text-[8px] xs:text-[9px] space-y-1">
+                      <div><code class="text-orange-400">*</code> — {{ t('editor.schedule.any') }}</div>
+                      <div><code class="text-orange-400">*/5</code> — {{ t('editor.schedule.every5') }}</div>
+                      <div><code class="text-orange-400">0,30</code> — {{ t('editor.schedule.specific') }}</div>
+                    </div>
+                  </div>
+
+                  <!-- Timezone -->
                   <UFormField :label="t('editor.timezone')" :ui="formFieldStyles">
-                    <UInput
-                      :model-value="String(selectedConfig.timezone ?? 'UTC')"
-                      placeholder="UTC"
-                      :ui="inputStyles"
-                      @update:model-value="
-                        (value) => updateTextConfig('timezone', String(value))
-                      "
-                    />
+                    <div class="flex gap-2">
+                      <UInput
+                        :model-value="String(selectedConfig.timezone ?? 'UTC')"
+                        placeholder="UTC"
+                        :ui="inputStyles"
+                        class="flex-1"
+                        @update:model-value="
+                          (value) => updateTextConfig('timezone', String(value))
+                        "
+                      />
+                    </div>
+                    <template #hint>
+                      <span class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]">
+                        {{ t('editor.schedule.timezoneHint') }}
+                      </span>
+                    </template>
                   </UFormField>
+
+                  <!-- Common timezones -->
+                  <div class="flex flex-wrap gap-1">
+                    <button
+                      v-for="tz in commonTimezones"
+                      :key="tz"
+                      type="button"
+                      class="px-2 py-1 rounded text-[8px] xs:text-[9px] font-semibold transition-colors"
+                      :class="String(selectedConfig.timezone ?? 'UTC') === tz
+                        ? 'bg-orange-500 text-zinc-950'
+                        : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'"
+                      @click="updateTextConfig('timezone', tz)"
+                    >
+                      {{ tz }}
+                    </button>
+                  </div>
+
+                  <!-- Next run preview -->
+                  <div class="rounded-lg border border-green-500/20 bg-green-500/5 p-3">
+                    <div class="flex items-start gap-2">
+                      <svg class="h-4 w-4 text-green-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]">
+                        {{ t('editor.schedule.dataFlowHint') }}
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
-                <div v-if="selectedType === 'Email'" class="space-y-3">
+                <!-- Email Trigger -->
+                <div v-if="selectedType === 'Email'" class="space-y-4">
+                  <!-- How it works -->
+                  <div class="rounded-lg border border-cyan-500/20 bg-cyan-500/5 p-3">
+                    <div class="flex items-start gap-2">
+                      <svg class="h-4 w-4 text-cyan-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                      <div class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]">
+                        <div class="font-semibold text-cyan-400 mb-1">{{ t('editor.emailTrigger.howItWorks') }}</div>
+                        {{ t('editor.emailTrigger.description') }}
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Inbound Email Endpoint -->
                   <UFormField :label="t('editor.inboundEmailEndpoint')" :ui="formFieldStyles">
-                    <UInput
-                      :model-value="emailEndpoint"
-                      :placeholder="t('editor.saveToGenerateEmail')"
-                      readonly
-                      :ui="inputStyles"
-                    />
+                    <div class="flex gap-2">
+                      <UInput
+                        :model-value="emailEndpoint"
+                        :placeholder="t('editor.saveToGenerateEmail')"
+                        readonly
+                        :ui="inputStyles"
+                        class="flex-1"
+                      />
+                      <button
+                        v-if="emailEndpoint"
+                        type="button"
+                        class="px-3 py-2 rounded-md border border-orange-500/50 bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 transition text-[9px] xs:text-[10px] font-semibold"
+                        @click="copyToClipboard(emailEndpoint, 'email')"
+                      >
+                        {{ clipboardCopied === 'email' ? '✓' : t('editor.webhook.copy') }}
+                      </button>
+                    </div>
+                    <template #hint>
+                      <span class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]">
+                        {{ t('editor.emailTrigger.endpointHint') }}
+                      </span>
+                    </template>
                   </UFormField>
-                  <div v-if="!workflowId" class="flex items-center gap-2">
-                    <UButton
-                      size="xs"
-                      color="primary"
-                      variant="soft"
-                      :loading="saving"
-                      :ui="{ root: 'ring-0' }"
+
+                  <!-- Generate button if no ID -->
+                  <div v-if="!workflowId" class="flex items-center gap-3">
+                    <button
+                      type="button"
+                      :disabled="saving"
+                      class="rounded-md border border-orange-500 bg-orange-500 px-4 py-2 text-zinc-950 transition hover:brightness-110 disabled:opacity-50"
                       @click="saveWorkflow"
                     >
-                      {{ t("editor.generateEndpoint") }}
-                    </UButton>
-                    <span
-                      class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
-                    >
-                      {{ t("editor.saveOnceForUrl") }}
+                      <span class="text-[9px] xs:text-[10px] sm:text-[11px] font-semibold">
+                        {{ saving ? t('editor.saving') : t('editor.webhook.generate') }}
+                      </span>
+                    </button>
+                    <span class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]">
+                      {{ t('editor.emailTrigger.saveFirst') }}
                     </span>
                   </div>
-                  <div
-                    class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
-                  >
-                    {{ t("editor.configureEmailProvider") }}
+
+                  <!-- Setup instructions -->
+                  <div class="rounded-lg border border-orange-500/20 bg-zinc-900/50 p-3">
+                    <div class="text-[9px] xs:text-[10px] sm:text-[11px] font-semibold text-zinc-400 mb-2">
+                      {{ t('editor.emailTrigger.setupTitle') }}
+                    </div>
+                    <ol class="text-zinc-500 text-[8px] xs:text-[9px] space-y-1 list-decimal list-inside">
+                      <li>{{ t('editor.emailTrigger.step1') }}</li>
+                      <li>{{ t('editor.emailTrigger.step2') }}</li>
+                      <li>{{ t('editor.emailTrigger.step3') }}</li>
+                    </ol>
+                  </div>
+
+                  <!-- Supported providers -->
+                  <div class="rounded-lg border border-zinc-700 bg-zinc-800/50 p-3">
+                    <div class="text-[9px] xs:text-[10px] sm:text-[11px] font-semibold text-zinc-400 mb-2">
+                      {{ t('editor.emailTrigger.supportedProviders') }}
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                      <span class="px-2 py-1 rounded bg-zinc-700 text-zinc-300 text-[8px] xs:text-[9px]">SendGrid</span>
+                      <span class="px-2 py-1 rounded bg-zinc-700 text-zinc-300 text-[8px] xs:text-[9px]">Mailgun</span>
+                      <span class="px-2 py-1 rounded bg-zinc-700 text-zinc-300 text-[8px] xs:text-[9px]">Postmark</span>
+                      <span class="px-2 py-1 rounded bg-zinc-700 text-zinc-300 text-[8px] xs:text-[9px]">Amazon SES</span>
+                    </div>
+                  </div>
+
+                  <!-- Data received info -->
+                  <div class="rounded-lg border border-green-500/20 bg-green-500/5 p-3">
+                    <div class="flex items-start gap-2">
+                      <svg class="h-4 w-4 text-green-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]">
+                        {{ t('editor.emailTrigger.dataFlowHint') }}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
 
               <div v-if="selectedRole === 'action'" class="space-y-6">
+                <!-- HTTP Request Action -->
                 <div
                   v-if="selectedActionType === 'HTTP Request'"
                   class="space-y-4"
                 >
+                  <!-- URL -->
                   <UFormField :label="t('editor.url')" :ui="formFieldStyles">
                     <UInput
                       :model-value="String(selectedConfig.url ?? '')"
-                      placeholder="https://api.example.com"
+                      placeholder="https://api.example.com/endpoint"
                       :ui="inputStyles"
                       @update:model-value="
                         (value) => updateTextConfig('url', String(value))
                       "
                     />
+                    <template #hint>
+                      <span class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]">
+                        {{ t('editor.http.urlHint') }}
+                      </span>
+                    </template>
                   </UFormField>
+
+                  <!-- Method -->
                   <UFormField :label="t('editor.method')" :ui="formFieldStyles">
-                    <USelect
-                      :items="httpMethods"
-                      :model-value="String(selectedConfig.method ?? 'POST')"
-                      :ui="selectStyles"
-                      @update:model-value="
-                        (value) => updateTextConfig('method', String(value))
-                      "
-                    />
+                    <div class="flex gap-1 flex-wrap">
+                      <button
+                        v-for="method in httpMethods"
+                        :key="method"
+                        type="button"
+                        class="px-3 py-1.5 rounded text-[9px] xs:text-[10px] sm:text-[11px] font-semibold transition-colors"
+                        :class="String(selectedConfig.method ?? 'POST') === method
+                          ? 'bg-orange-500 text-zinc-950'
+                          : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'"
+                        @click="updateTextConfig('method', method)"
+                      >
+                        {{ method }}
+                      </button>
+                    </div>
+                    <template #hint>
+                      <span class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]">
+                        {{ t('editor.http.methodHint') }}
+                      </span>
+                    </template>
                   </UFormField>
+
+                  <!-- Headers -->
                   <UFormField :label="t('editor.headers')" :ui="formFieldStyles">
                     <UTextarea
-                      :model-value="
-                        formatJsonConfig(selectedConfig.headers, '{}')
-                      "
-                      placeholder='{"Authorization":"Bearer ..."}'
+                      :model-value="formatJsonConfig(selectedConfig.headers, '{}')"
+                      :placeholder="t('editor.http.headersPlaceholder')"
                       :ui="textareaStyles"
+                      :rows="3"
                       @update:model-value="
                         (value) => updateTextConfig('headers', String(value))
                       "
                     />
+                    <template #hint>
+                      <span class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]">
+                        {{ t('editor.http.headersHint') }}
+                      </span>
+                    </template>
                   </UFormField>
+
+                  <!-- Body -->
                   <UFormField :label="t('editor.body')" :ui="formFieldStyles">
                     <UTextarea
                       :model-value="String(selectedConfig.body ?? '')"
-                      placeholder='{"id":"123"}'
+                      :placeholder="t('editor.http.bodyPlaceholder')"
                       :ui="textareaStyles"
+                      :rows="4"
                       @update:model-value="
                         (value) => updateTextConfig('body', String(value))
                       "
                     />
+                    <template #hint>
+                      <span class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]">
+                        {{ t('editor.http.bodyHint') }}
+                      </span>
+                    </template>
                   </UFormField>
+
+                  <!-- Test HTTP Request -->
+                  <div class="flex flex-col gap-3 pt-2">
+                    <div class="flex items-center gap-3">
+                      <button
+                        type="button"
+                        :disabled="!canTestHttp || httpTesting"
+                        class="rounded-md border border-cyan-500/50 bg-cyan-500/20 px-3 py-2 text-cyan-400 transition hover:bg-cyan-500/30 hover:border-cyan-500 disabled:opacity-40 disabled:cursor-not-allowed"
+                        @click="testHttpRequest"
+                      >
+                        <span class="text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs font-semibold flex items-center gap-2">
+                          <svg v-if="httpTesting" class="animate-spin h-3 w-3" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          <svg v-else class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                          </svg>
+                          {{ httpTesting ? t('editor.http.testing') : t('editor.http.testRequest') }}
+                        </span>
+                      </button>
+                    </div>
+
+                    <!-- HTTP Response Preview -->
+                    <div 
+                      v-if="httpTestResult"
+                      class="rounded-lg border p-3 text-[9px] xs:text-[10px] sm:text-[11px]"
+                      :class="httpTestResult.ok 
+                        ? 'border-green-500/30 bg-green-500/10' 
+                        : 'border-red-500/30 bg-red-500/10'"
+                    >
+                      <div class="flex items-center gap-2 mb-2">
+                        <span 
+                          class="px-2 py-0.5 rounded font-mono font-bold"
+                          :class="httpTestResult.ok ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'"
+                        >
+                          {{ httpTestResult.status }}
+                        </span>
+                        <span :class="httpTestResult.ok ? 'text-green-400' : 'text-red-400'">
+                          {{ httpTestResult.ok ? t('editor.http.success') : t('editor.http.failed') }}
+                        </span>
+                      </div>
+                      <pre class="text-zinc-300 whitespace-pre-wrap break-all max-h-32 overflow-auto font-mono text-[8px] xs:text-[9px]">{{ httpTestResult.data }}</pre>
+                    </div>
+                  </div>
                 </div>
 
+                <!-- Email Action -->
                 <div v-if="selectedActionType === 'Email'" class="space-y-4">
+                  <!-- Recipient -->
                   <UFormField :label="t('editor.to')" :ui="formFieldStyles">
                     <UInput
                       :model-value="String(selectedConfig.to ?? '')"
                       placeholder="user@example.com"
+                      type="email"
                       :ui="inputStyles"
                       @update:model-value="
                         (value) => updateTextConfig('to', String(value))
                       "
                     />
+                    <template #hint>
+                      <span class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]">
+                        {{ t('editor.email.toHint') }}
+                      </span>
+                    </template>
                   </UFormField>
+
+                  <!-- Subject -->
                   <UFormField :label="t('editor.subject')" :ui="formFieldStyles">
                     <UInput
                       :model-value="String(selectedConfig.subject ?? '')"
-                      placeholder="Workflow update"
+                      :placeholder="t('editor.email.subjectPlaceholder')"
                       :ui="inputStyles"
                       @update:model-value="
                         (value) => updateTextConfig('subject', String(value))
                       "
                     />
+                    <template #hint>
+                      <span class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]">
+                        {{ t('editor.email.subjectHint') }}
+                      </span>
+                    </template>
                   </UFormField>
-                  <UFormField :label="t('editor.html')" :ui="formFieldStyles">
+
+                  <!-- Content Type Toggle -->
+                  <div class="flex items-center gap-3">
+                    <span class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px] font-semibold">
+                      {{ t('editor.email.contentType') }}:
+                    </span>
+                    <div class="flex gap-1">
+                      <button
+                        type="button"
+                        class="px-2 py-1 rounded text-[9px] xs:text-[10px] font-semibold transition-colors"
+                        :class="emailContentMode === 'html' ? 'bg-orange-500 text-zinc-950' : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'"
+                        @click="emailContentMode = 'html'"
+                      >
+                        HTML
+                      </button>
+                      <button
+                        type="button"
+                        class="px-2 py-1 rounded text-[9px] xs:text-[10px] font-semibold transition-colors"
+                        :class="emailContentMode === 'text' ? 'bg-orange-500 text-zinc-950' : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'"
+                        @click="emailContentMode = 'text'"
+                      >
+                        Text
+                      </button>
+                      <button
+                        type="button"
+                        class="px-2 py-1 rounded text-[9px] xs:text-[10px] font-semibold transition-colors"
+                        :class="emailContentMode === 'both' ? 'bg-orange-500 text-zinc-950' : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'"
+                        @click="emailContentMode = 'both'"
+                      >
+                        {{ t('editor.email.both') }}
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- HTML Content -->
+                  <UFormField 
+                    v-if="emailContentMode === 'html' || emailContentMode === 'both'" 
+                    :label="t('editor.html')" 
+                    :ui="formFieldStyles"
+                  >
                     <UTextarea
                       :model-value="String(selectedConfig.html ?? '')"
-                      placeholder="<p>Hello!</p>"
+                      :placeholder="t('editor.email.htmlPlaceholder')"
                       :ui="textareaStyles"
+                      :rows="5"
                       @update:model-value="
                         (value) => updateTextConfig('html', String(value))
                       "
                     />
+                    <template #hint>
+                      <span class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]">
+                        {{ t('editor.email.htmlHint') }}
+                      </span>
+                    </template>
                   </UFormField>
-                  <UFormField :label="t('editor.text')" :ui="formFieldStyles">
+
+                  <!-- Text Content -->
+                  <UFormField 
+                    v-if="emailContentMode === 'text' || emailContentMode === 'both'" 
+                    :label="t('editor.text')" 
+                    :ui="formFieldStyles"
+                  >
                     <UTextarea
                       :model-value="String(selectedConfig.text ?? '')"
-                      placeholder="Plain text fallback"
+                      :placeholder="t('editor.email.textPlaceholder')"
                       :ui="textareaStyles"
+                      :rows="4"
                       @update:model-value="
                         (value) => updateTextConfig('text', String(value))
                       "
                     />
+                    <template #hint>
+                      <span class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]">
+                        {{ t('editor.email.textHint') }}
+                      </span>
+                    </template>
                   </UFormField>
+
+                  <!-- Auto-send info -->
+                  <div class="rounded-lg border border-orange-500/20 bg-zinc-900/50 p-3">
+                    <div class="flex items-start gap-2">
+                      <svg class="h-4 w-4 text-orange-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]">
+                        {{ t('editor.email.autoContentHint') }}
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
                 <div v-if="selectedActionType === 'Telegram'" class="space-y-4">
@@ -735,67 +1111,250 @@
                   </div>
                 </div>
 
+                <!-- Database Action -->
                 <div v-if="selectedActionType === 'Database'" class="space-y-4">
+                  <!-- Model Selection -->
                   <UFormField :label="t('editor.model')" :ui="formFieldStyles">
+                    <div class="flex flex-wrap gap-1 mb-2">
+                      <button
+                        v-for="model in availableDbModels"
+                        :key="model.value"
+                        type="button"
+                        class="px-2 py-1 rounded text-[9px] xs:text-[10px] font-semibold transition-colors"
+                        :class="String(selectedConfig.model ?? '') === model.value
+                          ? 'bg-orange-500 text-zinc-950'
+                          : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'"
+                        @click="updateTextConfig('model', model.value)"
+                      >
+                        {{ model.label }}
+                      </button>
+                    </div>
                     <UInput
                       :model-value="String(selectedConfig.model ?? '')"
-                      placeholder="user"
+                      :placeholder="t('editor.db.modelPlaceholder')"
                       :ui="inputStyles"
                       @update:model-value="
                         (value) => updateTextConfig('model', String(value))
                       "
                     />
+                    <template #hint>
+                      <span class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]">
+                        {{ t('editor.db.modelHint') }}
+                      </span>
+                    </template>
                   </UFormField>
+
+                  <!-- Operation Selection -->
                   <UFormField :label="t('editor.operation')" :ui="formFieldStyles">
-                    <USelect
-                      :items="dbOperations"
-                      :model-value="
-                        String(selectedConfig.operation ?? 'create')
-                      "
-                      :ui="selectStyles"
-                      @update:model-value="
-                        (value) => updateTextConfig('operation', String(value))
-                      "
-                    />
+                    <div class="grid grid-cols-3 gap-1">
+                      <button
+                        v-for="op in dbOperationsWithDesc"
+                        :key="op.value"
+                        type="button"
+                        class="flex flex-col items-start px-2 py-1.5 rounded text-left transition-colors"
+                        :class="String(selectedConfig.operation ?? 'create') === op.value
+                          ? 'bg-orange-500 text-zinc-950'
+                          : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'"
+                        @click="updateTextConfig('operation', op.value); updateDbArgsTemplate(op.value)"
+                      >
+                        <span class="text-[9px] xs:text-[10px] font-bold">{{ op.label }}</span>
+                        <span class="text-[7px] xs:text-[8px] opacity-70">{{ op.desc }}</span>
+                      </button>
+                    </div>
                   </UFormField>
+
+                  <!-- Args with template -->
                   <UFormField :label="t('editor.args')" :ui="formFieldStyles">
                     <UTextarea
                       :model-value="formatJsonConfig(selectedConfig.args, '{}')"
-                      placeholder='{"data":{"email":"user@example.com"}}'
+                      :placeholder="getDbArgsPlaceholder(String(selectedConfig.operation ?? 'create'))"
                       :ui="textareaStyles"
+                      :rows="6"
                       @update:model-value="
                         (value) => updateTextConfig('args', String(value))
                       "
                     />
+                    <template #hint>
+                      <span class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]">
+                        {{ t('editor.db.argsHint') }}
+                      </span>
+                    </template>
                   </UFormField>
+
+                  <!-- Args Template Helper -->
+                  <div class="rounded-lg border border-orange-500/20 bg-zinc-900/50 p-3">
+                    <div class="text-[9px] xs:text-[10px] sm:text-[11px] font-semibold text-zinc-400 mb-2">
+                      {{ t('editor.db.exampleFor') }} {{ selectedConfig.operation ?? 'create' }}:
+                    </div>
+                    <pre class="text-zinc-300 text-[8px] xs:text-[9px] font-mono whitespace-pre-wrap">{{ getDbArgsExample(String(selectedConfig.operation ?? 'create')) }}</pre>
+                    <button
+                      type="button"
+                      class="mt-2 text-[9px] xs:text-[10px] text-orange-400 hover:text-orange-300 underline"
+                      @click="applyDbArgsTemplate(String(selectedConfig.operation ?? 'create'))"
+                    >
+                      {{ t('editor.db.useTemplate') }}
+                    </button>
+                  </div>
+
+                  <!-- Auto-data info -->
+                  <div class="rounded-lg border border-cyan-500/20 bg-cyan-500/5 p-3">
+                    <div class="flex items-start gap-2">
+                      <svg class="h-4 w-4 text-cyan-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]">
+                        {{ t('editor.db.autoDataHint') }}
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
+                <!-- Transformation Action -->
                 <div
                   v-if="selectedActionType === 'Transformation'"
                   class="space-y-4"
                 >
-                  <UFormField :label="t('editor.expression')" :ui="formFieldStyles">
-                    <UTextarea
-                      :model-value="String(selectedConfig.expression ?? '')"
-                      placeholder="input.amount > 100"
-                      :ui="textareaStyles"
-                      @update:model-value="
-                        (value) => updateTextConfig('expression', String(value))
-                      "
-                    />
-                  </UFormField>
-                  <UFormField :label="t('editor.mapping')" :ui="formFieldStyles">
-                    <UTextarea
-                      :model-value="
-                        formatJsonConfig(selectedConfig.mapping, '{}')
-                      "
-                      placeholder='{"total":"input.amount"}'
-                      :ui="textareaStyles"
-                      @update:model-value="
-                        (value) => updateTextConfig('mapping', String(value))
-                      "
-                    />
-                  </UFormField>
+                  <!-- Mode Toggle -->
+                  <div class="flex items-center gap-3">
+                    <span class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px] font-semibold">
+                      {{ t('editor.transform.mode') }}:
+                    </span>
+                    <div class="flex gap-1">
+                      <button
+                        type="button"
+                        class="px-2 py-1 rounded text-[9px] xs:text-[10px] font-semibold transition-colors"
+                        :class="transformMode === 'expression' ? 'bg-orange-500 text-zinc-950' : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'"
+                        @click="transformMode = 'expression'"
+                      >
+                        {{ t('editor.transform.expression') }}
+                      </button>
+                      <button
+                        type="button"
+                        class="px-2 py-1 rounded text-[9px] xs:text-[10px] font-semibold transition-colors"
+                        :class="transformMode === 'mapping' ? 'bg-orange-500 text-zinc-950' : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'"
+                        @click="transformMode = 'mapping'"
+                      >
+                        {{ t('editor.transform.mapping') }}
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Expression Mode -->
+                  <template v-if="transformMode === 'expression'">
+                    <UFormField :label="t('editor.expression')" :ui="formFieldStyles">
+                      <UTextarea
+                        :model-value="String(selectedConfig.expression ?? '')"
+                        :placeholder="t('editor.transform.expressionPlaceholder')"
+                        :ui="textareaStyles"
+                        :rows="4"
+                        @update:model-value="
+                          (value) => updateTextConfig('expression', String(value))
+                        "
+                      />
+                      <template #hint>
+                        <span class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]">
+                          {{ t('editor.transform.expressionHint') }}
+                        </span>
+                      </template>
+                    </UFormField>
+
+                    <!-- Expression Examples -->
+                    <div class="rounded-lg border border-orange-500/20 bg-zinc-900/50 p-3">
+                      <div class="text-[9px] xs:text-[10px] sm:text-[11px] font-semibold text-zinc-400 mb-2">
+                        {{ t('editor.transform.examples') }}:
+                      </div>
+                      <div class="space-y-2">
+                        <button
+                          v-for="(example, idx) in expressionExamples"
+                          :key="idx"
+                          type="button"
+                          class="w-full text-left p-2 rounded bg-zinc-800/50 hover:bg-zinc-700/50 transition-colors"
+                          @click="updateTextConfig('expression', example.code)"
+                        >
+                          <div class="text-[8px] xs:text-[9px] text-zinc-500 mb-1">{{ example.desc }}</div>
+                          <code class="text-[8px] xs:text-[9px] text-orange-400 font-mono">{{ example.code }}</code>
+                        </button>
+                      </div>
+                    </div>
+                  </template>
+
+                  <!-- Mapping Mode -->
+                  <template v-if="transformMode === 'mapping'">
+                    <UFormField :label="t('editor.mapping')" :ui="formFieldStyles">
+                      <UTextarea
+                        :model-value="formatJsonConfig(selectedConfig.mapping, '{}')"
+                        :placeholder="t('editor.transform.mappingPlaceholder')"
+                        :ui="textareaStyles"
+                        :rows="6"
+                        @update:model-value="
+                          (value) => updateTextConfig('mapping', String(value))
+                        "
+                      />
+                      <template #hint>
+                        <span class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]">
+                          {{ t('editor.transform.mappingHint') }}
+                        </span>
+                      </template>
+                    </UFormField>
+
+                    <!-- Mapping Builder -->
+                    <div class="rounded-lg border border-orange-500/20 bg-zinc-900/50 p-3">
+                      <div class="text-[9px] xs:text-[10px] sm:text-[11px] font-semibold text-zinc-400 mb-2">
+                        {{ t('editor.transform.mappingBuilder') }}:
+                      </div>
+                      <div class="space-y-2">
+                        <div 
+                          v-for="(field, idx) in mappingFields" 
+                          :key="idx" 
+                          class="flex gap-2 items-center"
+                        >
+                          <UInput
+                            :model-value="field.key"
+                            placeholder="outputField"
+                            :ui="{ ...inputStyles, base: inputStyles.base + ' text-[9px]' }"
+                            class="flex-1"
+                            @update:model-value="(v) => updateMappingField(idx, 'key', String(v))"
+                          />
+                          <span class="text-zinc-500">←</span>
+                          <UInput
+                            :model-value="field.value"
+                            placeholder="input.fieldPath"
+                            :ui="{ ...inputStyles, base: inputStyles.base + ' text-[9px]' }"
+                            class="flex-1"
+                            @update:model-value="(v) => updateMappingField(idx, 'value', String(v))"
+                          />
+                          <button
+                            type="button"
+                            class="p-1 text-red-400 hover:text-red-300"
+                            @click="removeMappingField(idx)"
+                          >
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </div>
+                        <button
+                          type="button"
+                          class="text-[9px] xs:text-[10px] text-orange-400 hover:text-orange-300"
+                          @click="addMappingField"
+                        >
+                          + {{ t('editor.transform.addField') }}
+                        </button>
+                      </div>
+                    </div>
+                  </template>
+
+                  <!-- Data flow explanation -->
+                  <div class="rounded-lg border border-cyan-500/20 bg-cyan-500/5 p-3">
+                    <div class="flex items-start gap-2">
+                      <svg class="h-4 w-4 text-cyan-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]">
+                        {{ t('editor.transform.dataFlowHint') }}
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
                 <div class="border-t border-orange-500/30 pt-4">
@@ -1029,6 +1588,48 @@ const selectedEdgeId = ref<string | null>(null);
 const telegramTesting = ref(false);
 const telegramTestResult = ref<{ ok: boolean; message: string } | null>(null);
 
+// HTTP Request test state
+const httpTesting = ref(false);
+const httpTestResult = ref<{ ok: boolean; status: number; data: string } | null>(null);
+
+// Email content mode
+const emailContentMode = ref<'html' | 'text' | 'both'>('html');
+
+// Transformation mode
+const transformMode = ref<'expression' | 'mapping'>('expression');
+
+// Mapping fields builder
+const mappingFields = ref<{ key: string; value: string }[]>([{ key: '', value: '' }]);
+
+// Clipboard state
+const clipboardCopied = ref<string | null>(null);
+
+// Cron presets
+const cronPresets = [
+  { value: '* * * * *', label: 'Every minute' },
+  { value: '*/5 * * * *', label: 'Every 5 min' },
+  { value: '*/15 * * * *', label: 'Every 15 min' },
+  { value: '*/30 * * * *', label: 'Every 30 min' },
+  { value: '0 * * * *', label: 'Every hour' },
+  { value: '0 */6 * * *', label: 'Every 6 hours' },
+  { value: '0 0 * * *', label: 'Daily at midnight' },
+  { value: '0 9 * * *', label: 'Daily at 9 AM' },
+  { value: '0 0 * * 0', label: 'Weekly (Sunday)' },
+  { value: '0 0 1 * *', label: 'Monthly (1st)' },
+];
+
+// Common timezones
+const commonTimezones = [
+  'UTC',
+  'Europe/Moscow',
+  'Europe/London',
+  'Europe/Paris',
+  'America/New_York',
+  'America/Los_Angeles',
+  'Asia/Tokyo',
+  'Asia/Shanghai',
+];
+
 // Стили для полей ввода - убираем ring ring-inset ring-accented в пассивном состоянии
 // При фокусе добавляем ring-2 для визуального отличия
 // Используем !important только для пассивного состояния, для focus - обычные классы
@@ -1137,6 +1738,235 @@ async function testTelegramMessage() {
     }, 5000);
   }
 }
+
+// HTTP Request test helpers
+const canTestHttp = computed(() => {
+  const config = selectedConfig.value;
+  const url = String(config.url ?? '').trim();
+  return url.length > 0 && (url.startsWith('http://') || url.startsWith('https://'));
+});
+
+// Clipboard copy helper
+async function copyToClipboard(text: string, type: string = 'webhook') {
+  try {
+    await navigator.clipboard.writeText(text);
+    clipboardCopied.value = type;
+    setTimeout(() => {
+      clipboardCopied.value = null;
+    }, 2000);
+  } catch {
+    // Fallback for older browsers
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+    clipboardCopied.value = type;
+    setTimeout(() => {
+      clipboardCopied.value = null;
+    }, 2000);
+  }
+}
+
+async function testHttpRequest() {
+  if (!canTestHttp.value || httpTesting.value) return;
+
+  const config = selectedConfig.value;
+  const url = String(config.url ?? '').trim();
+  const method = String(config.method ?? 'GET').toUpperCase();
+  const headersStr = String(config.headers ?? '{}');
+  const body = String(config.body ?? '');
+
+  let headers: Record<string, string> = {};
+  try {
+    headers = JSON.parse(headersStr);
+  } catch {
+    headers = {};
+  }
+
+  httpTesting.value = true;
+  httpTestResult.value = null;
+
+  try {
+    const response = await fetch(url, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        ...headers,
+      },
+      body: ['GET', 'HEAD'].includes(method) ? undefined : (body || '{}'),
+    });
+
+    const contentType = response.headers.get('content-type') || '';
+    let data: string;
+    if (contentType.includes('application/json')) {
+      const json = await response.json();
+      data = JSON.stringify(json, null, 2);
+    } else {
+      data = await response.text();
+    }
+    
+    // Truncate long responses
+    if (data.length > 500) {
+      data = data.substring(0, 500) + '\n... (truncated)';
+    }
+
+    httpTestResult.value = {
+      ok: response.ok,
+      status: response.status,
+      data,
+    };
+  } catch (error) {
+    httpTestResult.value = {
+      ok: false,
+      status: 0,
+      data: error instanceof Error ? error.message : 'Request failed',
+    };
+  } finally {
+    httpTesting.value = false;
+  }
+}
+
+// Database helpers
+const availableDbModels = [
+  { value: 'user', label: 'User' },
+  { value: 'workflow', label: 'Workflow' },
+  { value: 'execution', label: 'Execution' },
+  { value: 'executionStep', label: 'ExecutionStep' },
+];
+
+const dbOperationsWithDesc = computed(() => [
+  { value: 'create', label: 'Create', desc: t('editor.db.opCreate') },
+  { value: 'findMany', label: 'Find Many', desc: t('editor.db.opFindMany') },
+  { value: 'findUnique', label: 'Find One', desc: t('editor.db.opFindUnique') },
+  { value: 'update', label: 'Update', desc: t('editor.db.opUpdate') },
+  { value: 'upsert', label: 'Upsert', desc: t('editor.db.opUpsert') },
+  { value: 'delete', label: 'Delete', desc: t('editor.db.opDelete') },
+]);
+
+function getDbArgsPlaceholder(operation: string) {
+  const placeholders: Record<string, string> = {
+    create: '{"data": {"field": "value"}}',
+    findMany: '{"where": {"status": "ACTIVE"}, "take": 10}',
+    findUnique: '{"where": {"id": "..."}}',
+    update: '{"where": {"id": "..."}, "data": {"field": "newValue"}}',
+    upsert: '{"where": {"id": "..."}, "create": {...}, "update": {...}}',
+    delete: '{"where": {"id": "..."}}',
+  };
+  return placeholders[operation] || '{}';
+}
+
+function getDbArgsExample(operation: string) {
+  const examples: Record<string, string> = {
+    create: `{
+  "data": {
+    "email": "user@example.com",
+    "name": "New User"
+  }
+}`,
+    findMany: `{
+  "where": {
+    "status": "ACTIVE"
+  },
+  "take": 10,
+  "orderBy": { "createdAt": "desc" }
+}`,
+    findUnique: `{
+  "where": {
+    "id": "abc-123"
+  }
+}`,
+    update: `{
+  "where": { "id": "abc-123" },
+  "data": {
+    "name": "Updated Name"
+  }
+}`,
+    upsert: `{
+  "where": { "email": "user@example.com" },
+  "create": { "email": "user@example.com", "name": "New" },
+  "update": { "name": "Existing" }
+}`,
+    delete: `{
+  "where": {
+    "id": "abc-123"
+  }
+}`,
+  };
+  return examples[operation] || '{}';
+}
+
+function applyDbArgsTemplate(operation: string) {
+  updateTextConfig('args', getDbArgsExample(operation));
+}
+
+function updateDbArgsTemplate(operation: string) {
+  // Only update if args is empty or default
+  const currentArgs = String(selectedConfig.value.args ?? '').trim();
+  if (!currentArgs || currentArgs === '{}') {
+    // Don't auto-apply, just let user see the placeholder
+  }
+}
+
+// Transformation helpers
+const expressionExamples = computed(() => [
+  { desc: t('editor.transform.exPassthrough'), code: 'input' },
+  { desc: t('editor.transform.exExtract'), code: 'input.user.email' },
+  { desc: t('editor.transform.exTransform'), code: '({ name: input.firstName + " " + input.lastName, isAdult: input.age >= 18 })' },
+  { desc: t('editor.transform.exFilter'), code: 'input.items.filter(item => item.active)' },
+  { desc: t('editor.transform.exMath'), code: '({ total: input.price * input.quantity, tax: input.price * 0.2 })' },
+]);
+
+function addMappingField() {
+  mappingFields.value.push({ key: '', value: '' });
+}
+
+function removeMappingField(index: number) {
+  mappingFields.value.splice(index, 1);
+  syncMappingToConfig();
+}
+
+function updateMappingField(index: number, field: 'key' | 'value', val: string) {
+  const item = mappingFields.value[index];
+  if (item) {
+    item[field] = val;
+  }
+  syncMappingToConfig();
+}
+
+function syncMappingToConfig() {
+  const mapping: Record<string, string> = {};
+  for (const field of mappingFields.value) {
+    if (field.key.trim()) {
+      mapping[field.key.trim()] = field.value.trim() || 'input';
+    }
+  }
+  updateTextConfig('mapping', JSON.stringify(mapping, null, 2));
+}
+
+// Watch mapping config changes to sync back to builder
+watch(
+  () => selectedConfig.value.mapping,
+  (newMapping) => {
+    try {
+      const parsed = typeof newMapping === 'string' ? JSON.parse(newMapping) : newMapping;
+      if (parsed && typeof parsed === 'object') {
+        const entries = Object.entries(parsed);
+        if (entries.length > 0) {
+          mappingFields.value = entries.map(([key, value]) => ({
+            key,
+            value: String(value),
+          }));
+        }
+      }
+    } catch {
+      // Invalid JSON, ignore
+    }
+  },
+  { immediate: true }
+);
+
 const selectedPalette = computed(
   () => palette.find((item) => item.id === selectedPaletteId.value) ?? null,
 );
@@ -1186,9 +2016,26 @@ const translatedSelectedHelp = computed(() =>
   selectedHelp.value ? getTranslatedPaletteItem(selectedHelp.value) : null
 );
 
+// Get all CONNECTED triggers (have at least one outgoing edge)
+const connectedTriggers = computed(() => {
+  const connectedNodeIds = new Set(edges.value.map(e => e.source));
+  return nodes.value.filter(node => {
+    const role = inferNodeRole(node);
+    return role === "trigger" && connectedNodeIds.has(String(node.id));
+  });
+});
+
 const triggerLabel = computed(() => {
-  const triggerNode = getTriggerNode();
-  return triggerNode?.data?.label ?? t("editor.notSet");
+  const connected = connectedTriggers.value;
+  if (connected.length === 0) {
+    return t("editor.notConnected");
+  }
+  if (connected.length === 1) {
+    const first = connected[0];
+    return first?.data?.label ?? t("editor.notSet");
+  }
+  // Multiple triggers - list them all
+  return connected.map(n => n.data?.label ?? "?").join(", ");
 });
 
 watch(
@@ -1753,7 +2600,8 @@ async function saveWorkflow() {
       toast.add({
         title: t("editor.saved"),
         description: t("editor.workflowUpdated"),
-        color: "green",
+        color: "success",
+        timeout: 3000,
       });
     } else {
       const response = await $fetch<{ id: string }>("/api/workflows", {
@@ -1765,7 +2613,8 @@ async function saveWorkflow() {
       toast.add({
         title: t("editor.saved"),
         description: t("editor.workflowSaved"),
-        color: "green",
+        color: "success",
+        timeout: 3000,
       });
     }
   } catch (error) {

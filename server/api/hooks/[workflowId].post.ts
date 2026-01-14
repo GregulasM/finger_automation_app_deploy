@@ -2,6 +2,32 @@ import { createError, getRouterParam, readBody } from "h3";
 import { prisma } from "../../../app/lib/prisma";
 import { enqueueWorkflow } from "../../utils/workflow-queue";
 
+// Check if workflow has a CONNECTED webhook trigger in graphData
+function hasConnectedWebhookTrigger(graphData: unknown): boolean {
+  if (!graphData || typeof graphData !== "object") {
+    return false;
+  }
+  const data = graphData as Record<string, unknown>;
+  if (!Array.isArray(data.nodes)) {
+    return false;
+  }
+
+  const edges = Array.isArray(data.edges) ? data.edges : [];
+  const connectedNodeIds = new Set(
+    edges.map((e) => String((e as Record<string, unknown>).source))
+  );
+
+  return data.nodes.some((node) => {
+    const n = node as Record<string, unknown>;
+    const nodeId = String(n.id ?? "");
+    const nodeData = (n.data ?? {}) as Record<string, unknown>;
+    const role = String(nodeData.role ?? "").toLowerCase();
+    const type = String(nodeData.type ?? n.type ?? "").toLowerCase();
+    // Trigger must be webhook AND must have at least one outgoing edge
+    return role === "trigger" && type === "webhook" && connectedNodeIds.has(nodeId);
+  });
+}
+
 export default defineEventHandler(async (event) => {
   const workflowId = getRouterParam(event, "workflowId");
   if (!workflowId) {
@@ -18,14 +44,16 @@ export default defineEventHandler(async (event) => {
   if (!workflow || workflow.status !== "ACTIVE") {
     throw createError({
       statusCode: 404,
-      statusMessage: "Workflow not found",
+      statusMessage: "Workflow not found or inactive",
     });
   }
 
-  if (workflow.triggerType !== "WEBHOOK") {
+  // Check graphData for CONNECTED webhook trigger
+  // Trigger must exist AND have at least one outgoing connection
+  if (!hasConnectedWebhookTrigger(workflow.graphData)) {
     throw createError({
       statusCode: 400,
-      statusMessage: "Workflow trigger type is not webhook",
+      statusMessage: "Workflow does not have a connected webhook trigger",
     });
   }
 
