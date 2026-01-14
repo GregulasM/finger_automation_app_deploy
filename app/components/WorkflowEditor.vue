@@ -950,6 +950,144 @@
 
                 <!-- Email Action -->
                 <div v-if="selectedActionType === 'Email'" class="space-y-4">
+                  <!-- Email Provider Selector -->
+                  <div class="space-y-2">
+                    <div class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px] font-semibold">
+                      {{ t('editor.email.provider') }}
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                      <button
+                        v-for="provider in emailProviders"
+                        :key="provider.id"
+                        type="button"
+                        class="px-3 py-1.5 rounded text-[9px] xs:text-[10px] font-semibold transition-colors flex items-center gap-1.5"
+                        :class="emailProvider === provider.id ? 'bg-orange-500 text-zinc-950' : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'"
+                        @click="setEmailProvider(provider.id)"
+                      >
+                        <span v-html="provider.icon" class="w-3 h-3"></span>
+                        {{ provider.name }}
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Provider Info Box -->
+                  <div class="rounded-lg border border-cyan-500/20 bg-cyan-500/5 p-3">
+                    <div class="flex items-start gap-2">
+                      <svg class="h-4 w-4 text-cyan-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <div class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]">
+                        <div v-if="emailProvider === 'gmail'" class="space-y-1">
+                          <div class="font-semibold text-cyan-400">{{ t('editor.email.gmailTitle') }}</div>
+                          <p>{{ t('editor.email.gmailDesc') }}</p>
+                          <a href="https://myaccount.google.com/apppasswords" target="_blank" class="text-orange-400 hover:underline block">
+                            {{ t('editor.email.getAppPassword') }} →
+                          </a>
+                        </div>
+                        <div v-else-if="emailProvider === 'sendgrid'" class="space-y-1">
+                          <div class="font-semibold text-cyan-400">{{ t('editor.email.sendgridTitle') }}</div>
+                          <p>{{ t('editor.email.sendgridDesc') }}</p>
+                          <a href="https://app.sendgrid.com/settings/api_keys" target="_blank" class="text-orange-400 hover:underline block">
+                            {{ t('editor.email.getSendGridKey') }} →
+                          </a>
+                        </div>
+                        <div v-else class="space-y-1">
+                          <div class="font-semibold text-cyan-400">{{ t('editor.email.resendTitle') }}</div>
+                          <p>{{ t('editor.email.resendDesc') }}</p>
+                          <a href="https://resend.com/api-keys" target="_blank" class="text-orange-400 hover:underline block">
+                            {{ t('editor.email.getResendKey') }} →
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Gmail SMTP Settings -->
+                  <div v-if="emailProvider === 'gmail'" class="space-y-3 rounded-lg border border-zinc-700 bg-zinc-800/50 p-3">
+                    <div class="text-[9px] xs:text-[10px] sm:text-[11px] font-semibold text-zinc-400">
+                      {{ t('editor.email.gmailSettings') }}
+                    </div>
+                    <UFormField :label="t('editor.email.gmailEmail')" :ui="formFieldStyles">
+                      <UInput
+                        :model-value="String(selectedConfig.smtpEmail ?? '')"
+                        placeholder="your-email@gmail.com"
+                        type="email"
+                        :ui="inputStyles"
+                        @update:model-value="(value) => updateGmailConfig('smtpEmail', String(value))"
+                      />
+                    </UFormField>
+                    <UFormField :label="t('editor.email.appPassword')" :ui="formFieldStyles">
+                      <UInput
+                        :model-value="String(selectedConfig.smtpPassword ?? '')"
+                        placeholder="xxxx xxxx xxxx xxxx"
+                        type="password"
+                        :ui="inputStyles"
+                        @update:model-value="(value) => updateGmailConfig('smtpPassword', String(value))"
+                      />
+                      <template #hint>
+                        <span class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]">
+                          {{ t('editor.email.appPasswordHint') }}
+                        </span>
+                      </template>
+                    </UFormField>
+                  </div>
+
+                  <!-- SendGrid Settings -->
+                  <div v-if="emailProvider === 'sendgrid'" class="space-y-3 rounded-lg border border-zinc-700 bg-zinc-800/50 p-3">
+                    <div class="text-[9px] xs:text-[10px] sm:text-[11px] font-semibold text-zinc-400">
+                      {{ t('editor.email.sendgridSettings') }}
+                    </div>
+                    <UFormField :label="t('editor.email.sendgridApiKey')" :ui="formFieldStyles">
+                      <UInput
+                        :model-value="String(selectedConfig.sendgridApiKey ?? '')"
+                        placeholder="SG.xxx..."
+                        type="password"
+                        :ui="inputStyles"
+                        @update:model-value="(value) => updateSendGridConfig('sendgridApiKey', String(value))"
+                      />
+                    </UFormField>
+                    <UFormField :label="t('editor.email.senderEmail')" :ui="formFieldStyles">
+                      <UInput
+                        :model-value="String(selectedConfig.from ?? '')"
+                        placeholder="noreply@yourdomain.com"
+                        type="email"
+                        :ui="inputStyles"
+                        @update:model-value="(value) => updateTextConfig('from', String(value))"
+                      />
+                      <template #hint>
+                        <span class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]">
+                          {{ t('editor.email.senderHint') }}
+                        </span>
+                      </template>
+                    </UFormField>
+                  </div>
+
+                  <!-- Test Connection Button -->
+                  <div class="flex items-center gap-3">
+                    <button
+                      type="button"
+                      :disabled="!canTestEmail || emailSmtpTesting"
+                      class="px-3 py-1.5 rounded text-[9px] xs:text-[10px] font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      :class="canTestEmail ? 'bg-cyan-600 text-white hover:bg-cyan-500' : 'bg-zinc-700 text-zinc-400'"
+                      @click="testEmailConnection"
+                    >
+                      <span class="flex items-center gap-1.5">
+                        <svg v-if="emailSmtpTesting" class="h-3 w-3 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        {{ emailSmtpTesting ? t('editor.email.testing') : t('editor.email.testConnection') }}
+                      </span>
+                    </button>
+                    <span v-if="emailSmtpTestResult" :class="[
+                      'text-[9px] xs:text-[10px] sm:text-[11px]',
+                      emailSmtpTestResult.ok ? 'text-green-400' : 'text-red-400'
+                    ]">
+                      {{ emailSmtpTestResult.ok ? t('editor.email.connectionSuccess') : emailSmtpTestResult.error }}
+                    </span>
+                  </div>
+
+                  <hr class="border-zinc-700">
+
                   <!-- Recipient -->
                   <UFormField :label="t('editor.to')" :ui="formFieldStyles">
                     <UInput
@@ -1061,6 +1199,33 @@
                       </span>
                     </template>
                   </UFormField>
+
+                  <!-- Send Test Email Button -->
+                  <div class="flex items-center gap-3">
+                    <button
+                      type="button"
+                      :disabled="!canSendTestEmail || emailSending"
+                      class="px-3 py-1.5 rounded text-[9px] xs:text-[10px] font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      :class="canSendTestEmail ? 'bg-green-600 text-white hover:bg-green-500' : 'bg-zinc-700 text-zinc-400'"
+                      @click="sendTestEmail"
+                    >
+                      <span class="flex items-center gap-1.5">
+                        <svg v-if="emailSending" class="h-3 w-3 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        <svg v-else class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                        </svg>
+                        {{ emailSending ? t('editor.email.sending') : t('editor.email.sendTest') }}
+                      </span>
+                    </button>
+                    <span v-if="emailSendResult" :class="[
+                      'text-[9px] xs:text-[10px] sm:text-[11px]',
+                      emailSendResult.ok ? 'text-green-400' : 'text-red-400'
+                    ]">
+                      {{ emailSendResult.ok ? t('editor.email.sendSuccess') : emailSendResult.error }}
+                    </span>
+                  </div>
 
                   <!-- Auto-send info -->
                   <div class="rounded-lg border border-orange-500/20 bg-zinc-900/50 p-3">
@@ -1692,6 +1857,118 @@ const httpTestResult = ref<{ ok: boolean; status: number; data: string } | null>
 // Email content mode
 const emailContentMode = ref<'html' | 'text' | 'both'>('html');
 
+// Email provider settings
+const emailProvider = ref<'gmail' | 'sendgrid' | 'resend'>('gmail');
+const emailSmtpTesting = ref(false);
+const emailSmtpTestResult = ref<{ ok: boolean; error?: string; details?: string } | null>(null);
+const emailSending = ref(false);
+const emailSendResult = ref<{ ok: boolean; error?: string; messageId?: string } | null>(null);
+
+const emailProviders = [
+  { id: 'gmail' as const, name: 'Gmail SMTP', icon: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/></svg>' },
+  { id: 'sendgrid' as const, name: 'SendGrid', icon: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M0 8h8v8H0V8zm0 8h8v8H0v-8zm8 0h8v8H8v-8zm8 0h8v8h-8v-8zm0-8h8v8h-8V8zm-8 0h8v8H8V8zM8 0h8v8H8V0zm8 0h8v8h-8V0z"/></svg>' },
+  { id: 'resend' as const, name: 'Resend', icon: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0L0 12l12 12 12-12L12 0zm0 3.2L20.8 12 12 20.8 3.2 12 12 3.2z"/></svg>' },
+];
+
+function setEmailProvider(provider: 'gmail' | 'sendgrid' | 'resend') {
+  emailProvider.value = provider;
+  updateTextConfig('emailProvider', provider);
+  emailSmtpTestResult.value = null;
+  emailSendResult.value = null;
+}
+
+// Auto-save emailProvider when Gmail fields are modified
+function updateGmailConfig(key: string, value: string) {
+  updateTextConfig(key, value);
+  // Ensure emailProvider is saved as 'gmail' when Gmail fields are filled
+  if (!selectedConfig.value.emailProvider || selectedConfig.value.emailProvider !== 'gmail') {
+    updateTextConfig('emailProvider', 'gmail');
+    emailProvider.value = 'gmail';
+  }
+}
+
+// Auto-save emailProvider when SendGrid fields are modified
+function updateSendGridConfig(key: string, value: string) {
+  updateTextConfig(key, value);
+  // Ensure emailProvider is saved as 'sendgrid' when SendGrid fields are filled
+  if (!selectedConfig.value.emailProvider || selectedConfig.value.emailProvider !== 'sendgrid') {
+    updateTextConfig('emailProvider', 'sendgrid');
+    emailProvider.value = 'sendgrid';
+  }
+}
+
+const canTestEmail = computed(() => {
+  if (emailProvider.value === 'gmail') {
+    return Boolean(selectedConfig.value.smtpEmail && selectedConfig.value.smtpPassword);
+  }
+  if (emailProvider.value === 'sendgrid') {
+    return Boolean(selectedConfig.value.sendgridApiKey);
+  }
+  // Resend uses env key by default
+  return true;
+});
+
+const canSendTestEmail = computed(() => {
+  return canTestEmail.value && Boolean(selectedConfig.value.to);
+});
+
+async function testEmailConnection() {
+  emailSmtpTesting.value = true;
+  emailSmtpTestResult.value = null;
+  
+  try {
+    const response = await fetch('/api/email/test-smtp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'test',
+        provider: emailProvider.value,
+        smtpEmail: selectedConfig.value.smtpEmail,
+        smtpPassword: selectedConfig.value.smtpPassword,
+        sendgridApiKey: selectedConfig.value.sendgridApiKey,
+      }),
+    });
+    
+    const data = await response.json();
+    emailSmtpTestResult.value = data;
+  } catch (error) {
+    emailSmtpTestResult.value = { ok: false, error: String(error) };
+  } finally {
+    emailSmtpTesting.value = false;
+  }
+}
+
+async function sendTestEmail() {
+  emailSending.value = true;
+  emailSendResult.value = null;
+  
+  try {
+    const response = await fetch('/api/email/test-smtp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'send',
+        provider: emailProvider.value,
+        smtpEmail: selectedConfig.value.smtpEmail,
+        smtpPassword: selectedConfig.value.smtpPassword,
+        sendgridApiKey: selectedConfig.value.sendgridApiKey,
+        from: selectedConfig.value.from,
+        to: selectedConfig.value.to,
+        subject: selectedConfig.value.subject || 'Test Email from Finger Automation',
+        html: selectedConfig.value.html,
+        text: selectedConfig.value.text,
+      }),
+    });
+    
+    const data = await response.json();
+    emailSendResult.value = data;
+  } catch (error) {
+    emailSendResult.value = { ok: false, error: String(error) };
+  } finally {
+    emailSending.value = false;
+  }
+}
+
 // Transformation mode
 const transformMode = ref<'expression' | 'mapping'>('expression');
 
@@ -2200,6 +2477,34 @@ watch(selectedNode, (node) => {
   if (!node && selectedNodeId.value) {
     selectedNodeId.value = null;
   }
+  
+  // Initialize emailProvider from saved config when selecting Email action node
+  if (node) {
+    const nodeData = node.data as Record<string, unknown> | undefined;
+    const config = (nodeData?.config ?? {}) as Record<string, unknown>;
+    const role = String(nodeData?.role ?? '').toLowerCase();
+    const actionType = String(nodeData?.actionType ?? nodeData?.type ?? '').toLowerCase();
+    
+    if (role === 'action' && actionType === 'email') {
+      const savedProvider = config.emailProvider as string | undefined;
+      if (savedProvider === 'gmail' || savedProvider === 'sendgrid' || savedProvider === 'resend') {
+        emailProvider.value = savedProvider;
+      } else if (config.smtpEmail || config.smtpPassword) {
+        // If Gmail credentials exist but provider not saved, set to gmail
+        emailProvider.value = 'gmail';
+      } else if (config.sendgridApiKey) {
+        // If SendGrid key exists but provider not saved, set to sendgrid
+        emailProvider.value = 'sendgrid';
+      } else {
+        // Default to gmail for new nodes
+        emailProvider.value = 'gmail';
+      }
+    }
+  }
+  
+  // Reset test results when switching nodes
+  emailSmtpTestResult.value = null;
+  emailSendResult.value = null;
 });
 
 function normalizePaletteType(value: string) {

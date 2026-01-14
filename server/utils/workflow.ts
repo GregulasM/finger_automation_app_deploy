@@ -80,12 +80,18 @@ export function normalizeWorkflowSteps(graphData: unknown): WorkflowStep[] {
         const rawType = String(
           nodeData.actionType ?? nodeData.type ?? node.type ?? "Transformation",
         );
+        
+        // Skip trigger nodes
         if (role === "trigger") {
           return null;
         }
-        if (TRIGGER_NODE_TYPES.has(rawType.toLowerCase().trim())) {
+        
+        // Only filter by TRIGGER_NODE_TYPES if role is not explicitly "action"
+        // This allows Email ACTION nodes to pass through even though "email" is in TRIGGER_NODE_TYPES
+        if (role !== "action" && TRIGGER_NODE_TYPES.has(rawType.toLowerCase().trim())) {
           return null;
         }
+        
         return { node, nodeData, rawType, index };
       })
       .filter(

@@ -268,6 +268,14 @@ async function handleEmail(step: WorkflowStep, input: unknown) {
   const config = step.config ?? {};
   const to = String(config.to ?? config.email ?? "");
 
+  console.log("[Email Action] Processing email step:", {
+    to,
+    subject: config.subject,
+    provider: config.emailProvider,
+    hasSmtpEmail: Boolean(config.smtpEmail),
+    hasSendGridKey: Boolean(config.sendgridApiKey),
+  });
+
   if (!to) {
     throw new Error("Email step missing recipient");
   }
@@ -282,6 +290,38 @@ async function handleEmail(step: WorkflowStep, input: unknown) {
       ? config.text
       : JSON.stringify(input, null, 2);
 
+  // Check if custom provider is configured
+  const provider = String(config.emailProvider ?? "resend");
+  
+  if (provider !== "resend" || config.smtpEmail || config.sendgridApiKey) {
+    // Use new multi-provider system
+    const { sendEmailWithProvider } = await import("./email-providers");
+    
+    const result = await sendEmailWithProvider(
+      {
+        provider: provider as "gmail" | "sendgrid" | "smtp" | "resend",
+        smtpEmail: config.smtpEmail as string | undefined,
+        smtpPassword: config.smtpPassword as string | undefined,
+        smtpHost: config.smtpHost as string | undefined,
+        smtpPort: config.smtpPort as number | undefined,
+        sendgridApiKey: config.sendgridApiKey as string | undefined,
+        resendApiKey: config.resendApiKey as string | undefined,
+        from: config.from as string | undefined,
+      },
+      { to, subject, html, text }
+    );
+
+    if (!result.ok) {
+      console.error("[Email Action] Failed:", result.error);
+      throw new Error(result.error || "Email sending failed");
+    }
+
+    console.log("[Email Action] Success:", { provider: result.provider, messageId: result.messageId });
+    return { ok: true, provider: result.provider, messageId: result.messageId };
+  }
+
+  // Fallback to original Resend-only implementation
+  console.log("[Email Action] Using Resend fallback");
   const result = await sendEmail({ to, subject, html, text });
   return { ok: true, result };
 }
