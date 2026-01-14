@@ -10,6 +10,12 @@ type CronGlobals = typeof globalThis & {
 };
 
 export default defineNitroPlugin(() => {
+  // Skip during build/prerender phase
+  if (process.env.NITRO_PRESET === 'nitro-prerender' || process.env.BUILDING) {
+    console.log("[Cron Plugin] Skipping initialization during build/prerender");
+    return;
+  }
+
   const globalForCron = globalThis as CronGlobals;
 
   // Avoid duplicate initialization

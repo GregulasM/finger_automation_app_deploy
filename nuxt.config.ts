@@ -25,6 +25,8 @@ export default defineNuxtConfig({
     "@pinia/nuxt",
     "nuxt-auth-utils",
   ],
+  ssr: false,
+  
   runtimeConfig: {
     authSecret:
       process.env.NUXT_AUTH_SECRET ||
@@ -54,13 +56,16 @@ export default defineNuxtConfig({
     },
     prerender: {
       crawlLinks: false,
-      routes: []
+      routes: [],
+      ignore: ['/']
     },
     esbuild: {
       options: {
         target: 'esnext'
       }
-    }
+    },
+    // Disable prerendering completely
+    static: false
   },
   devtools: {
     enabled: true,
