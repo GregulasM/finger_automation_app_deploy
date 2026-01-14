@@ -1,0 +1,9 @@
+node_modules
+.nuxt
+.output
+generated
+coverage
+test
+tests
+*.test.ts
+*.spec.ts
