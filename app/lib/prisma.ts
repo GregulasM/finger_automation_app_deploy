@@ -1,6 +1,8 @@
 import "dotenv/config";
+import { createRequire } from "node:module";
 import { PrismaClient } from "../../generated/prisma/client.js";
-import { PrismaPg } from "@prisma/adapter-pg";
+
+const require = createRequire(import.meta.url);
 
 const globalForPrisma = globalThis as typeof globalThis & {
   prisma?: PrismaClient;
@@ -33,6 +35,15 @@ function createPrismaClient(): PrismaClient {
   }
 
   // Use adapter-pg for regular PostgreSQL connections (required for prisma-client engine)
+  let PrismaPg: typeof import("@prisma/adapter-pg").PrismaPg;
+  try {
+    ({ PrismaPg } =
+      require("@prisma/adapter-pg") as typeof import("@prisma/adapter-pg"));
+  } catch (error) {
+    console.error("[Prisma] Failed to load @prisma/adapter-pg", error);
+    throw error;
+  }
+
   return new PrismaClient({
     adapter: new PrismaPg({ connectionString: databaseUrl }),
   });
