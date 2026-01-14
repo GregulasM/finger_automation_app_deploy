@@ -8,7 +8,7 @@
           v-model="workflowName"
           placeholder="Workflow name"
           class="min-w-[220px] flex-1"
-          :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
+          :ui="inputStyles"
         />
         <div
           class="flex items-center gap-2 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
@@ -18,7 +18,7 @@
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <UBadge color="neutral" variant="soft" :ui="{ root: 'ring-0' }">
+        <UBadge color="neutral" variant="soft" :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100' }">
           Trigger: {{ triggerLabel }}
         </UBadge>
         <button
@@ -51,14 +51,6 @@
       variant="soft"
       title="Load failed"
       :description="loadError"
-      :ui="{ root: 'ring-0' }"
-    />
-    <UAlert
-      v-if="saveSuccess"
-      color="green"
-      variant="soft"
-      title="Saved"
-      :description="saveSuccess"
       :ui="{ root: 'ring-0' }"
     />
 
@@ -254,12 +246,12 @@
 
               <div v-if="selectedRole === 'trigger'" class="space-y-4">
                 <div v-if="selectedType === 'Webhook'" class="space-y-3">
-                  <UFormField label="Webhook URL">
+                  <UFormField label="Webhook URL" :ui="formFieldStyles">
                     <UInput
                       :model-value="webhookEndpoint"
                       placeholder="Save to generate the webhook URL"
                       readonly
-                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
+                      :ui="inputStyles"
                     />
                   </UFormField>
                   <div v-if="!workflowId" class="flex items-center gap-2">
@@ -282,21 +274,21 @@
                 </div>
 
                 <div v-if="selectedType === 'Schedule'" class="space-y-3">
-                  <UFormField label="Cron expression">
+                  <UFormField label="Cron expression" :ui="formFieldStyles">
                     <UInput
                       :model-value="String(selectedConfig.cron ?? '')"
                       placeholder="*/5 * * * *"
-                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
+                      :ui="inputStyles"
                       @update:model-value="
                         (value) => updateTextConfig('cron', String(value))
                       "
                     />
                   </UFormField>
-                  <UFormField label="Timezone">
+                  <UFormField label="Timezone" :ui="formFieldStyles">
                     <UInput
                       :model-value="String(selectedConfig.timezone ?? 'UTC')"
                       placeholder="UTC"
-                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
+                      :ui="inputStyles"
                       @update:model-value="
                         (value) => updateTextConfig('timezone', String(value))
                       "
@@ -305,12 +297,12 @@
                 </div>
 
                 <div v-if="selectedType === 'Email'" class="space-y-3">
-                  <UFormField label="Inbound email endpoint">
+                  <UFormField label="Inbound email endpoint" :ui="formFieldStyles">
                     <UInput
                       :model-value="emailEndpoint"
                       placeholder="Save to generate the inbound endpoint"
                       readonly
-                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
+                      :ui="inputStyles"
                     />
                   </UFormField>
                   <div v-if="!workflowId" class="flex items-center gap-2">
@@ -343,43 +335,43 @@
                   v-if="selectedActionType === 'HTTP Request'"
                   class="space-y-4"
                 >
-                  <UFormField label="URL">
+                  <UFormField label="URL" :ui="formFieldStyles">
                     <UInput
                       :model-value="String(selectedConfig.url ?? '')"
                       placeholder="https://api.example.com"
-                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
+                      :ui="inputStyles"
                       @update:model-value="
                         (value) => updateTextConfig('url', String(value))
                       "
                     />
                   </UFormField>
-                  <UFormField label="Method">
+                  <UFormField label="Method" :ui="formFieldStyles">
                     <USelect
                       :items="httpMethods"
                       :model-value="String(selectedConfig.method ?? 'POST')"
-                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 focus:bg-zinc-800 focus:border-orange-500/50' }"
+                      :ui="selectStyles"
                       @update:model-value="
                         (value) => updateTextConfig('method', String(value))
                       "
                     />
                   </UFormField>
-                  <UFormField label="Headers (JSON)">
+                  <UFormField label="Headers (JSON)" :ui="formFieldStyles">
                     <UTextarea
                       :model-value="
                         formatJsonConfig(selectedConfig.headers, '{}')
                       "
                       placeholder='{"Authorization":"Bearer ..."}'
-                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
+                      :ui="textareaStyles"
                       @update:model-value="
                         (value) => updateTextConfig('headers', String(value))
                       "
                     />
                   </UFormField>
-                  <UFormField label="Body (JSON or text)">
+                  <UFormField label="Body (JSON or text)" :ui="formFieldStyles">
                     <UTextarea
                       :model-value="String(selectedConfig.body ?? '')"
                       placeholder='{"id":"123"}'
-                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
+                      :ui="textareaStyles"
                       @update:model-value="
                         (value) => updateTextConfig('body', String(value))
                       "
@@ -388,41 +380,41 @@
                 </div>
 
                 <div v-if="selectedActionType === 'Email'" class="space-y-4">
-                  <UFormField label="To">
+                  <UFormField label="To" :ui="formFieldStyles">
                     <UInput
                       :model-value="String(selectedConfig.to ?? '')"
                       placeholder="user@example.com"
-                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
+                      :ui="inputStyles"
                       @update:model-value="
                         (value) => updateTextConfig('to', String(value))
                       "
                     />
                   </UFormField>
-                  <UFormField label="Subject">
+                  <UFormField label="Subject" :ui="formFieldStyles">
                     <UInput
                       :model-value="String(selectedConfig.subject ?? '')"
                       placeholder="Workflow update"
-                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
+                      :ui="inputStyles"
                       @update:model-value="
                         (value) => updateTextConfig('subject', String(value))
                       "
                     />
                   </UFormField>
-                  <UFormField label="HTML">
+                  <UFormField label="HTML" :ui="formFieldStyles">
                     <UTextarea
                       :model-value="String(selectedConfig.html ?? '')"
                       placeholder="<p>Hello!</p>"
-                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
+                      :ui="textareaStyles"
                       @update:model-value="
                         (value) => updateTextConfig('html', String(value))
                       "
                     />
                   </UFormField>
-                  <UFormField label="Text">
+                  <UFormField label="Text" :ui="formFieldStyles">
                     <UTextarea
                       :model-value="String(selectedConfig.text ?? '')"
                       placeholder="Plain text fallback"
-                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
+                      :ui="textareaStyles"
                       @update:model-value="
                         (value) => updateTextConfig('text', String(value))
                       "
@@ -431,43 +423,43 @@
                 </div>
 
                 <div v-if="selectedActionType === 'Telegram'" class="space-y-4">
-                  <UFormField label="Bot token">
+                  <UFormField label="Bot token" :ui="formFieldStyles">
                     <UInput
                       :model-value="String(selectedConfig.botToken ?? '')"
                       placeholder="123456:ABC..."
-                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
+                      :ui="inputStyles"
                       @update:model-value="
                         (value) => updateTextConfig('botToken', String(value))
                       "
                     />
                   </UFormField>
-                  <UFormField label="Chat ID">
+                  <UFormField label="Chat ID" :ui="formFieldStyles">
                     <UInput
                       :model-value="String(selectedConfig.chatId ?? '')"
                       placeholder="123456789"
-                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
+                      :ui="inputStyles"
                       @update:model-value="
                         (value) => updateTextConfig('chatId', String(value))
                       "
                     />
                   </UFormField>
-                  <UFormField label="Message">
+                  <UFormField label="Message" :ui="formFieldStyles">
                     <UTextarea
                       :model-value="String(selectedConfig.message ?? '')"
                       placeholder="Workflow completed"
-                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
+                      :ui="textareaStyles"
                       @update:model-value="
                         (value) => updateTextConfig('message', String(value))
                       "
                     />
                   </UFormField>
-                  <UFormField label="Parse mode">
+                  <UFormField label="Parse mode" :ui="formFieldStyles">
                     <USelect
                       :items="telegramParseModes"
                       :model-value="
                         String(selectedConfig.parseMode ?? 'Markdown')
                       "
-                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 focus:bg-zinc-800 focus:border-orange-500/50' }"
+                      :ui="selectStyles"
                       @update:model-value="
                         (value) => updateTextConfig('parseMode', String(value))
                       "
@@ -476,33 +468,33 @@
                 </div>
 
                 <div v-if="selectedActionType === 'Database'" class="space-y-4">
-                  <UFormField label="Model">
+                  <UFormField label="Model" :ui="formFieldStyles">
                     <UInput
                       :model-value="String(selectedConfig.model ?? '')"
                       placeholder="user"
-                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
+                      :ui="inputStyles"
                       @update:model-value="
                         (value) => updateTextConfig('model', String(value))
                       "
                     />
                   </UFormField>
-                  <UFormField label="Operation">
+                  <UFormField label="Operation" :ui="formFieldStyles">
                     <USelect
                       :items="dbOperations"
                       :model-value="
                         String(selectedConfig.operation ?? 'create')
                       "
-                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 focus:bg-zinc-800 focus:border-orange-500/50' }"
+                      :ui="selectStyles"
                       @update:model-value="
                         (value) => updateTextConfig('operation', String(value))
                       "
                     />
                   </UFormField>
-                  <UFormField label="Args (JSON)">
+                  <UFormField label="Args (JSON)" :ui="formFieldStyles">
                     <UTextarea
                       :model-value="formatJsonConfig(selectedConfig.args, '{}')"
                       placeholder='{"data":{"email":"user@example.com"}}'
-                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
+                      :ui="textareaStyles"
                       @update:model-value="
                         (value) => updateTextConfig('args', String(value))
                       "
@@ -514,23 +506,23 @@
                   v-if="selectedActionType === 'Transformation'"
                   class="space-y-4"
                 >
-                  <UFormField label="Expression">
+                  <UFormField label="Expression" :ui="formFieldStyles">
                     <UTextarea
                       :model-value="String(selectedConfig.expression ?? '')"
                       placeholder="input.amount > 100"
-                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
+                      :ui="textareaStyles"
                       @update:model-value="
                         (value) => updateTextConfig('expression', String(value))
                       "
                     />
                   </UFormField>
-                  <UFormField label="Mapping (JSON)">
+                  <UFormField label="Mapping (JSON)" :ui="formFieldStyles">
                     <UTextarea
                       :model-value="
                         formatJsonConfig(selectedConfig.mapping, '{}')
                       "
                       placeholder='{"total":"input.amount"}'
-                      :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
+                      :ui="textareaStyles"
                       @update:model-value="
                         (value) => updateTextConfig('mapping', String(value))
                       "
@@ -545,41 +537,41 @@
                     Error handling
                   </div>
                   <div class="mt-3 space-y-3">
-                    <UFormField label="Retry count">
+                    <UFormField label="Retry count" :ui="formFieldStyles">
                       <UInput
                         type="number"
                         :model-value="String(selectedConfig.retryCount ?? 0)"
-                        :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
+                        :ui="inputStyles"
                         @update:model-value="
                           (value) => updateNumberConfig('retryCount', value)
                         "
                       />
                     </UFormField>
-                    <UFormField label="Retry delay (ms)">
+                    <UFormField label="Retry delay (ms)" :ui="formFieldStyles">
                       <UInput
                         type="number"
                         :model-value="String(selectedConfig.retryDelayMs ?? 0)"
-                        :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
+                        :ui="inputStyles"
                         @update:model-value="
                           (value) => updateNumberConfig('retryDelayMs', value)
                         "
                       />
                     </UFormField>
-                    <UFormField label="On error">
+                    <UFormField label="On error" :ui="formFieldStyles">
                       <USelect
                         :items="errorModes"
                         :model-value="String(selectedConfig.onError ?? 'fail')"
-                        :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 focus:bg-zinc-800 focus:border-orange-500/50' }"
+                        :ui="selectStyles"
                         @update:model-value="
                           (value) => updateTextConfig('onError', String(value))
                         "
                       />
                     </UFormField>
-                    <UFormField label="Notify email">
+                    <UFormField label="Notify email" :ui="formFieldStyles">
                       <UInput
                         :model-value="String(selectedConfig.notifyEmail ?? '')"
                         placeholder="alerts@example.com"
-                        :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50' }"
+                        :ui="inputStyles"
                         @update:model-value="
                           (value) =>
                             updateTextConfig('notifyEmail', String(value))
@@ -750,11 +742,38 @@ const workflowName = ref("Untitled workflow");
 const workflowActive = ref(true);
 const workflowId = ref<string | null>(null);
 const saveError = ref<string | null>(null);
-const saveSuccess = ref<string | null>(null);
 const saving = ref(false);
+const toast = useToast();
 const loadingWorkflow = ref(false);
 const loadError = ref<string | null>(null);
 const draggingItem = ref<PaletteItem | null>(null);
+
+// Стили для полей ввода - убираем ring ring-inset ring-accented в пассивном состоянии
+// При фокусе добавляем ring-2 для визуального отличия
+// Используем !important только для пассивного состояния, для focus - обычные классы
+const inputStyles = {
+  root: 'ring-0',
+  base: 'ring-0 !ring-inset-0 bg-zinc-800 border border-orange-500 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500 focus:text-zinc-100 focus:!ring-2 focus:!ring-orange-500 focus:!ring-inset focus:ring-offset-0 focus-visible:!ring-2 focus-visible:!ring-orange-500 focus-visible:!ring-inset focus-visible:ring-offset-0'
+};
+
+const textareaStyles = {
+  root: 'ring-0',
+  base: 'ring-0 !ring-inset-0 bg-zinc-800 border border-orange-500 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500 focus:text-zinc-100 focus:!ring-2 focus:!ring-orange-500 focus:!ring-inset focus:ring-offset-0 focus-visible:!ring-2 focus-visible:!ring-orange-500 focus-visible:!ring-inset focus-visible:ring-offset-0'
+};
+
+const selectStyles = {
+  root: 'ring-0',
+  base: 'ring-0 !ring-inset-0 bg-zinc-800 border border-orange-500 text-zinc-100 focus:bg-zinc-800 focus:border-orange-500 focus:text-zinc-100 focus:!ring-2 focus:!ring-orange-500 focus:!ring-inset focus:ring-offset-0 focus-visible:!ring-2 focus-visible:!ring-orange-500 focus-visible:!ring-inset focus-visible:ring-offset-0'
+};
+
+const selectMenuStyles = {
+  base: 'ring-0 !ring-inset-0 bg-zinc-800 border border-orange-500 text-zinc-100 focus:bg-zinc-800 focus:border-orange-500 focus:text-zinc-100 focus:!ring-2 focus:!ring-orange-500 focus:!ring-inset focus:ring-offset-0 focus-visible:!ring-2 focus-visible:!ring-orange-500 focus-visible:!ring-inset focus-visible:ring-offset-0'
+};
+
+// Стили для FormField - убираем text-default
+const formFieldStyles = {
+  label: '!text-zinc-100 font-semibold'
+};
 
 const selectedNode = computed(
   () =>
@@ -1288,7 +1307,6 @@ watch(
 
 async function saveWorkflow() {
   saveError.value = null;
-  saveSuccess.value = null;
 
   const name = workflowName.value.trim();
   if (!name) {
@@ -1324,7 +1342,11 @@ async function saveWorkflow() {
         },
       );
       workflowId.value = response.id ?? workflowId.value;
-      saveSuccess.value = "Workflow updated.";
+      toast.add({
+        title: "Saved",
+        description: "Workflow updated.",
+        color: "green",
+      });
     } else {
       const response = await $fetch<{ id: string }>("/api/workflows", {
         method: "POST",
@@ -1332,7 +1354,11 @@ async function saveWorkflow() {
         credentials: "include",
       });
       workflowId.value = response.id ?? null;
-      saveSuccess.value = "Workflow saved.";
+      toast.add({
+        title: "Saved",
+        description: "Workflow saved.",
+        color: "green",
+      });
     }
   } catch (error) {
     saveError.value = getErrorMessage(error);
@@ -1374,3 +1400,26 @@ function getErrorMessage(error: unknown) {
   return "Unexpected error.";
 }
 </script>
+
+<style scoped>
+/* Переопределяем ring при фокусе для полей ввода */
+:deep([data-slot="base"]:focus),
+:deep(input[data-slot="base"]:focus),
+:deep(textarea[data-slot="base"]:focus),
+:deep(select[data-slot="base"]:focus) {
+  --tw-ring-width: 2px !important;
+  --tw-ring-color: rgb(249 115 22) !important; /* orange-500 */
+  --tw-ring-inset: inset !important;
+  box-shadow: inset 0 0 0 2px rgb(249 115 22) !important;
+}
+
+:deep([data-slot="base"]:focus-visible),
+:deep(input[data-slot="base"]:focus-visible),
+:deep(textarea[data-slot="base"]:focus-visible),
+:deep(select[data-slot="base"]:focus-visible) {
+  --tw-ring-width: 2px !important;
+  --tw-ring-color: rgb(249 115 22) !important;
+  --tw-ring-inset: inset !important;
+  box-shadow: inset 0 0 0 2px rgb(249 115 22) !important;
+}
+</style>

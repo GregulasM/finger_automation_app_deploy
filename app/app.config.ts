@@ -5,30 +5,6 @@ export default defineAppConfig({
       primary: 'orange',
       neutral: 'zinc'
     },
-    input: {
-      root: 'ring-0',
-      base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50',
-      rounded: 'rounded-md',
-      size: {
-        xs: 'text-xs',
-        sm: 'text-sm',
-        md: 'text-base',
-        lg: 'text-lg'
-      },
-      default: {
-        size: 'sm'
-      }
-    },
-    textarea: {
-      root: 'ring-0',
-      base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500/50',
-      rounded: 'rounded-md'
-    },
-    select: {
-      root: 'ring-0',
-      base: 'bg-zinc-800 border-orange-500/30 text-zinc-100 focus:bg-zinc-800 focus:border-orange-500/50',
-      rounded: 'rounded-md'
-    },
     button: {
       root: 'ring-0',
       base: 'focus:ring-0 focus:ring-offset-0',
@@ -97,14 +73,10 @@ export default defineAppConfig({
         base: 'text-red-400'
       }
     },
-    selectMenu: {
-      background: 'bg-zinc-800/70 backdrop-blur-lg opacity-90',
-      ring: 'ring-0',
-      option: {
-        base: 'text-zinc-100',
-        active: 'bg-zinc-800 text-zinc-100',
-        inactive: 'bg-zinc-800/50 text-zinc-100/70'
-      }
-    }
+    toast: {
+      title: 'text-zinc-100',
+      description: 'text-zinc-100/80',
+      background: 'bg-zinc-800 border-orange-500/30',
+    },
   }
 })
