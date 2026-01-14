@@ -1,8 +1,11 @@
 import { runCronWorkflows } from "../utils/cron-runner";
+import { runEmailPolling } from "../utils/imap-polling";
 
 type CronGlobals = typeof globalThis & {
   workflowCronInterval?: NodeJS.Timeout;
+  workflowEmailInterval?: NodeJS.Timeout;
   workflowCronRunning?: boolean;
+  workflowEmailRunning?: boolean;
   workflowCronStarted?: boolean;
 };
 
@@ -15,14 +18,18 @@ export default defineNitroPlugin(() => {
   }
   globalForCron.workflowCronStarted = true;
 
-  // Clear any existing interval (for HMR in dev)
+  // Clear any existing intervals (for HMR in dev)
   if (globalForCron.workflowCronInterval) {
     clearInterval(globalForCron.workflowCronInterval);
   }
+  if (globalForCron.workflowEmailInterval) {
+    clearInterval(globalForCron.workflowEmailInterval);
+  }
 
-  console.log("[Cron Plugin] Starting workflow cron scheduler...");
+  console.log("[Cron Plugin] Starting workflow schedulers...");
 
-  const tick = async () => {
+  // Cron/Schedule trigger tick
+  const cronTick = async () => {
     if (globalForCron.workflowCronRunning) {
       return;
     }
@@ -30,7 +37,7 @@ export default defineNitroPlugin(() => {
     try {
       const result = await runCronWorkflows({});
       if (result.queued > 0) {
-        console.log(`[Cron Plugin] Queued ${result.queued} workflow(s):`, result.executions);
+        console.log(`[Cron Plugin] Queued ${result.queued} cron workflow(s):`, result.executions);
       }
     } catch (error) {
       console.error("[Cron Plugin] Cron run failed:", error);
@@ -39,16 +46,44 @@ export default defineNitroPlugin(() => {
     }
   };
 
-  // Initial tick after short delay to let server fully start
+  // Email/IMAP polling tick
+  const emailTick = async () => {
+    if (globalForCron.workflowEmailRunning) {
+      return;
+    }
+    globalForCron.workflowEmailRunning = true;
+    try {
+      const result = await runEmailPolling();
+      if (result.triggered > 0) {
+        console.log(`[Email Polling] Triggered ${result.triggered} workflow(s)`);
+      }
+      if (result.errors.length > 0) {
+        console.warn(`[Email Polling] Errors:`, result.errors);
+      }
+    } catch (error) {
+      console.error("[Email Polling] Failed:", error);
+    } finally {
+      globalForCron.workflowEmailRunning = false;
+    }
+  };
+
+  // Initial ticks after short delay to let server fully start
   setTimeout(() => {
-    console.log("[Cron Plugin] Running initial cron check...");
-    void tick();
+    console.log("[Cron Plugin] Running initial checks...");
+    void cronTick();
+    void emailTick();
   }, 5000);
 
-  // Run every 30 seconds for more responsive scheduling
+  // Cron check every 30 seconds
   globalForCron.workflowCronInterval = setInterval(() => {
-    void tick();
+    void cronTick();
   }, 30_000);
 
-  console.log("[Cron Plugin] Cron scheduler started (interval: 30s)");
+  // Email polling every 5 minutes (300 seconds)
+  // More frequent polling may hit rate limits on email providers
+  globalForCron.workflowEmailInterval = setInterval(() => {
+    void emailTick();
+  }, 300_000);
+
+  console.log("[Cron Plugin] Schedulers started (cron: 30s, email: 5min)");
 });
