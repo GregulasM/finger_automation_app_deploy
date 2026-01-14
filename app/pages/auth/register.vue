@@ -1,5 +1,5 @@
 <template>
-  <div class="relative overflow-hidden min-h-screen bg-zinc-950 px-2 4xs:px-3 3xs:px-4 xs:px-6 py-8 4xs:py-12 3xs:py-16">
+  <div class="fixed inset-0 bg-zinc-950 overflow-y-auto px-2 4xs:px-3 3xs:px-4 xs:px-6 pt-14 4xs:pt-16 3xs:pt-18 xs:pt-20 sm:pt-16 pb-8">
     <UContainer>
       <div class="mx-auto w-full max-w-md">
         <div class="mb-4 4xs:mb-6 text-center">
@@ -33,31 +33,31 @@
           />
           <UForm :schema="schema" :state="state" @submit="onSubmit">
             <div class="space-y-3 4xs:space-y-4">
-              <UFormField :label="t('auth.name')" name="name">
+              <UFormField :label="t('auth.name')" name="name" :ui="formFieldStyles">
                 <UInput
                   v-model="state.name"
                   type="text"
                   placeholder="Your name"
                   autocomplete="name"
-                  :ui="{ root: 'ring-0' }"
+                  :ui="inputStyles"
                 />
               </UFormField>
-              <UFormField :label="t('auth.email')" name="email">
+              <UFormField :label="t('auth.email')" name="email" :ui="formFieldStyles">
                 <UInput
                   v-model="state.email"
                   type="email"
                   placeholder="you@company.com"
                   autocomplete="email"
-                  :ui="{ root: 'ring-0' }"
+                  :ui="inputStyles"
                 />
               </UFormField>
-              <UFormField :label="t('auth.password')" name="password">
+              <UFormField :label="t('auth.password')" name="password" :ui="formFieldStyles">
                 <UInput
                   v-model="state.password"
                   type="password"
                   placeholder="Create a password"
                   autocomplete="new-password"
-                  :ui="{ root: 'ring-0' }"
+                  :ui="inputStyles"
                 />
               </UFormField>
               <button
@@ -98,6 +98,16 @@ import { reactive, ref } from "vue";
 import { z } from "zod";
 
 const { t } = useI18n();
+
+// Unified input styles matching workflow editor
+const inputStyles = {
+  root: 'ring-0',
+  base: 'ring-0 !ring-inset-0 bg-zinc-800 border border-orange-500/50 text-zinc-100 placeholder:text-zinc-500 focus:bg-zinc-800 focus:border-orange-500 focus:text-zinc-100 focus:!ring-2 focus:!ring-orange-500 focus:!ring-inset focus:ring-offset-0 focus-visible:!ring-2 focus-visible:!ring-orange-500 focus-visible:!ring-inset focus-visible:ring-offset-0'
+};
+
+const formFieldStyles = {
+  label: 'text-zinc-100/80 text-[9px] 4xs:text-[10px] 3xs:text-[11px] xs:text-xs sm:text-sm font-medium'
+};
 
 const auth = useAuthStore();
 

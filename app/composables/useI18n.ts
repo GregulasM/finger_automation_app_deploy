@@ -32,8 +32,11 @@ export const useI18n = () => {
       "index.title": "Automate your stack with visual workflows.",
       "index.description": "Build triggers, chain actions, and ship workflows in minutes. Connect Webhooks, Schedules, and HTTP requests with resilient serverless execution.",
       "index.webhookTriggers": "Webhook triggers",
+      "index.webhookTooltip": "Start workflows instantly via HTTP POST requests to unique endpoints",
       "index.cronSchedules": "Cron schedules",
+      "index.cronTooltip": "Run workflows automatically on time-based schedules (every minute, hour, day, etc.)",
       "index.jsonFirstWorkflows": "JSON-first workflows",
+      "index.jsonTooltip": "Workflows stored as JSON graphs with full execution history and audit logs",
       "index.fromTriggerToAction": "From trigger to action",
       "index.fromTriggerToActionDesc": "Design flows visually, then store the graph as JSONB with full execution history.",
       "index.reliableExecution": "Reliable execution",
@@ -83,6 +86,7 @@ export const useI18n = () => {
       "editor.blockDetails": "Block details",
       "editor.addToCanvas": "Add to canvas",
       "editor.tipDrag": "Tip: drag to place it precisely.",
+      "editor.multiSelectHint": "Tip: Hold Shift and click to select multiple blocks at once",
       "editor.mobileHint": "Open the blocks menu to drag blocks onto the canvas or tap a block and use \"Add to canvas\".",
       "editor.clickBlock": "Click a block to see what it does and how to configure it.",
       "editor.nodeSettings": "Node settings",
@@ -338,6 +342,18 @@ export const useI18n = () => {
       // Language
       "lang.english": "English",
       "lang.russian": "Русский",
+      
+      // Templates
+      "editor.templates": "Templates",
+      "templates.title": "Load template",
+      "templates.confirmReplace": "This will replace your current workflow. Continue?",
+      "templates.loaded": "Template loaded",
+      "templates.webhookTelegram.name": "Webhook → Telegram",
+      "templates.webhookTelegram.description": "Receive webhook requests and send notifications to Telegram",
+      "templates.cronHttpEmail.name": "Schedule → HTTP → Email",
+      "templates.cronHttpEmail.description": "Run daily API requests and send email reports",
+      "templates.emailTransformDb.name": "Email → Transform → Database",
+      "templates.emailTransformDb.description": "Process incoming emails and save data to database",
     },
     ru: {
       // Common
@@ -367,8 +383,11 @@ export const useI18n = () => {
       "index.title": "Автоматизируйте свой стек с помощью визуальных workflows.",
       "index.description": "Создавайте триггеры, связывайте действия и запускайте workflows за минуты. Подключайте Webhooks, Расписания и HTTP-запросы с надежным serverless выполнением.",
       "index.webhookTriggers": "Webhook триггеры",
+      "index.webhookTooltip": "Запускайте workflows мгновенно через HTTP POST запросы на уникальные эндпоинты",
       "index.cronSchedules": "Cron расписания",
+      "index.cronTooltip": "Запускайте workflows автоматически по расписанию (каждую минуту, час, день и т.д.)",
       "index.jsonFirstWorkflows": "JSON-first workflows",
+      "index.jsonTooltip": "Workflows хранятся как JSON графы с полной историей выполнения и логами аудита",
       "index.fromTriggerToAction": "От триггера к действию",
       "index.fromTriggerToActionDesc": "Проектируйте потоки визуально, затем сохраняйте граф как JSONB с полной историей выполнения.",
       "index.reliableExecution": "Надежное выполнение",
@@ -418,6 +437,7 @@ export const useI18n = () => {
       "editor.blockDetails": "Детали блока",
       "editor.addToCanvas": "Добавить на холст",
       "editor.tipDrag": "Подсказка: перетащите для точного размещения.",
+      "editor.multiSelectHint": "Подсказка: Удерживайте Shift и кликайте для выделения нескольких блоков",
       "editor.mobileHint": "Откройте меню блоков, перетащите блоки на холст или нажмите «Добавить на холст» в деталях блока.",
       "editor.clickBlock": "Нажмите на блок, чтобы увидеть, что он делает и как его настроить.",
       "editor.nodeSettings": "Настройки узла",
@@ -673,6 +693,18 @@ export const useI18n = () => {
       // Language
       "lang.english": "English",
       "lang.russian": "Русский",
+      
+      // Templates
+      "editor.templates": "Шаблоны",
+      "templates.title": "Загрузить шаблон",
+      "templates.confirmReplace": "Текущий workflow будет заменен. Продолжить?",
+      "templates.loaded": "Шаблон загружен",
+      "templates.webhookTelegram.name": "Webhook → Telegram",
+      "templates.webhookTelegram.description": "Получайте webhook запросы и отправляйте уведомления в Telegram",
+      "templates.cronHttpEmail.name": "Расписание → HTTP → Email",
+      "templates.cronHttpEmail.description": "Запускайте ежедневные API запросы и отправляйте email отчеты",
+      "templates.emailTransformDb.name": "Email → Трансформация → БД",
+      "templates.emailTransformDb.description": "Обрабатывайте входящие письма и сохраняйте данные в базу",
     },
   };
 

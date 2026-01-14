@@ -1,7 +1,7 @@
 <template>
-  <div class="h-full flex flex-col space-y-3 4xs:space-y-4">
+  <div class="h-full flex flex-col space-y-1 4xs:space-y-2">
     <div
-      class="flex flex-wrap items-center justify-between gap-3 rounded-xl 4xs:rounded-2xl border border-orange-500/30 bg-zinc-800/90 px-3 4xs:px-4 py-3"
+      class="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-orange-500/30 bg-zinc-800/90 px-2 4xs:px-3 py-2"
     >
       <div class="flex flex-1 flex-wrap items-center gap-3">
         <UInput
@@ -21,6 +21,33 @@
         <UBadge color="neutral" variant="soft" :ui="{ root: 'ring-0', base: 'bg-zinc-800 border-orange-500/30 text-zinc-100' }">
           {{ t("editor.trigger") }}: {{ triggerLabel }}
         </UBadge>
+        
+        <!-- Templates dropdown -->
+        <UDropdownMenu
+          :items="templateItems"
+          :content="{ align: 'end' }"
+          :ui="{ 
+            content: 'min-w-[220px] bg-zinc-800 border border-orange-500/30 p-1',
+            item: 'text-zinc-100 hover:bg-zinc-700 data-highlighted:bg-zinc-700 rounded px-3 py-2 cursor-pointer',
+            itemLeadingIcon: 'text-zinc-400',
+            label: 'text-zinc-100 font-medium'
+          }"
+        >
+          <button
+            type="button"
+            class="rounded-md border border-orange-500/30 bg-zinc-800/90 px-3 4xs:px-4 py-2 4xs:py-2.5 text-zinc-100 transition hover:border-orange-500/70 hover:bg-zinc-800 flex items-center gap-1"
+          >
+            <svg class="w-3 h-3 4xs:w-4 4xs:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+            </svg>
+            <span
+              class="hidden xs:inline text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold"
+            >
+              {{ t("editor.templates") }}
+            </span>
+          </button>
+        </UDropdownMenu>
+        
         <button
           type="button"
           :disabled="saving || loadingWorkflow"
@@ -39,23 +66,23 @@
 
     <UAlert
       v-if="saveError"
-      color="red"
+      color="error"
       variant="soft"
       :title="t('editor.saveFailed')"
       :description="saveError"
-      :ui="{ root: 'ring-0' }"
+      :ui="{ root: 'ring-0 py-1 text-xs' }"
     />
     <UAlert
       v-if="loadError"
-      color="red"
+      color="error"
       variant="soft"
       :title="t('editor.loadFailed')"
       :description="loadError"
-      :ui="{ root: 'ring-0' }"
+      :ui="{ root: 'ring-0 py-1 text-xs' }"
     />
 
     <div
-      class="flex flex-row flex-1 min-h-0 w-full overflow-hidden rounded-xl 4xs:rounded-2xl border border-orange-500/30 bg-zinc-800/50 relative"
+      class="flex flex-row flex-1 min-h-0 w-full overflow-hidden rounded-lg border border-orange-500/30 bg-zinc-800/50 relative"
     >
       <!-- Mobile menu buttons with helper text -->
       <button
@@ -100,6 +127,24 @@
         <span class="flex-1">{{ t("editor.mobileHint") }}</span>
         <button
           @click="mobileHintDismissed = true"
+          class="flex-shrink-0 rounded p-1 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-100 transition-colors"
+          :aria-label="t('common.close')"
+        >
+          <UIcon name="i-lucide-x" class="w-4 h-4" />
+        </button>
+      </div>
+
+      <!-- Desktop multi-select hint (dismissible) -->
+      <div
+        v-if="!multiSelectHintDismissed"
+        class="hidden lg:flex fixed left-1/2 -translate-x-1/2 top-28 z-50 items-center gap-2 rounded-lg border border-cyan-500/30 bg-zinc-900/95 px-3 py-2 text-zinc-100 text-[10px] xs:text-[11px] sm:text-xs shadow-lg"
+      >
+        <svg class="w-4 h-4 text-cyan-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span class="flex-1">{{ t("editor.multiSelectHint") }}</span>
+        <button
+          @click="multiSelectHintDismissed = true"
           class="flex-shrink-0 rounded p-1 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-100 transition-colors"
           :aria-label="t('common.close')"
         >
@@ -165,14 +210,14 @@
             @keydown.enter.prevent="addNodeFromPalette(palette.find(p => p.id === item.id)!)"
             @keydown.space.prevent="addNodeFromPalette(palette.find(p => p.id === item.id)!)"
           >
-            <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center justify-between gap-2 min-w-0">
               <span
-                class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold"
+                class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold truncate"
               >
                 {{ item.label }}
               </span>
               <span
-                class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 uppercase text-zinc-100/50"
+                class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 uppercase text-zinc-100/50 flex-shrink-0"
               >
                 {{ getTranslatedRole(item.role) }}
               </span>
@@ -1824,6 +1869,121 @@ const dbOperations = [
 ];
 const triggerTypeKeys = new Set(["webhook", "schedule", "cron", "email"]);
 
+// Helper to create node data from palette ID (for templates)
+function buildNodeFromPaletteId(paletteId: string, nodeId: string, position: { x: number; y: number }, configOverrides?: Record<string, unknown>): Node<NodeData> {
+  const item = palette.find(p => p.id === paletteId);
+  if (!item) {
+    throw new Error(`Palette item not found: ${paletteId}`);
+  }
+  const role = item.role;
+  const actionType = role === "action" ? (item.actionType ?? item.type) : item.type;
+  return {
+    id: nodeId,
+    type: 'default',
+    draggable: true,
+    selectable: true,
+    position,
+    data: {
+      label: item.label,
+      type: item.type,
+      role,
+      actionType,
+      config: { ...(item.config ?? {}), ...configOverrides }
+    }
+  };
+}
+
+// Workflow templates - using palette items
+type WorkflowTemplateConfig = {
+  id: string;
+  nameKey: string;
+  descriptionKey: string;
+  blocks: { paletteId: string; position: { x: number; y: number }; config?: Record<string, unknown> }[];
+};
+
+const templateConfigs: WorkflowTemplateConfig[] = [
+  {
+    id: 'webhook-telegram',
+    nameKey: 'templates.webhookTelegram.name',
+    descriptionKey: 'templates.webhookTelegram.description',
+    blocks: [
+      { paletteId: 'webhook', position: { x: 100, y: 100 } },
+      { paletteId: 'telegram', position: { x: 400, y: 100 }, config: { parseMode: 'HTML' } }
+    ]
+  },
+  {
+    id: 'cron-http-email',
+    nameKey: 'templates.cronHttpEmail.name',
+    descriptionKey: 'templates.cronHttpEmail.description',
+    blocks: [
+      { paletteId: 'schedule', position: { x: 50, y: 100 }, config: { cron: '0 9 * * *' } },
+      { paletteId: 'http-request', position: { x: 300, y: 100 }, config: { method: 'GET' } },
+      { paletteId: 'email-action', position: { x: 550, y: 100 }, config: { subject: 'Daily Report' } }
+    ]
+  },
+  {
+    id: 'email-transform-db',
+    nameKey: 'templates.emailTransformDb.name',
+    descriptionKey: 'templates.emailTransformDb.description',
+    blocks: [
+      { paletteId: 'email-trigger', position: { x: 50, y: 100 } },
+      { paletteId: 'transformation', position: { x: 300, y: 100 }, config: { mode: 'map' } },
+      { paletteId: 'database', position: { x: 550, y: 100 }, config: { operation: 'create' } }
+    ]
+  }
+];
+
+const templateItems = computed(() => [
+  templateConfigs.map(template => ({
+    label: t(template.nameKey),
+    onSelect: () => loadTemplate(template)
+  }))
+]);
+
+function loadTemplate(template: WorkflowTemplateConfig) {
+  if (nodes.value.length > 0) {
+    if (!confirm(t('templates.confirmReplace'))) {
+      return;
+    }
+  }
+  
+  workflowName.value = t(template.nameKey);
+  
+  // Create nodes from palette items
+  const newNodes: Node<NodeData>[] = [];
+  const newEdges: Edge[] = [];
+  
+  template.blocks.forEach((block, index) => {
+    const nodeId = `node-${index + 1}`;
+    try {
+      const node = buildNodeFromPaletteId(block.paletteId, nodeId, block.position, block.config);
+      newNodes.push(normalizeLoadedNode(node, index));
+      
+      // Connect to previous node
+      if (index > 0) {
+        newEdges.push({
+          id: `edge-${index}`,
+          source: `node-${index}`,
+          target: nodeId,
+          type: 'smoothstep'
+        });
+      }
+    } catch (e) {
+      console.warn(`Failed to create node from palette: ${block.paletteId}`, e);
+    }
+  });
+  
+  nodes.value = newNodes;
+  edges.value = newEdges;
+  selectedNodeId.value = null;
+  
+  toast.add({
+    title: t('templates.loaded'),
+    description: t(template.descriptionKey),
+    color: 'success'
+  });
+}
+
 const nodes = ref<Node<NodeData>[]>([]);
 const edges = ref<Edge[]>([]);
 const selectedNodeId = ref<string | null>(null);
@@ -1846,6 +2006,7 @@ const imapTestResult = ref<{ ok: boolean; error?: string; mailboxes?: string[] }
 const blocksMenuOpen = ref(false);
 const nodeSettingsMenuOpen = ref(false);
 const mobileHintDismissed = ref(false);
+const multiSelectHintDismissed = ref(false);
 const selectedEdgeId = ref<string | null>(null);
 const telegramTesting = ref(false);
 const telegramTestResult = ref<{ ok: boolean; message: string } | null>(null);

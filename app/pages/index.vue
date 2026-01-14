@@ -1,5 +1,24 @@
 <script setup lang="ts">
 const { t } = useI18n();
+
+// Features with tooltips
+const features = computed(() => [
+  { 
+    key: 'webhookTriggers',
+    label: t("index.webhookTriggers"),
+    tooltip: t("index.webhookTooltip")
+  },
+  { 
+    key: 'cronSchedules',
+    label: t("index.cronSchedules"),
+    tooltip: t("index.cronTooltip")
+  },
+  { 
+    key: 'jsonFirstWorkflows',
+    label: t("index.jsonFirstWorkflows"),
+    tooltip: t("index.jsonTooltip")
+  }
+]);
 </script>
 
 <template>
@@ -32,7 +51,7 @@ const { t } = useI18n();
               <span
                 class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold"
               >
-                {{ t("nav.openWorkflowEditor") }}
+                {{ t("nav.newWorkflow") }}
               </span>
             </NuxtLink>
             <NuxtLink
@@ -45,47 +64,29 @@ const { t } = useI18n();
                 {{ t("nav.viewDashboard") }}
               </span>
             </NuxtLink>
-            <NuxtLink
-              to="/auth/login"
-              class="rounded-md border border-orange-500/30 bg-zinc-800/90 px-3 4xs:px-4 3xs:px-5 xs:px-6 py-2 4xs:py-2.5 3xs:py-3 text-zinc-100 transition hover:border-orange-500/70 hover:bg-zinc-800"
-            >
-              <span
-                class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold"
-              >
-                {{ t("common.signIn") }}
-              </span>
-            </NuxtLink>
           </div>
           <div
             class="flex flex-wrap items-center gap-2 4xs:gap-3 3xs:gap-4"
           >
-            <span
-              class="rounded-full border border-orange-500/30 bg-zinc-800/90 px-2 4xs:px-3 3xs:px-4 py-1 4xs:py-1.5"
+            <UTooltip
+              v-for="feature in features"
+              :key="feature.key"
+              :text="feature.tooltip"
+              :ui="{ base: 'bg-zinc-800 border border-orange-500/30 text-zinc-100 text-xs px-3 py-2 rounded-lg shadow-lg' }"
             >
               <span
-                class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/80"
+                class="group rounded-full border border-orange-500/30 bg-zinc-800/90 px-2 4xs:px-3 3xs:px-4 py-1 4xs:py-1.5 flex items-center gap-1 cursor-help transition hover:border-orange-500/50 hover:bg-zinc-700/50"
               >
-                {{ t("index.webhookTriggers") }}
+                <span
+                  class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/80"
+                >
+                  {{ feature.label }}
+                </span>
+                <svg class="w-2 h-2 4xs:w-2.5 4xs:h-2.5 3xs:w-3 3xs:h-3 text-zinc-400 group-hover:text-orange-400 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
               </span>
-            </span>
-            <span
-              class="rounded-full border border-orange-500/30 bg-zinc-800/90 px-2 4xs:px-3 3xs:px-4 py-1 4xs:py-1.5"
-            >
-              <span
-                class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/80"
-              >
-                {{ t("index.cronSchedules") }}
-              </span>
-            </span>
-            <span
-              class="rounded-full border border-orange-500/30 bg-zinc-800/90 px-2 4xs:px-3 3xs:px-4 py-1 4xs:py-1.5"
-            >
-              <span
-                class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/80"
-              >
-                {{ t("index.jsonFirstWorkflows") }}
-              </span>
-            </span>
+            </UTooltip>
           </div>
         </div>
 

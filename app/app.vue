@@ -30,13 +30,17 @@ function toggleLocale() {
   setLocale(locale.value === "en" ? "ru" : "en");
 }
 
-type NavLink = { label: string; to: string };
+type NavLink = { labelKey: string; to: string };
 
-const navLinks: NavLink[] = [
-  { label: t("nav.home"), to: "/" },
-  { label: t("nav.workflows"), to: "/workflows" },
-  { label: t("nav.editor"), to: "/workflows/editor" },
+const navLinksDef: NavLink[] = [
+  { labelKey: "nav.home", to: "/" },
+  { labelKey: "nav.workflows", to: "/workflows" },
 ];
+
+// Computed navLinks for reactive language switching
+const navLinks = computed(() => 
+  navLinksDef.map(link => ({ label: t(link.labelKey), to: link.to }))
+);
 
 function isActiveLink(link: NavLink) {
   if (link.to === "/") return route.path === "/";
@@ -59,9 +63,9 @@ watch(
 </script>
 
 <template>
-  <UApp class="min-h-screen bg-zinc-950 text-zinc-100">
+  <UApp class="min-h-screen bg-zinc-950 text-zinc-100" :ui="{ root: 'bg-zinc-950' }">
     <header
-      class="sticky top-0 z-40 border-b border-orange-500/60 bg-zinc-950/10 backdrop-blur-sm"
+      class="fixed top-0 left-0 right-0 z-40 border-b border-orange-500/60 bg-zinc-950/95 backdrop-blur-sm"
     >
       <!-- тонкая линия-акцент -->
       <div
@@ -300,8 +304,8 @@ watch(
       </div>
     </header>
 
-    <UMain class="bg-zinc-950 min-h-screen pt-12 4xs:pt-14 3xs:pt-16 2xs:pt-18 xs:pt-20 sm:pt-24">
+    <main class="bg-zinc-950 min-h-screen">
       <NuxtPage />
-    </UMain>
+    </main>
   </UApp>
 </template>
