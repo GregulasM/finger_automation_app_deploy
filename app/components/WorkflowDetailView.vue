@@ -13,7 +13,13 @@
           <div
             class="mt-1 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold text-zinc-100"
           >
-            {{ workflow?.name || t("workflows.selectWorkflow") }}
+            <span
+              v-if="workflowPending"
+              class="block h-2 w-24 animate-pulse rounded bg-zinc-700/60"
+            ></span>
+            <span v-else>{{
+              workflow?.name || t("workflows.selectWorkflow")
+            }}</span>
           </div>
         </div>
         <div class="flex items-center gap-2">
@@ -25,6 +31,10 @@
           >
             {{ workflow.status }}
           </UBadge>
+          <div
+            v-else-if="workflowPending"
+            class="h-5 w-16 animate-pulse rounded-full bg-zinc-700/60"
+          ></div>
           <NuxtLink
             v-if="workflow"
             :to="`/workflows/editor?workflowId=${workflow.id}`"
@@ -55,9 +65,15 @@
         <div
           class="flex items-center gap-2 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
         >
-          <UIcon name="i-heroicons-arrow-path-20-solid" class="h-3 w-3 animate-spin" />
+          <UIcon
+            name="i-heroicons-arrow-path-20-solid"
+            class="h-3 w-3 animate-spin"
+          />
           {{ t("workflows.loadingStats") }}
         </div>
+        <div
+          class="relative h-[3px] w-full overflow-hidden rounded-full bg-zinc-700/60 after:absolute after:left-0 after:top-0 after:bottom-0 after:w-[45%] after:rounded-full after:content-[''] after:bg-gradient-to-r after:from-transparent after:via-orange-500/80 after:to-transparent after:animate-[loading-bar-slide_1.2s_ease-in-out_infinite]"
+        ></div>
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div
             v-for="n in 4"
@@ -190,9 +206,15 @@
           <div
             class="flex items-center gap-2 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
           >
-            <UIcon name="i-heroicons-arrow-path-20-solid" class="h-3 w-3 animate-spin" />
+            <UIcon
+              name="i-heroicons-arrow-path-20-solid"
+              class="h-3 w-3 animate-spin"
+            />
             {{ t("workflows.loadingExecutions") }}
           </div>
+          <div
+            class="relative h-[3px] w-full overflow-hidden rounded-full bg-zinc-700/60 after:absolute after:left-0 after:top-0 after:bottom-0 after:w-[45%] after:rounded-full after:content-[''] after:bg-gradient-to-r after:from-transparent after:via-orange-500/80 after:to-transparent after:animate-[loading-bar-slide_1.2s_ease-in-out_infinite]"
+          ></div>
           <div class="space-y-2">
             <div
               v-for="n in 3"
@@ -229,10 +251,7 @@
               </div>
             </div>
             <div class="flex items-center gap-2">
-              <UBadge
-                :color="badgeColor(execution.status)"
-                variant="soft"
-              >
+              <UBadge :color="badgeColor(execution.status)" variant="soft">
                 {{ execution.status }}
               </UBadge>
               <span
@@ -260,6 +279,7 @@ const props = defineProps<{
     createdAt: string;
     updatedAt: string;
   } | null;
+  workflowPending: boolean;
   stats: {
     total: number;
     successRate: number;
@@ -283,7 +303,9 @@ const emit = defineEmits<{
   delete: [workflowId: string];
 }>();
 
-function badgeColor(status: string): "success" | "error" | "warning" | "info" | "neutral" {
+function badgeColor(
+  status: string,
+): "success" | "error" | "warning" | "info" | "neutral" {
   switch (status) {
     case "SUCCESS":
       return "success";

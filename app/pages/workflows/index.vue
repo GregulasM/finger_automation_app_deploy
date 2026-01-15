@@ -1,5 +1,7 @@
 <template>
-  <div class="fixed inset-0 bg-zinc-950 overflow-hidden flex flex-col pt-10 4xs:pt-10 3xs:pt-11 2xs:pt-12 xs:pt-14 sm:pt-12 lg:pt-16 xl:pt-18 2xl:pt-20 3xl:pt-24 4xl:pt-28 5xl:pt-32">
+  <div
+    class="fixed inset-0 bg-zinc-950 overflow-hidden flex flex-col pt-10 4xs:pt-10 3xs:pt-11 2xs:pt-12 xs:pt-14 sm:pt-12 lg:pt-16 xl:pt-18 2xl:pt-20 3xl:pt-24 4xl:pt-28 5xl:pt-32"
+  >
     <!-- Mobile: List View -->
     <div
       v-if="mobileView === 'list'"
@@ -39,13 +41,19 @@
           {{ t("workflows.workflowList") }}
         </div>
         <div class="mt-3 4xs:mt-4 space-y-2">
-          <div v-if="workflowsPending" class="space-y-3">
+          <div v-if="workflowsLoading" class="space-y-3">
             <div
               class="flex items-center gap-2 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
             >
-              <UIcon name="i-heroicons-arrow-path-20-solid" class="h-3 w-3 animate-spin" />
+              <UIcon
+                name="i-heroicons-arrow-path-20-solid"
+                class="h-3 w-3 animate-spin"
+              />
               {{ t("workflows.loadingWorkflows") }}
             </div>
+            <div
+              class="relative h-[3px] w-full overflow-hidden rounded-full bg-zinc-700/60 after:absolute after:left-0 after:top-0 after:bottom-0 after:w-[45%] after:rounded-full after:content-[''] after:bg-gradient-to-r after:from-transparent after:via-orange-500/80 after:to-transparent after:animate-[loading-bar-slide_1.2s_ease-in-out_infinite]"
+            ></div>
             <div class="space-y-2">
               <div
                 v-for="n in 4"
@@ -109,10 +117,11 @@
       </button>
       <WorkflowDetailView
         :workflow="selectedWorkflow ?? null"
+        :workflow-pending="workflowDetailLoading"
         :stats="stats ?? null"
-        :stats-pending="statsPending"
+        :stats-pending="statsLoading"
         :executions="executions ?? null"
-        :executions-pending="executionsPending"
+        :executions-pending="executionsLoading"
         :trigger-endpoint="triggerEndpoint"
         @delete="handleDelete"
       />
@@ -147,35 +156,43 @@
         </NuxtLink>
       </div>
 
-      <div class="flex-1 overflow-hidden grid gap-4 4xs:gap-6 lg:grid-cols-[280px_1fr]">
+      <div
+        class="flex-1 overflow-hidden grid gap-4 4xs:gap-6 lg:grid-cols-[280px_1fr]"
+      >
         <div
           class="rounded-xl 4xs:rounded-2xl border border-orange-500/30 bg-zinc-800/90 p-3 4xs:p-4 overflow-y-auto"
         >
           <div
-          class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold uppercase tracking-wider text-zinc-100/60"
-        >
-          {{ t("workflows.workflowList") }}
-        </div>
-        <div class="mt-3 4xs:mt-4 space-y-2">
-          <div v-if="workflowsPending" class="space-y-3">
-            <div
-              class="flex items-center gap-2 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
-            >
-              <UIcon name="i-heroicons-arrow-path-20-solid" class="h-3 w-3 animate-spin" />
-              {{ t("workflows.loadingWorkflows") }}
-            </div>
-            <div class="space-y-2">
+            class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold uppercase tracking-wider text-zinc-100/60"
+          >
+            {{ t("workflows.workflowList") }}
+          </div>
+          <div class="mt-3 4xs:mt-4 space-y-2">
+            <div v-if="workflowsLoading" class="space-y-3">
               <div
-                v-for="n in 5"
-                :key="`desktop-skeleton-${n}`"
-                class="animate-pulse rounded-lg border border-orange-500/20 bg-zinc-800/50 px-3 py-2"
+                class="flex items-center gap-2 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
               >
-                <div class="h-2 w-1/2 rounded bg-zinc-700/60"></div>
-                <div class="mt-2 h-2 w-1/3 rounded bg-zinc-700/50"></div>
-                <div class="mt-2 h-2 w-1/4 rounded bg-zinc-700/40"></div>
+                <UIcon
+                  name="i-heroicons-arrow-path-20-solid"
+                  class="h-3 w-3 animate-spin"
+                />
+                {{ t("workflows.loadingWorkflows") }}
+              </div>
+              <div
+                class="relative h-[3px] w-full overflow-hidden rounded-full bg-zinc-700/60 after:absolute after:left-0 after:top-0 after:bottom-0 after:w-[45%] after:rounded-full after:content-[''] after:bg-gradient-to-r after:from-transparent after:via-orange-500/80 after:to-transparent after:animate-[loading-bar-slide_1.2s_ease-in-out_infinite]"
+              ></div>
+              <div class="space-y-2">
+                <div
+                  v-for="n in 5"
+                  :key="`desktop-skeleton-${n}`"
+                  class="animate-pulse rounded-lg border border-orange-500/20 bg-zinc-800/50 px-3 py-2"
+                >
+                  <div class="h-2 w-1/2 rounded bg-zinc-700/60"></div>
+                  <div class="mt-2 h-2 w-1/3 rounded bg-zinc-700/50"></div>
+                  <div class="mt-2 h-2 w-1/4 rounded bg-zinc-700/40"></div>
+                </div>
               </div>
             </div>
-          </div>
             <div
               v-else-if="workflowError"
               class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-red-400"
@@ -207,7 +224,8 @@
               <span
                 class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/50"
               >
-                {{ t("workflows.updated") }} {{ formatDate(workflow.updatedAt) }}
+                {{ t("workflows.updated") }}
+                {{ formatDate(workflow.updatedAt) }}
               </span>
             </button>
           </div>
@@ -216,10 +234,11 @@
         <div class="overflow-y-auto space-y-4 4xs:space-y-6">
           <WorkflowDetailView
             :workflow="selectedWorkflow ?? null"
+            :workflow-pending="workflowDetailLoading"
             :stats="stats ?? null"
-            :stats-pending="statsPending"
+            :stats-pending="statsLoading"
             :executions="executions ?? null"
-            :executions-pending="executionsPending"
+            :executions-pending="executionsLoading"
             :trigger-endpoint="triggerEndpoint"
             @delete="handleDelete"
           />
@@ -283,14 +302,22 @@ const {
   pending: workflowsPending,
   error: workflowsError,
   refresh: refreshWorkflows,
-} = await useFetch<WorkflowListItem[]>("/api/workflows", {
+  status: workflowsStatus,
+} = useFetch<WorkflowListItem[]>("/api/workflows", {
   credentials: "include",
   immediate: loggedIn.value,
+  lazy: true,
+  server: false,
   watch: [loggedIn],
 });
 
 const workflows = computed(() => workflowsData.value ?? []);
 const workflowError = computed(() => workflowsError.value?.message ?? "");
+const workflowsLoading = computed(
+  () =>
+    loggedIn.value &&
+    (workflowsPending.value || workflowsStatus.value === "idle"),
+);
 
 watch(
   workflows,
@@ -302,7 +329,11 @@ watch(
   { immediate: true },
 );
 
-const { data: selectedWorkflow } = await useAsyncData<WorkflowDetail | null>(
+const {
+  data: selectedWorkflow,
+  pending: selectedWorkflowPending,
+  status: selectedWorkflowStatus,
+} = useAsyncData<WorkflowDetail | null>(
   "workflow-detail",
   async () => {
     if (!selectedWorkflowId.value || !loggedIn.value) {
@@ -312,7 +343,13 @@ const { data: selectedWorkflow } = await useAsyncData<WorkflowDetail | null>(
       credentials: "include",
     });
   },
-  { watch: [selectedWorkflowId, loggedIn] },
+  { watch: [selectedWorkflowId, loggedIn], lazy: true, server: false },
+);
+const workflowDetailLoading = computed(
+  () =>
+    !!selectedWorkflowId.value &&
+    loggedIn.value &&
+    (selectedWorkflowPending.value || selectedWorkflowStatus.value === "idle"),
 );
 
 const triggerEndpoint = computed(() => {
@@ -328,23 +365,34 @@ const triggerEndpoint = computed(() => {
   return "";
 });
 
-const { data: stats, pending: statsPending } =
-  await useAsyncData<WorkflowStats | null>(
-    "workflow-stats",
-    async () => {
-      if (!selectedWorkflowId.value || !loggedIn.value) {
-        return null;
-      }
-      return await $fetch(`/api/workflows/${selectedWorkflowId.value}/stats`, {
-        credentials: "include",
-      });
-    },
-    { watch: [selectedWorkflowId, loggedIn] },
-  );
+const {
+  data: stats,
+  pending: statsPending,
+  status: statsStatus,
+} = useAsyncData<WorkflowStats | null>(
+  "workflow-stats",
+  async () => {
+    if (!selectedWorkflowId.value || !loggedIn.value) {
+      return null;
+    }
+    return await $fetch(`/api/workflows/${selectedWorkflowId.value}/stats`, {
+      credentials: "include",
+    });
+  },
+  { watch: [selectedWorkflowId, loggedIn], lazy: true, server: false },
+);
+const statsLoading = computed(
+  () =>
+    !!selectedWorkflowId.value &&
+    loggedIn.value &&
+    (statsPending.value || statsStatus.value === "idle"),
+);
 
-const { data: executions, pending: executionsPending } = await useAsyncData<
-  ExecutionRecord[]
->(
+const {
+  data: executions,
+  pending: executionsPending,
+  status: executionsStatus,
+} = useAsyncData<ExecutionRecord[]>(
   "workflow-executions",
   async () => {
     if (!selectedWorkflowId.value || !loggedIn.value) {
@@ -358,7 +406,13 @@ const { data: executions, pending: executionsPending } = await useAsyncData<
       },
     );
   },
-  { watch: [selectedWorkflowId, loggedIn] },
+  { watch: [selectedWorkflowId, loggedIn], lazy: true, server: false },
+);
+const executionsLoading = computed(
+  () =>
+    !!selectedWorkflowId.value &&
+    loggedIn.value &&
+    (executionsPending.value || executionsStatus.value === "idle"),
 );
 
 function handleWorkflowClick(workflowId: string) {
@@ -379,15 +433,15 @@ async function handleDelete(workflowId: string) {
       method: "DELETE",
       credentials: "include",
     });
-    
+
     await refreshWorkflows();
-    
+
     if (workflows.value.length > 0 && workflows.value[0]) {
       selectedWorkflowId.value = workflows.value[0].id;
     } else {
       selectedWorkflowId.value = null;
     }
-    
+
     // Check if mobile using window width
     if (process.client && window.innerWidth < 1024) {
       mobileView.value = "list";
