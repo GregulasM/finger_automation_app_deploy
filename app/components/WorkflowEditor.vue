@@ -1,7 +1,17 @@
 <template>
-  <div class="h-full flex flex-col space-y-1 4xs:space-y-2">
+  <div class="h-full flex flex-col space-y-1 4xs:space-y-2 not-lg:space-y-0">
     <div
-      class="flex flex-col lg:flex-row flex-wrap items-stretch lg:items-center justify-between gap-2 rounded-lg border border-orange-500/30 bg-zinc-800/90 px-2 4xs:px-3 py-2 not-lg:mx-10"
+      :class="[
+        'flex flex-col lg:flex-row flex-wrap items-stretch lg:items-center justify-between gap-2 border border-orange-500/30 transition not-lg:mx-10',
+        'px-1 4xs:px-2 xs:px-3 py-1 4xs:py-1.5 xs:py-2 lg:px-2 4xs:lg:px-3 lg:py-2',
+        'rounded-b-lg lg:rounded-lg',
+        'bg-zinc-900/95 backdrop-blur-sm lg:bg-zinc-800/90 lg:backdrop-blur-0',
+        'fixed lg:static inset-x-0 top-12 4xs:top-12 3xs:top-13 2xs:top-14 xs:top-14 sm:top-14 md:top-16 z-40 lg:z-auto',
+        'shadow-lg lg:shadow-none',
+        'max-h-[70vh] overflow-y-auto lg:max-h-none lg:overflow-visible',
+        editorPanelOpen ? 'flex' : 'hidden',
+        'lg:flex',
+      ]"
     >
       <div
         class="flex flex-1 min-w-0 flex-col 2xs:flex-row flex-wrap items-start 2xs:items-center gap-3"
@@ -73,7 +83,7 @@
         <button
           type="button"
           :disabled="saving || loadingWorkflow"
-          class="rounded-md border border-orange-500 bg-orange-500 px-3 4xs:px-4 py-2 4xs:py-2.5 text-zinc-950 transition hover:brightness-110 disabled:opacity-50"
+          class="rounded-md border border-orange-500 bg-orange-500 px-2 2xs:px-3 xs:px-4 py-1 3xs:py-2 text-zinc-950 transition hover:brightness-110 disabled:opacity-50"
           @click="saveWorkflow"
         >
           <span
@@ -3583,6 +3593,7 @@ const selectedHelp = computed(() => {
   );
 });
 const { t } = useI18n();
+const editorPanelOpen = useState<boolean>("editorPanelOpen", () => false);
 
 function getTranslatedPaletteItem(item: PaletteItem): PaletteItem {
   const key = item.id;

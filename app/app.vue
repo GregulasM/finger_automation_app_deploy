@@ -25,6 +25,10 @@ const auth = useAuthStore();
 const { user, loggedIn } = storeToRefs(auth);
 const route = useRoute();
 const { t, locale, setLocale } = useI18n();
+const editorPanelOpen = useState<boolean>("editorPanelOpen", () => false);
+const isEditorRoute = computed(() =>
+  route.path.startsWith("/workflows/editor"),
+);
 
 function toggleLocale() {
   setLocale(locale.value === "en" ? "ru" : "en");
@@ -39,8 +43,8 @@ const navLinksDef: NavLinkDef[] = [
 ];
 
 // Computed navLinks for reactive language switching
-const navLinks = computed(() => 
-  navLinksDef.map(link => ({ label: t(link.labelKey), to: link.to }))
+const navLinks = computed(() =>
+  navLinksDef.map((link) => ({ label: t(link.labelKey), to: link.to })),
 );
 
 function isActiveLink(link: NavLink) {
@@ -59,12 +63,26 @@ async function handleLogout() {
 const mobileOpen = ref(false);
 watch(
   () => route.path,
-  () => (mobileOpen.value = false),
+  () => {
+    mobileOpen.value = false;
+    if (!isEditorRoute.value) {
+      editorPanelOpen.value = false;
+    }
+  },
 );
+
+watch(mobileOpen, (open) => {
+  if (open) {
+    editorPanelOpen.value = false;
+  }
+});
 </script>
 
 <template>
-  <UApp class="min-h-screen bg-zinc-950 text-zinc-100" :ui="{ root: 'bg-zinc-950' }">
+  <UApp
+    class="min-h-screen bg-zinc-950 text-zinc-100"
+    :ui="{ root: 'bg-zinc-950' }"
+  >
     <header
       class="fixed top-0 left-0 right-0 z-40 border-b border-orange-500/60 bg-zinc-950/95 backdrop-blur-sm"
     >
@@ -133,7 +151,23 @@ watch(
               </span>
             </button>
           </div>
-          
+
+          <!-- Mobile editor controls toggle -->
+          <button
+            v-if="isEditorRoute"
+            type="button"
+            class="lg:hidden inline-flex items-center justify-center rounded-md border border-orange-500/30 bg-zinc-800/70 px-2 2xs:px-3 py-1 3xs:py-2 text-zinc-100 hover:border-orange-500/70 hover:bg-zinc-800/90 transition"
+            :aria-expanded="editorPanelOpen ? 'true' : 'false'"
+            :title="t('editor.title')"
+            aria-label="Toggle editor controls"
+            @click="editorPanelOpen = !editorPanelOpen"
+          >
+            <UIcon
+              name="mingcute:save-2-line"
+              class="h-3 w-3 2xs:h-4 2xs:w-4"
+            />
+          </button>
+
           <!-- Mobile hamburger -->
           <button
             type="button"
@@ -206,11 +240,11 @@ watch(
             to="/auth/login"
             class="hidden 2xs:inline-flex items-center justify-center rounded-md border border-orange-500/30 bg-zinc-800/70 px-2 2xs:px-3 py-1 3xs:py-2 text-zinc-100 hover:border-orange-500/70 hover:bg-zinc-800/90 transition"
           >
-              <span
-                class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold leading-none"
-              >
-                {{ t("common.signIn") }}
-              </span>
+            <span
+              class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold leading-none"
+            >
+              {{ t("common.signIn") }}
+            </span>
           </NuxtLink>
         </div>
       </div>
@@ -253,11 +287,14 @@ watch(
                   <span
                     class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold leading-none"
                   >
-                    {{ locale === "en" ? t("lang.russian") : t("lang.english") }} ({{ locale === "en" ? "RU" : "EN" }})
+                    {{
+                      locale === "en" ? t("lang.russian") : t("lang.english")
+                    }}
+                    ({{ locale === "en" ? "RU" : "EN" }})
                   </span>
                 </button>
               </div>
-              
+
               <div
                 v-if="loggedIn && user"
                 class="flex items-center justify-between gap-2"
@@ -293,11 +330,11 @@ watch(
                 to="/auth/login"
                 class="inline-flex w-full items-center justify-center rounded-md border border-orange-500/30 bg-zinc-800/70 px-2 py-2 text-zinc-100 hover:border-orange-500/70 hover:bg-zinc-800/90 transition"
               >
-              <span
-                class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold leading-none"
-              >
-                {{ t("common.signIn") }}
-              </span>
+                <span
+                  class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold leading-none"
+                >
+                  {{ t("common.signIn") }}
+                </span>
               </NuxtLink>
             </div>
           </nav>
