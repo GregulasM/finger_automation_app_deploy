@@ -246,7 +246,7 @@ async function handleHttpRequest(
   context: WorkflowExecutionContext,
 ) {
   const config = step.config ?? {};
-  const url = String(config.url ?? config.endpoint ?? "");
+  const url = String(config.url ?? config.endpoint ?? "").trim();
   if (!url) {
     throw new Error("HTTP Request step missing url");
   }

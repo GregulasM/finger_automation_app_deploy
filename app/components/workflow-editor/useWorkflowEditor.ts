@@ -804,36 +804,39 @@ export function useWorkflowEditor(props: WorkflowEditorProps) {
     httpTestResult.value = null;
 
     try {
-      const response = await fetch(url, {
-        method,
+      const response = await fetch("/api/workflows/http-test", {
+        method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          ...headers,
         },
-        body: ["GET", "HEAD"].includes(method) ? undefined : body || "{}",
+        body: JSON.stringify({
+          url,
+          method,
+          headers: headersStr,
+          body,
+          workflowId: workflowId.value ?? undefined,
+        }),
       });
 
-      const contentType = response.headers.get("content-type") || "";
-      let data: string;
-      if (contentType.includes("application/json")) {
-        const json = await response.json();
-        data = JSON.stringify(json, null, 2);
-      } else {
-        data = await response.text();
-      }
+      const result = (await response.json()) as {
+        ok: boolean;
+        status: number;
+        data: string;
+      };
 
-      // Truncate long responses
+      let data = result.data ?? "";
       if (data.length > 500) {
         data = data.substring(0, 500) + "\n... (truncated)";
       }
 
       httpTestResult.value = {
-        ok: response.ok,
-        status: response.status,
+        ok: result.ok,
+        status: result.status,
         data,
       };
 
-      if (isInternalHook && response.status === 409) {
+      if (isInternalHook && result.status === 409) {
         toast.add({
           title: t("editor.http.recursionBlocked"),
           description: t("editor.http.recursionBlockedDesc"),
