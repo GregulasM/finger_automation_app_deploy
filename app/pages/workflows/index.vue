@@ -39,11 +39,24 @@
           {{ t("workflows.workflowList") }}
         </div>
         <div class="mt-3 4xs:mt-4 space-y-2">
-          <div
-            v-if="workflowsPending"
-            class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
-          >
-            {{ t("workflows.loadingWorkflows") }}
+          <div v-if="workflowsPending" class="space-y-3">
+            <div
+              class="flex items-center gap-2 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
+            >
+              <UIcon name="i-heroicons-arrow-path-20-solid" class="h-3 w-3 animate-spin" />
+              {{ t("workflows.loadingWorkflows") }}
+            </div>
+            <div class="space-y-2">
+              <div
+                v-for="n in 4"
+                :key="`mobile-skeleton-${n}`"
+                class="animate-pulse rounded-lg border border-orange-500/20 bg-zinc-800/50 px-3 py-2"
+              >
+                <div class="h-2 w-1/2 rounded bg-zinc-700/60"></div>
+                <div class="mt-2 h-2 w-1/3 rounded bg-zinc-700/50"></div>
+                <div class="mt-2 h-2 w-1/4 rounded bg-zinc-700/40"></div>
+              </div>
+            </div>
           </div>
           <div
             v-else-if="workflowError"
@@ -144,11 +157,24 @@
           {{ t("workflows.workflowList") }}
         </div>
         <div class="mt-3 4xs:mt-4 space-y-2">
-          <div
-            v-if="workflowsPending"
-            class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
-          >
-            {{ t("workflows.loadingWorkflows") }}
+          <div v-if="workflowsPending" class="space-y-3">
+            <div
+              class="flex items-center gap-2 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
+            >
+              <UIcon name="i-heroicons-arrow-path-20-solid" class="h-3 w-3 animate-spin" />
+              {{ t("workflows.loadingWorkflows") }}
+            </div>
+            <div class="space-y-2">
+              <div
+                v-for="n in 5"
+                :key="`desktop-skeleton-${n}`"
+                class="animate-pulse rounded-lg border border-orange-500/20 bg-zinc-800/50 px-3 py-2"
+              >
+                <div class="h-2 w-1/2 rounded bg-zinc-700/60"></div>
+                <div class="mt-2 h-2 w-1/3 rounded bg-zinc-700/50"></div>
+                <div class="mt-2 h-2 w-1/4 rounded bg-zinc-700/40"></div>
+              </div>
+            </div>
           </div>
             <div
               v-else-if="workflowError"

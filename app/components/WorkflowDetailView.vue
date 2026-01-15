@@ -51,11 +51,23 @@
         </div>
       </div>
 
-      <div
-        v-if="statsPending"
-        class="mt-4 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
-      >
-        {{ t("workflows.loadingStats") }}
+      <div v-if="statsPending" class="mt-4 space-y-3">
+        <div
+          class="flex items-center gap-2 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
+        >
+          <UIcon name="i-heroicons-arrow-path-20-solid" class="h-3 w-3 animate-spin" />
+          {{ t("workflows.loadingStats") }}
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div
+            v-for="n in 4"
+            :key="`stats-skeleton-${n}`"
+            class="animate-pulse rounded-xl border border-orange-500/30 bg-zinc-800/50 p-3 4xs:p-4"
+          >
+            <div class="h-2 w-1/2 rounded bg-zinc-700/60"></div>
+            <div class="mt-2 h-3 w-1/3 rounded bg-zinc-700/70"></div>
+          </div>
+        </div>
       </div>
       <div v-else class="mt-4 space-y-4">
         <div v-if="workflow" class="grid gap-4 sm:grid-cols-2">
@@ -174,11 +186,23 @@
         {{ t("workflows.executionHistory") }}
       </div>
       <div class="mt-3 4xs:mt-4">
-        <div
-          v-if="executionsPending"
-          class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
-        >
-          {{ t("workflows.loadingExecutions") }}
+        <div v-if="executionsPending" class="space-y-3">
+          <div
+            class="flex items-center gap-2 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
+          >
+            <UIcon name="i-heroicons-arrow-path-20-solid" class="h-3 w-3 animate-spin" />
+            {{ t("workflows.loadingExecutions") }}
+          </div>
+          <div class="space-y-2">
+            <div
+              v-for="n in 3"
+              :key="`exec-skeleton-${n}`"
+              class="animate-pulse rounded-lg border border-orange-500/30 bg-zinc-800/50 px-3 py-2"
+            >
+              <div class="h-2 w-2/5 rounded bg-zinc-700/60"></div>
+              <div class="mt-2 h-2 w-1/3 rounded bg-zinc-700/50"></div>
+            </div>
+          </div>
         </div>
         <div
           v-else-if="executions && executions.length === 0"

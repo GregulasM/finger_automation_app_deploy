@@ -30,9 +30,10 @@ function toggleLocale() {
   setLocale(locale.value === "en" ? "ru" : "en");
 }
 
-type NavLink = { labelKey: string; to: string };
+type NavLinkDef = { labelKey: string; to: string };
+type NavLink = { label: string; to: string };
 
-const navLinksDef: NavLink[] = [
+const navLinksDef: NavLinkDef[] = [
   { labelKey: "nav.home", to: "/" },
   { labelKey: "nav.workflows", to: "/workflows" },
 ];
@@ -100,7 +101,7 @@ watch(
             v-for="link in navLinks"
             :key="link.to"
             :to="link.to"
-            class="rounded-full border px-2 2xs:px-3 py-1 transition"
+            class="inline-flex items-center justify-center rounded-md border px-2 2xs:px-3 py-1 3xs:py-2 transition"
             :class="
               isActiveLink(link)
                 ? 'border-orange-500/80 bg-zinc-800 text-zinc-100 shadow-[0_0_0_1px_rgba(249,115,22,0.35)]'
@@ -108,7 +109,7 @@ watch(
             "
           >
             <span
-              class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold"
+              class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold leading-none"
             >
               {{ link.label }}
             </span>
@@ -122,11 +123,11 @@ watch(
             <button
               type="button"
               @click="toggleLocale"
-              class="rounded-md border border-orange-500/30 bg-zinc-800/70 px-2 2xs:px-3 py-1 3xs:py-2 text-zinc-100 hover:border-orange-500/70 hover:bg-zinc-800/90 transition"
+              class="inline-flex items-center justify-center rounded-md border border-orange-500/30 bg-zinc-800/70 px-2 2xs:px-3 py-1 3xs:py-2 text-zinc-100 hover:border-orange-500/70 hover:bg-zinc-800/90 transition"
               :title="locale === 'en' ? t('lang.russian') : t('lang.english')"
             >
               <span
-                class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold"
+                class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold leading-none"
               >
                 {{ locale === "en" ? "RU" : "EN" }}
               </span>
@@ -136,7 +137,7 @@ watch(
           <!-- Mobile hamburger -->
           <button
             type="button"
-            class="md:hidden inline-flex items-center justify-center rounded-md border border-orange-500/30 bg-zinc-800/70 px-2 py-2 hover:border-orange-500/70 hover:bg-zinc-800/90"
+            class="md:hidden inline-flex items-center justify-center rounded-md border border-orange-500/30 bg-zinc-800/70 px-2 2xs:px-3 py-1 3xs:py-2 hover:border-orange-500/70 hover:bg-zinc-800/90 transition"
             :aria-expanded="mobileOpen ? 'true' : 'false'"
             aria-label="Open menu"
             @click="mobileOpen = !mobileOpen"
@@ -159,10 +160,10 @@ watch(
           <!-- Primary action -->
           <NuxtLink
             to="/workflows/editor"
-            class="rounded-md border border-orange-500 bg-orange-500 px-2 2xs:px-3 xs:px-4 py-1 3xs:py-2 text-zinc-950 transition hover:brightness-110"
+            class="inline-flex items-center justify-center rounded-md border border-orange-500 bg-orange-500 px-2 2xs:px-3 xs:px-4 py-1 3xs:py-2 text-zinc-950 transition hover:brightness-110"
           >
             <span
-              class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold"
+              class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold leading-none"
             >
               <span class="hidden 2xs:inline">{{ t("nav.newWorkflow") }}</span>
               <span class="2xs:hidden">{{ t("common.new") }}</span>
@@ -189,11 +190,11 @@ watch(
 
             <button
               type="button"
-              class="rounded-md border border-orange-500/30 bg-zinc-800/70 px-2 2xs:px-3 py-1 3xs:py-2 text-zinc-100 hover:border-orange-500/70 hover:bg-zinc-800/90"
+              class="inline-flex items-center justify-center rounded-md border border-orange-500/30 bg-zinc-800/70 px-2 2xs:px-3 py-1 3xs:py-2 text-zinc-100 hover:border-orange-500/70 hover:bg-zinc-800/90 transition"
               @click="handleLogout"
             >
               <span
-                class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold"
+                class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold leading-none"
               >
                 {{ t("common.logout") }}
               </span>
@@ -203,10 +204,10 @@ watch(
           <NuxtLink
             v-else
             to="/auth/login"
-            class="hidden 2xs:inline-flex rounded-md border border-orange-500/30 bg-zinc-800/70 px-2 2xs:px-3 py-1 3xs:py-2 text-zinc-100 hover:border-orange-500/70 hover:bg-zinc-800/90"
+            class="hidden 2xs:inline-flex items-center justify-center rounded-md border border-orange-500/30 bg-zinc-800/70 px-2 2xs:px-3 py-1 3xs:py-2 text-zinc-100 hover:border-orange-500/70 hover:bg-zinc-800/90 transition"
           >
               <span
-                class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold"
+                class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold leading-none"
               >
                 {{ t("common.signIn") }}
               </span>
@@ -227,7 +228,7 @@ watch(
               v-for="link in navLinks"
               :key="link.to"
               :to="link.to"
-              class="rounded-md border px-2 py-2 transition"
+              class="inline-flex items-center justify-center rounded-md border px-2 py-2 transition"
               :class="
                 isActiveLink(link)
                   ? 'border-orange-500/80 bg-zinc-800 text-zinc-100 shadow-[0_0_0_1px_rgba(249,115,22,0.35)]'
@@ -235,7 +236,7 @@ watch(
               "
             >
               <span
-                class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold"
+                class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold leading-none"
               >
                 {{ link.label }}
               </span>
@@ -247,10 +248,10 @@ watch(
                 <button
                   type="button"
                   @click="toggleLocale"
-                  class="w-full rounded-md border border-orange-500/30 bg-zinc-800/70 px-2 py-2 text-zinc-100 hover:border-orange-500/70 hover:bg-zinc-800/90 transition"
+                  class="inline-flex w-full items-center justify-center rounded-md border border-orange-500/30 bg-zinc-800/70 px-2 py-2 text-zinc-100 hover:border-orange-500/70 hover:bg-zinc-800/90 transition"
                 >
                   <span
-                    class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold"
+                    class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold leading-none"
                   >
                     {{ locale === "en" ? t("lang.russian") : t("lang.english") }} ({{ locale === "en" ? "RU" : "EN" }})
                   </span>
@@ -276,11 +277,11 @@ watch(
 
                 <button
                   type="button"
-                  class="shrink-0 rounded-md border border-orange-500/30 bg-zinc-800/70 px-2 py-2 text-zinc-100 hover:border-orange-500/70 hover:bg-zinc-800/90"
+                  class="shrink-0 inline-flex items-center justify-center rounded-md border border-orange-500/30 bg-zinc-800/70 px-2 py-2 text-zinc-100 hover:border-orange-500/70 hover:bg-zinc-800/90 transition"
                   @click="handleLogout"
                 >
                   <span
-                    class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold"
+                    class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold leading-none"
                   >
                     Logout
                   </span>
@@ -290,10 +291,10 @@ watch(
               <NuxtLink
                 v-else
                 to="/auth/login"
-                class="inline-flex w-full items-center justify-center rounded-md border border-orange-500/30 bg-zinc-800/70 px-2 py-2 text-zinc-100 hover:border-orange-500/70 hover:bg-zinc-800/90"
+                class="inline-flex w-full items-center justify-center rounded-md border border-orange-500/30 bg-zinc-800/70 px-2 py-2 text-zinc-100 hover:border-orange-500/70 hover:bg-zinc-800/90 transition"
               >
               <span
-                class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold"
+                class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold leading-none"
               >
                 {{ t("common.signIn") }}
               </span>

@@ -43,6 +43,10 @@ export const useI18n = () => {
       "index.reliableExecutionDesc": "QStash handles queueing and retries while the runner isolates each workflow run.",
       "index.auditReadyLogs": "Audit-ready logs",
       "index.auditReadyLogsDesc": "Step-by-step logging, timings, and outputs stay available for every run.",
+      "index.screenshotsTitle": "Product screenshots",
+      "index.screenshotEditorTitle": "Workflow editor",
+      "index.screenshotDetailsTitle": "Details",
+      "index.screenshotLogsTitle": "Audit logs",
 
       // Workflows page
       "workflows.title": "Workflows",
@@ -394,6 +398,10 @@ export const useI18n = () => {
       "index.reliableExecutionDesc": "QStash обрабатывает очереди и повторы, пока runner изолирует каждый запуск workflow.",
       "index.auditReadyLogs": "Готовые к аудиту логи",
       "index.auditReadyLogsDesc": "Пошаговое логирование, тайминги и результаты остаются доступными для каждого запуска.",
+      "index.screenshotsTitle": "Скриншоты интерфейса",
+      "index.screenshotEditorTitle": "Редактор workflow",
+      "index.screenshotDetailsTitle": "Детали",
+      "index.screenshotLogsTitle": "Логи аудита",
 
       // Workflows page
       "workflows.title": "Workflows",

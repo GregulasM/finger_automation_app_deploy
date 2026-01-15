@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="750" viewBox="0 0 1200 750" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="750" rx="32" fill="#0f1115"/>
+  <rect x="60" y="80" width="1080" height="590" rx="24" fill="#111827" stroke="#f97316" stroke-opacity="0.35" stroke-width="2"/>
+  <text x="100" y="150" fill="#f97316" font-family="Arial, sans-serif" font-size="36" font-weight="700">Execution Timeline</text>
+  <text x="100" y="200" fill="#e5e7eb" font-family="Arial, sans-serif" font-size="22">See every step with status and duration.</text>
+  <rect x="100" y="260" width="1000" height="60" rx="12" fill="#1f2937"/>
+  <rect x="100" y="340" width="1000" height="60" rx="12" fill="#1f2937"/>
+  <rect x="100" y="420" width="1000" height="60" rx="12" fill="#1f2937"/>
+  <rect x="100" y="500" width="1000" height="60" rx="12" fill="#1f2937"/>
+  <circle cx="160" cy="290" r="10" fill="#22c55e"/>
+  <circle cx="160" cy="370" r="10" fill="#f59e0b"/>
+  <circle cx="160" cy="450" r="10" fill="#3b82f6"/>
+  <circle cx="160" cy="530" r="10" fill="#ef4444"/>
+</svg>
