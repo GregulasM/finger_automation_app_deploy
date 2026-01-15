@@ -33,7 +33,10 @@ function normalizeType(raw: string): WorkflowStepType {
   return STEP_TYPE_MAP[key] ?? (raw as WorkflowStepType);
 }
 
-export function normalizeWorkflowSteps(graphData: unknown): WorkflowStep[] {
+export function normalizeWorkflowSteps(
+  graphData: unknown,
+  source?: string,
+): WorkflowStep[] {
   if (!graphData || typeof graphData !== "object") {
     return [];
   }
@@ -71,43 +74,64 @@ export function normalizeWorkflowSteps(graphData: unknown): WorkflowStep[] {
       ? (data.edges as Record<string, unknown>[])
       : [];
 
-    const actionNodes = nodes
-      .map((node, index) => {
-        const nodeData = (node.data ?? {}) as Record<string, unknown>;
-        const role = String(nodeData.role ?? "")
-          .toLowerCase()
-          .trim();
-        const rawType = String(
-          nodeData.actionType ?? nodeData.type ?? node.type ?? "Transformation",
-        );
-        
+    const graphNodes = nodes.map((node, index) => {
+      const nodeData = (node.data ?? {}) as Record<string, unknown>;
+      const role = String(nodeData.role ?? "")
+        .toLowerCase()
+        .trim();
+      const rawType = String(
+        nodeData.actionType ?? nodeData.type ?? node.type ?? "Transformation",
+      );
+      return {
+        id: String(node.id ?? index),
+        node,
+        nodeData,
+        rawType,
+        role,
+        index,
+      };
+    });
+
+    const reachableActionIds = getReachableActionIds(graphNodes, edges, source);
+
+    const actionNodes = graphNodes
+      .map((item) => {
+        const rawType = item.rawType;
+
         // Skip trigger nodes
-        if (role === "trigger") {
+        if (item.role === "trigger") {
           return null;
         }
-        
+
         // Only filter by TRIGGER_NODE_TYPES if role is not explicitly "action"
         // This allows Email ACTION nodes to pass through even though "email" is in TRIGGER_NODE_TYPES
-        if (role !== "action" && TRIGGER_NODE_TYPES.has(rawType.toLowerCase().trim())) {
+        if (
+          item.role !== "action" &&
+          TRIGGER_NODE_TYPES.has(rawType.toLowerCase().trim())
+        ) {
           return null;
         }
-        
-        return { node, nodeData, rawType, index };
+
+        if (reachableActionIds && !reachableActionIds.has(item.id)) {
+          return null;
+        }
+
+        return item;
       })
       .filter(
         (
           item,
         ): item is {
+          id: string;
           node: Record<string, unknown>;
           nodeData: Record<string, unknown>;
           rawType: string;
+          role: string;
           index: number;
         } => item !== null,
       );
 
-    const actionIds = new Set(
-      actionNodes.map((item) => String(item.node.id ?? item.index)),
-    );
+    const actionIds = new Set(actionNodes.map((item) => item.id));
 
     const orderedNodes =
       edges.length > 0
@@ -116,7 +140,7 @@ export function normalizeWorkflowSteps(graphData: unknown): WorkflowStep[] {
 
     return orderedNodes
       .map((item, orderIndex) => {
-        const id = String(item.node.id ?? item.index);
+        const id = item.id;
         const data = item.nodeData;
         return {
           key: id,
@@ -135,9 +159,11 @@ export function normalizeWorkflowSteps(graphData: unknown): WorkflowStep[] {
 
 function topologicalSort(
   actionNodes: {
+    id: string;
     node: Record<string, unknown>;
     nodeData: Record<string, unknown>;
     rawType: string;
+    role: string;
     index: number;
   }[],
   actionIds: Set<string>,
@@ -145,7 +171,7 @@ function topologicalSort(
 ) {
   const nodeById = new Map<string, (typeof actionNodes)[number]>();
   for (const item of actionNodes) {
-    const id = String(item.node.id ?? item.index);
+    const id = item.id;
     nodeById.set(id, item);
   }
 
@@ -200,4 +226,84 @@ function topologicalSort(
     return actionNodes;
   }
   return result;
+}
+
+function normalizeTriggerType(raw: string) {
+  const key = raw.toLowerCase().trim();
+  if (key === "cron" || key === "schedule") {
+    return "schedule";
+  }
+  return key;
+}
+
+function normalizeTriggerSource(source?: string) {
+  if (!source) {
+    return "";
+  }
+  return normalizeTriggerType(String(source));
+}
+
+function getReachableActionIds(
+  nodes: {
+    id: string;
+    role: string;
+    rawType: string;
+  }[],
+  edges: Record<string, unknown>[],
+  source?: string,
+) {
+  const triggerType = normalizeTriggerSource(source);
+  if (!triggerType || edges.length === 0) {
+    return null;
+  }
+
+  const triggerIds = nodes
+    .filter(
+      (node) =>
+        node.role === "trigger" &&
+        normalizeTriggerType(node.rawType) === triggerType,
+    )
+    .map((node) => node.id);
+
+  if (triggerIds.length === 0) {
+    return null;
+  }
+
+  const adjacency = new Map<string, Set<string>>();
+  for (const edge of edges) {
+    const sourceId = String(edge.source ?? "");
+    const targetId = String(edge.target ?? "");
+    if (!sourceId || !targetId) {
+      continue;
+    }
+    if (!adjacency.has(sourceId)) {
+      adjacency.set(sourceId, new Set());
+    }
+    adjacency.get(sourceId)?.add(targetId);
+  }
+
+  const visited = new Set<string>(triggerIds);
+  const queue = [...triggerIds];
+
+  while (queue.length > 0) {
+    const current = queue.shift();
+    if (!current) {
+      continue;
+    }
+    for (const neighbor of adjacency.get(current) ?? []) {
+      if (visited.has(neighbor)) {
+        continue;
+      }
+      visited.add(neighbor);
+      queue.push(neighbor);
+    }
+  }
+
+  const reachableActionIds = new Set(
+    nodes
+      .filter((node) => node.role === "action" && visited.has(node.id))
+      .map((node) => node.id),
+  );
+
+  return reachableActionIds;
 }

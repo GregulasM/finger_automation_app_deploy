@@ -6,6 +6,7 @@ const {
   availableDbModels,
   dbOperationsWithDesc,
   selectedConfig,
+  safeModeEnabled,
   updateTextConfig,
   updateDbArgsTemplate,
   formatJsonConfig,
@@ -20,6 +21,14 @@ const {
 
 <template>
   <div class="space-y-4">
+    <div
+      v-if="
+        safeModeEnabled && String(selectedConfig.operation ?? '') === 'delete'
+      "
+      class="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-amber-200 text-[9px] xs:text-[10px] sm:text-[11px]"
+    >
+      {{ t("editor.db.deleteDisabled") }}
+    </div>
     <UFormField :label="t('editor.model')" :ui="formFieldStyles">
       <div class="flex flex-wrap gap-1 mb-2">
         <button
@@ -41,7 +50,9 @@ const {
         :model-value="String(selectedConfig.model ?? '')"
         :placeholder="t('editor.db.modelPlaceholder')"
         :ui="inputStyles"
-        @update:model-value="(value) => updateTextConfig('model', String(value))"
+        @update:model-value="
+          (value) => updateTextConfig('model', String(value))
+        "
       />
       <template #hint>
         <span class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]">
@@ -67,7 +78,9 @@ const {
             updateDbArgsTemplate(op.value);
           "
         >
-          <span class="text-[9px] xs:text-[10px] font-bold">{{ op.label }}</span>
+          <span class="text-[9px] xs:text-[10px] font-bold">{{
+            op.label
+          }}</span>
           <span class="text-[7px] xs:text-[8px] opacity-70">{{ op.desc }}</span>
         </button>
       </div>
@@ -94,7 +107,8 @@ const {
       <div
         class="text-[9px] xs:text-[10px] sm:text-[11px] font-semibold text-zinc-400 mb-2"
       >
-        {{ t("editor.db.exampleFor") }} {{ selectedConfig.operation ?? "create" }}:
+        {{ t("editor.db.exampleFor") }}
+        {{ selectedConfig.operation ?? "create" }}:
       </div>
       <pre
         class="text-zinc-300 text-[8px] xs:text-[9px] font-mono whitespace-pre-wrap"
@@ -105,7 +119,9 @@ const {
       <button
         type="button"
         class="mt-2 text-[9px] xs:text-[10px] text-orange-400 hover:text-orange-300 underline"
-        @click="applyDbArgsTemplate(String(selectedConfig.operation ?? 'create'))"
+        @click="
+          applyDbArgsTemplate(String(selectedConfig.operation ?? 'create'))
+        "
       >
         {{ t("editor.db.useTemplate") }}
       </button>

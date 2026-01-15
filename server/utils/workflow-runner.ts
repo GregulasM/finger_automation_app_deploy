@@ -18,6 +18,53 @@ type WorkflowExecutionContext = {
   appOrigin: string;
 };
 
+const DEFAULT_DB_ALLOWLIST = ["user", "workflow", "execution", "executionstep"];
+
+function parseBooleanFlag(value: unknown, fallback = true) {
+  if (typeof value === "boolean") {
+    return value;
+  }
+  const normalized = String(value ?? "")
+    .trim()
+    .toLowerCase();
+  if (!normalized) {
+    return fallback;
+  }
+  if (["0", "false", "no", "off"].includes(normalized)) {
+    return false;
+  }
+  if (["1", "true", "yes", "on"].includes(normalized)) {
+    return true;
+  }
+  return fallback;
+}
+
+function parseAllowlist(value: unknown) {
+  if (!value) {
+    return [];
+  }
+  return String(value)
+    .split(",")
+    .map((item) => item.trim().toLowerCase())
+    .filter(Boolean);
+}
+
+function getWorkflowSafetyConfig() {
+  const config = useRuntimeConfig();
+  const safeMode = parseBooleanFlag(
+    config.workflowSafeMode ?? config.public?.workflowSafeMode,
+    true,
+  );
+  const allowlist =
+    parseAllowlist(
+      config.workflowDbAllowlist ?? config.public?.workflowDbAllowlist,
+    ) || [];
+  return {
+    safeMode,
+    dbAllowlist: allowlist.length > 0 ? allowlist : DEFAULT_DB_ALLOWLIST,
+  };
+}
+
 export async function processWorkflowJob(data: WorkflowJobData) {
   const runtimeConfig = useRuntimeConfig();
   const appOrigin = resolveAppOrigin(
@@ -49,7 +96,7 @@ export async function processWorkflowJob(data: WorkflowJobData) {
       return;
     }
 
-    const steps = normalizeWorkflowSteps(workflow.graphData);
+    const steps = normalizeWorkflowSteps(workflow.graphData, data.source);
     const execution = data.executionId
       ? await prisma.execution.findUnique({ where: { id: data.executionId } })
       : null;
@@ -416,6 +463,7 @@ async function handleDatabase(step: WorkflowStep, input: unknown) {
   const config = step.config ?? {};
   const model = String(config.model ?? "");
   const operation = String(config.operation ?? "create");
+  const { safeMode, dbAllowlist } = getWorkflowSafetyConfig();
   const allowedOperations = new Set([
     "create",
     "update",
@@ -430,6 +478,15 @@ async function handleDatabase(step: WorkflowStep, input: unknown) {
   }
   if (!allowedOperations.has(operation)) {
     throw new Error(`Unsupported database operation: ${operation}`);
+  }
+  if (safeMode) {
+    if (operation === "delete") {
+      throw new Error("Delete operations are disabled in safe mode");
+    }
+    const normalizedModel = model.toLowerCase().trim();
+    if (!dbAllowlist.includes(normalizedModel)) {
+      throw new Error(`Database model "${model}" is not allowed in safe mode`);
+    }
   }
 
   const delegate = (prisma as Record<string, Record<string, unknown>>)[model];
@@ -452,8 +509,11 @@ async function handleDatabase(step: WorkflowStep, input: unknown) {
 
 async function handleTransformation(step: WorkflowStep, input: unknown) {
   const config = step.config ?? {};
+  const { safeMode } = getWorkflowSafetyConfig();
+  const expression =
+    typeof config.expression === "string" ? config.expression : "";
 
-  if (typeof config.expression === "string") {
+  if (!safeMode && typeof config.expression === "string") {
     return runInNewContext(
       `(function(input){ return (${config.expression}); })(input)`,
       { input },
@@ -484,6 +544,9 @@ function mapPayload(input: unknown, mapping: Record<string, unknown>) {
 function getByPath(input: unknown, path: string) {
   const normalized = path.replace(/^\$\.|^input\./, "");
   if (!normalized) {
+    return input;
+  }
+  if (normalized === "input" || normalized === "$") {
     return input;
   }
 

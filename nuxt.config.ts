@@ -43,6 +43,10 @@ export default defineNuxtConfig({
     qstashNextSigningKey: process.env.QSTASH_NEXT_SIGNING_KEY || "",
     workflowQueueMode: process.env.WORKFLOW_QUEUE_MODE || "",
     workflowSchedulerMode: process.env.WORKFLOW_SCHEDULER_MODE || "",
+    workflowSafeMode: process.env.WORKFLOW_SAFE_MODE ?? "true",
+    workflowDbAllowlist:
+      process.env.WORKFLOW_DB_ALLOWLIST ||
+      "user,workflow,execution,executionStep",
     schedulerSecret:
       process.env.SCHEDULER_SECRET || process.env.CRON_SECRET || "",
     public: {
@@ -50,6 +54,10 @@ export default defineNuxtConfig({
         process.env.APP_URL ||
         (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "") ||
         "http://localhost:3000",
+      workflowSafeMode: process.env.WORKFLOW_SAFE_MODE ?? "true",
+      workflowDbAllowlist:
+        process.env.WORKFLOW_DB_ALLOWLIST ||
+        "user,workflow,execution,executionStep",
     },
   },
 

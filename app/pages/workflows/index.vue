@@ -20,16 +20,17 @@
             {{ t("workflows.description") }}
           </p>
         </div>
-        <NuxtLink
-          to="/workflows/editor"
+        <button
+          type="button"
           class="self-start rounded-md border border-orange-500 bg-orange-500 px-3 4xs:px-4 3xs:px-5 xs:px-6 py-2 4xs:py-2.5 3xs:py-3 text-zinc-950 transition hover:brightness-110"
+          @click="startNewWorkflow"
         >
           <span
             class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold"
           >
             {{ t("workflows.newWorkflow") }}
           </span>
-        </NuxtLink>
+        </button>
       </div>
 
       <div
@@ -144,16 +145,17 @@
             {{ t("workflows.description") }}
           </p>
         </div>
-        <NuxtLink
-          to="/workflows/editor"
+        <button
+          type="button"
           class="self-start rounded-md border border-orange-500 bg-orange-500 px-3 4xs:px-4 3xs:px-5 xs:px-6 py-2 4xs:py-2.5 3xs:py-3 text-zinc-950 transition hover:brightness-110"
+          @click="startNewWorkflow"
         >
           <span
             class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold"
           >
             {{ t("workflows.newWorkflow") }}
           </span>
-        </NuxtLink>
+        </button>
       </div>
 
       <div
@@ -428,6 +430,13 @@ function handleWorkflowClick(workflowId: string) {
   if (process.client && window.innerWidth < 1024) {
     mobileView.value = "detail";
   }
+}
+
+async function startNewWorkflow() {
+  await navigateTo({
+    path: "/workflows/editor",
+    query: { new: Date.now().toString() },
+  });
 }
 
 async function handleDelete(workflowId: string) {

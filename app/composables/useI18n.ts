@@ -302,6 +302,8 @@ export const useI18n = () => {
       "editor.db.opUpdate": "Modify existing",
       "editor.db.opUpsert": "Create or update",
       "editor.db.opDelete": "Remove record",
+      "editor.db.deleteDisabled":
+        "Delete is disabled in safe mode. Choose another operation.",
 
       // Transformation action
       "editor.transform.mode": "Mode",
@@ -316,7 +318,12 @@ export const useI18n = () => {
       "editor.transform.mappingHint":
         "JSON object mapping output fields to input paths.",
       "editor.transform.mappingBuilder": "Quick builder",
+      "editor.transform.dbTemplate": "DB-ready mapping",
+      "editor.transform.dbTemplateHint":
+        "Wraps the current input into a 'data' field for Prisma create/update.",
       "editor.transform.addField": "Add field",
+      "editor.transform.safeModeHint":
+        "Safe mode is enabled: only mapping is allowed; expressions are disabled.",
       "editor.transform.dataFlowHint":
         "💡 Result of transformation becomes input for the next step. Use 'input' to access previous step data.",
       "editor.transform.exPassthrough": "Pass all data unchanged",
@@ -747,6 +754,8 @@ export const useI18n = () => {
       "editor.db.opUpdate": "Обновить",
       "editor.db.opUpsert": "Создать или обновить",
       "editor.db.opDelete": "Удалить запись",
+      "editor.db.deleteDisabled":
+        "Удаление отключено в безопасном режиме. Выберите другую операцию.",
 
       // Transformation action
       "editor.transform.mode": "Режим",
@@ -761,7 +770,12 @@ export const useI18n = () => {
       "editor.transform.mappingHint":
         "JSON объект, сопоставляющий поля вывода с путями ввода.",
       "editor.transform.mappingBuilder": "Быстрый конструктор",
+      "editor.transform.dbTemplate": "Шаблон для БД",
+      "editor.transform.dbTemplateHint":
+        "Оборачивает текущий input в поле 'data' для Prisma create/update.",
       "editor.transform.addField": "Добавить поле",
+      "editor.transform.safeModeHint":
+        "Включен безопасный режим: доступен только маппинг, выражения отключены.",
       "editor.transform.dataFlowHint":
         "💡 Результат трансформации становится входом следующего шага. Используйте 'input' для доступа к данным.",
       "editor.transform.exPassthrough": "Передать все данные без изменений",

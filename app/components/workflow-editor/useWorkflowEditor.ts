@@ -35,6 +35,33 @@ export type WorkflowEditorProps = {
 
 export function useWorkflowEditor(props: WorkflowEditorProps) {
   const flowId = "workflow-editor";
+  const runtimeConfig = useRuntimeConfig();
+
+  const safeModeEnabled = computed(() => {
+    const raw = String(runtimeConfig.public?.workflowSafeMode ?? "true")
+      .trim()
+      .toLowerCase();
+    if (!raw) {
+      return true;
+    }
+    if (["0", "false", "no", "off"].includes(raw)) {
+      return false;
+    }
+    return true;
+  });
+
+  const dbAllowlist = computed(() => {
+    const raw = String(runtimeConfig.public?.workflowDbAllowlist ?? "")
+      .trim()
+      .toLowerCase();
+    if (!raw) {
+      return [];
+    }
+    return raw
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+  });
 
   const palette: PaletteItem[] = [
     {
@@ -140,9 +167,9 @@ export function useWorkflowEditor(props: WorkflowEditorProps) {
     "create",
     "update",
     "upsert",
-    "delete",
     "findMany",
     "findUnique",
+    "delete",
   ];
   const triggerTypeKeys = new Set(["webhook", "schedule", "cron", "email"]);
 
@@ -303,12 +330,13 @@ export function useWorkflowEditor(props: WorkflowEditorProps) {
     });
   }
 
+  const defaultWorkflowName = "Untitled workflow";
   const nodes = ref<Node<NodeData>[]>([]);
   const edges = ref<Edge[]>([]);
   const selectedNodeId = ref<string | null>(null);
   const selectedPaletteId = ref<string | null>(palette[0]?.id ?? null);
   const flowWrapper = ref<HTMLDivElement | null>(null);
-  const workflowName = ref("Untitled workflow");
+  const workflowName = ref(defaultWorkflowName);
   const workflowActive = ref(true);
   const workflowId = ref<string | null>(null);
   const saveError = ref<string | null>(null);
@@ -512,7 +540,15 @@ export function useWorkflowEditor(props: WorkflowEditorProps) {
   }
 
   // Transformation mode
-  const transformMode = ref<"expression" | "mapping">("expression");
+  const transformMode = ref<"expression" | "mapping">(
+    safeModeEnabled.value ? "mapping" : "expression",
+  );
+
+  watch(safeModeEnabled, (enabled) => {
+    if (enabled) {
+      transformMode.value = "mapping";
+    }
+  });
 
   // Mapping fields builder
   const mappingFields = ref<{ key: string; value: string }[]>([
@@ -856,25 +892,62 @@ export function useWorkflowEditor(props: WorkflowEditorProps) {
   }
 
   // Database helpers
-  const availableDbModels = [
+  const baseDbModels = [
     { value: "user", label: "User" },
     { value: "workflow", label: "Workflow" },
     { value: "execution", label: "Execution" },
     { value: "executionStep", label: "ExecutionStep" },
   ];
 
-  const dbOperationsWithDesc = computed(() => [
-    { value: "create", label: "Create", desc: t("editor.db.opCreate") },
-    { value: "findMany", label: "Find Many", desc: t("editor.db.opFindMany") },
-    {
-      value: "findUnique",
-      label: "Find One",
-      desc: t("editor.db.opFindUnique"),
-    },
-    { value: "update", label: "Update", desc: t("editor.db.opUpdate") },
-    { value: "upsert", label: "Upsert", desc: t("editor.db.opUpsert") },
-    { value: "delete", label: "Delete", desc: t("editor.db.opDelete") },
-  ]);
+  const availableDbModels = computed(() => {
+    if (!safeModeEnabled.value) {
+      return baseDbModels;
+    }
+    const allowlist = dbAllowlist.value;
+    if (!allowlist.length) {
+      return baseDbModels;
+    }
+    const allowedModels = allowlist.map((entry) => entry.toLowerCase());
+    const mapped = baseDbModels.filter((model) =>
+      allowedModels.includes(model.value.toLowerCase()),
+    );
+    const extras = allowedModels
+      .filter(
+        (entry) =>
+          !mapped.some(
+            (model) => model.value.toLowerCase() === entry.toLowerCase(),
+          ),
+      )
+      .map((entry) => ({
+        value: entry,
+        label: entry.charAt(0).toUpperCase() + entry.slice(1),
+      }));
+    return [...mapped, ...extras];
+  });
+
+  const dbOperationsWithDesc = computed(() => {
+    const operations = [
+      { value: "create", label: "Create", desc: t("editor.db.opCreate") },
+      {
+        value: "findMany",
+        label: "Find Many",
+        desc: t("editor.db.opFindMany"),
+      },
+      {
+        value: "findUnique",
+        label: "Find One",
+        desc: t("editor.db.opFindUnique"),
+      },
+      { value: "update", label: "Update", desc: t("editor.db.opUpdate") },
+      { value: "upsert", label: "Upsert", desc: t("editor.db.opUpsert") },
+      { value: "delete", label: "Delete", desc: t("editor.db.opDelete") },
+    ];
+
+    if (safeModeEnabled.value) {
+      return operations.filter((op) => op.value !== "delete");
+    }
+    return operations;
+  });
 
   function getDbArgsPlaceholder(operation: string) {
     const placeholders: Record<string, string> = {
@@ -957,6 +1030,12 @@ export function useWorkflowEditor(props: WorkflowEditorProps) {
       code: "({ total: input.price * input.quantity, tax: input.price * 0.2 })",
     },
   ]);
+
+  function applyDbMappingTemplate() {
+    const mapping = { data: "input" };
+    transformMode.value = "mapping";
+    updateTextConfig("mapping", JSON.stringify(mapping, null, 2));
+  }
 
   function addMappingField() {
     mappingFields.value.push({ key: "", value: "" });
@@ -1314,7 +1393,6 @@ export function useWorkflowEditor(props: WorkflowEditorProps) {
   }
 
   const { project } = useVueFlow(flowId);
-  const runtimeConfig = useRuntimeConfig();
   const requestUrl = useRequestURL();
   const appUrl = computed(() => {
     const configUrl = runtimeConfig.public?.appUrl || "";
@@ -1616,6 +1694,21 @@ export function useWorkflowEditor(props: WorkflowEditorProps) {
     return fallback;
   }
 
+  function resetWorkflowState() {
+    workflowId.value = null;
+    workflowName.value = defaultWorkflowName;
+    workflowActive.value = true;
+    nodes.value = [];
+    edges.value = [];
+    selectedNodeId.value = null;
+    selectedEdgeId.value = null;
+    selectedPaletteId.value = palette[0]?.id ?? null;
+    saveError.value = null;
+    loadError.value = null;
+    loadingWorkflow.value = false;
+    saving.value = false;
+  }
+
   async function loadWorkflow(id: string) {
     loadingWorkflow.value = true;
     loadError.value = null;
@@ -1653,6 +1746,8 @@ export function useWorkflowEditor(props: WorkflowEditorProps) {
     (id) => {
       if (id) {
         void loadWorkflow(id);
+      } else {
+        resetWorkflowState();
       }
     },
     { immediate: true },
@@ -1714,6 +1809,12 @@ export function useWorkflowEditor(props: WorkflowEditorProps) {
           color: "success",
           timeout: 3000,
         });
+        if (response.id) {
+          await navigateTo({
+            path: "/workflows/editor",
+            query: { workflowId: response.id },
+          });
+        }
       }
     } catch (error) {
       saveError.value = getErrorMessage(error);
@@ -1809,6 +1910,7 @@ export function useWorkflowEditor(props: WorkflowEditorProps) {
     canSendTestEmail,
     testEmailConnection,
     sendTestEmail,
+    safeModeEnabled,
     transformMode,
     mappingFields,
     clipboardCopied,
@@ -1842,6 +1944,7 @@ export function useWorkflowEditor(props: WorkflowEditorProps) {
     applyDbArgsTemplate,
     updateDbArgsTemplate,
     expressionExamples,
+    applyDbMappingTemplate,
     addMappingField,
     removeMappingField,
     updateMappingField,

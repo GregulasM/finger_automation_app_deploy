@@ -47,6 +47,13 @@ function openScreenshot(shot: { title: string; src: string }) {
 function closeScreenshot() {
   activeScreenshot.value = null;
 }
+
+async function startNewWorkflow() {
+  await navigateTo({
+    path: "/workflows/editor",
+    query: { new: Date.now().toString() },
+  });
+}
 </script>
 
 <template>
@@ -79,16 +86,17 @@ function closeScreenshot() {
             class="rounded-xl border border-orange-500/30 bg-zinc-900/60 p-3 4xs:p-4 space-y-3"
           >
             <div class="flex flex-col 2xs:flex-row gap-2 2xs:justify-between">
-              <NuxtLink
-                to="/workflows/editor"
+              <button
+                type="button"
                 class="flex-1 inline-flex items-center justify-center rounded-md border border-orange-500 bg-orange-500 px-3 4xs:px-4 3xs:px-5 xs:px-6 py-2 4xs:py-3 3xs:py-4 sm:py-6 text-zinc-950 transition hover:brightness-110"
+                @click="startNewWorkflow"
               >
                 <span
                   class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold leading-none"
                 >
                   {{ t("nav.newWorkflow") }}
                 </span>
-              </NuxtLink>
+              </button>
               <NuxtLink
                 to="/workflows"
                 class="flex-1 inline-flex items-center justify-center rounded-md border border-orange-500/30 bg-zinc-800/90 px-3 4xs:px-4 3xs:px-5 xs:px-6 py-2 4xs:py-3 3xs:py-4 sm:py-6 text-zinc-100 transition hover:border-orange-500/70 hover:bg-zinc-800"

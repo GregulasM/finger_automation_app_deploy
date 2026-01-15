@@ -12,14 +12,22 @@ const {
   formatJsonConfig,
   updateTextConfig,
   selectedConfig,
+  safeModeEnabled,
   inputStyles,
   textareaStyles,
   formFieldStyles,
+  applyDbMappingTemplate,
 } = useWorkflowEditorContext();
 </script>
 
 <template>
   <div class="space-y-4">
+    <div
+      v-if="safeModeEnabled"
+      class="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-amber-200 text-[9px] xs:text-[10px] sm:text-[11px]"
+    >
+      {{ t("editor.transform.safeModeHint") }}
+    </div>
     <div class="flex items-center gap-3">
       <span
         class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px] font-semibold"
@@ -31,10 +39,13 @@ const {
           type="button"
           class="px-2 py-1 rounded text-[9px] xs:text-[10px] font-semibold transition-colors"
           :class="
-            transformMode === 'expression'
-              ? 'bg-orange-500 text-zinc-950'
-              : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
+            safeModeEnabled
+              ? 'bg-zinc-700/50 text-zinc-500 cursor-not-allowed'
+              : transformMode === 'expression'
+                ? 'bg-orange-500 text-zinc-950'
+                : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
           "
+          :disabled="safeModeEnabled"
           @click="transformMode = 'expression'"
         >
           {{ t("editor.transform.expression") }}
@@ -54,7 +65,7 @@ const {
       </div>
     </div>
 
-    <template v-if="transformMode === 'expression'">
+    <template v-if="transformMode === 'expression' && !safeModeEnabled">
       <UFormField :label="t('editor.expression')" :ui="formFieldStyles">
         <UTextarea
           :model-value="String(selectedConfig.expression ?? '')"
@@ -116,10 +127,22 @@ const {
       </UFormField>
 
       <div class="rounded-lg border border-orange-500/20 bg-zinc-900/50 p-3">
-        <div
-          class="text-[9px] xs:text-[10px] sm:text-[11px] font-semibold text-zinc-400 mb-2"
-        >
-          {{ t("editor.transform.mappingBuilder") }}:
+        <div class="flex items-center justify-between gap-2 mb-2">
+          <div
+            class="text-[9px] xs:text-[10px] sm:text-[11px] font-semibold text-zinc-400"
+          >
+            {{ t("editor.transform.mappingBuilder") }}:
+          </div>
+          <button
+            type="button"
+            class="text-[9px] xs:text-[10px] text-orange-400 hover:text-orange-300"
+            @click="applyDbMappingTemplate"
+          >
+            {{ t("editor.transform.dbTemplate") }}
+          </button>
+        </div>
+        <div class="text-[8px] xs:text-[9px] text-zinc-500 mb-2">
+          {{ t("editor.transform.dbTemplateHint") }}
         </div>
         <div class="space-y-2">
           <div
@@ -135,7 +158,9 @@ const {
                 base: inputStyles.base + ' text-[9px]',
               }"
               class="flex-1"
-              @update:model-value="(v) => updateMappingField(idx, 'key', String(v))"
+              @update:model-value="
+                (v) => updateMappingField(idx, 'key', String(v))
+              "
             />
             <span class="text-zinc-500">←</span>
             <UInput
