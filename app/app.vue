@@ -152,22 +152,6 @@ watch(mobileOpen, (open) => {
             </button>
           </div>
 
-          <!-- Mobile editor controls toggle -->
-          <button
-            v-if="isEditorRoute"
-            type="button"
-            class="lg:hidden inline-flex items-center justify-center rounded-md border border-orange-500/30 bg-zinc-800/70 px-2 2xs:px-3 py-1 3xs:py-2 text-zinc-100 hover:border-orange-500/70 hover:bg-zinc-800/90 transition"
-            :aria-expanded="editorPanelOpen ? 'true' : 'false'"
-            :title="t('editor.title')"
-            aria-label="Toggle editor controls"
-            @click="editorPanelOpen = !editorPanelOpen"
-          >
-            <UIcon
-              name="mingcute:save-2-line"
-              class="h-3 w-3 2xs:h-4 2xs:w-4"
-            />
-          </button>
-
           <!-- Mobile hamburger -->
           <button
             type="button"

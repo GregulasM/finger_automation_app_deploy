@@ -159,7 +159,10 @@
       <button
         v-if="!blocksMenuOpen"
         type="button"
-        @click="blocksMenuOpen = true"
+        @click="
+          blocksMenuOpen = true;
+          nodeSettingsMenuOpen = false;
+        "
         class="lg:hidden fixed left-2 top-16 z-60 rounded-md border border-orange-500/30 bg-zinc-800/90 px-2 py-2 text-zinc-100 hover:border-orange-500/70 hover:bg-zinc-800 transition"
         aria-label="Open blocks menu"
       >
@@ -181,7 +184,10 @@
       <button
         v-if="!nodeSettingsMenuOpen"
         type="button"
-        @click="nodeSettingsMenuOpen = true"
+        @click="
+          nodeSettingsMenuOpen = true;
+          blocksMenuOpen = false;
+        "
         class="lg:hidden fixed right-2 top-16 z-60 rounded-md border border-orange-500/30 bg-zinc-800/90 px-2 py-2 text-zinc-100 hover:border-orange-500/70 hover:bg-zinc-800 transition"
         aria-label="Open node settings menu"
       >
@@ -200,10 +206,27 @@
         </svg>
       </button>
 
+      <button
+        type="button"
+        class="lg:hidden fixed right-2 top-32 z-60 rounded-md border border-orange-500/30 bg-zinc-800/90 px-2 py-2 text-zinc-100 hover:border-orange-500/70 hover:bg-zinc-800 transition"
+        :aria-expanded="editorPanelOpen ? 'true' : 'false'"
+        :title="t('editor.save')"
+        aria-label="Toggle editor panel"
+        @click="
+          editorPanelOpen = !editorPanelOpen;
+          if (editorPanelOpen) {
+            blocksMenuOpen = false;
+            nodeSettingsMenuOpen = false;
+          }
+        "
+      >
+        <UIcon name="mingcute:save-2-line" class="h-4 w-4" />
+      </button>
+
       <!-- Mobile helper hint (dismissible) -->
       <div
         v-if="!mobileHintDismissed"
-        class="lg:hidden fixed left-2 right-2 top-28 z-50 flex items-center gap-2 rounded-lg border border-orange-500/30 bg-zinc-900/95 px-3 py-2 text-zinc-100 text-[10px] xs:text-[11px] sm:text-xs shadow-lg"
+        class="lg:hidden fixed left-2 right-2 top-28 z-50 flex items-center gap-2 rounded-lg border border-orange-500/30 bg-zinc-900/95 px-3 py-2 text-zinc-100 text-[10px] xs:text-[11px] sm:text-xs shadow-lg mx-10"
       >
         <span class="flex-1">{{ t("editor.mobileHint") }}</span>
         <button
@@ -256,7 +279,7 @@
       <!-- Blocks sidebar -->
       <aside
         :class="[
-          'flex w-64 flex-shrink-0 flex-col border-r border-orange-500/30 bg-zinc-800 p-3 4xs:p-4',
+          'flex w-100 max-w-[100vw] flex-shrink-0 flex-col border-r border-orange-500/30 bg-zinc-800 p-2 4xs:p-3 lg:w-64',
           'fixed lg:static left-0 bottom-0 z-50 lg:z-auto',
           'top-10 4xs:top-10 3xs:top-11 2xs:top-12 xs:top-14 sm:top-16 md:top-20 lg:top-0 rounded-t-md',
           'transform transition-transform duration-300 ease-in-out',
@@ -265,95 +288,16 @@
             : '-translate-x-full lg:translate-x-0',
         ]"
       >
-        <!-- Close button for mobile -->
-        <button
-          type="button"
-          @click="blocksMenuOpen = false"
-          class="lg:hidden absolute top-2 right-2 rounded-md border border-orange-500/30 bg-zinc-800/90 px-2 py-1 text-zinc-100 hover:border-orange-500/70 hover:bg-zinc-800 transition"
-          aria-label="Close blocks menu"
-        >
-          <svg
-            class="h-4 w-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
-        <div
-          class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold uppercase tracking-wider text-zinc-100/60"
-        >
-          {{ t("editor.blocks") }}
-        </div>
-        <div class="mt-3 4xs:mt-4 flex-1 overflow-y-auto space-y-2 pr-1">
-          <div
-            v-for="item in translatedPalette"
-            :key="item.id"
-            class="group flex w-full select-none flex-col gap-1 rounded-lg border px-2 4xs:px-3 py-2 text-left transition-colors cursor-grab active:cursor-grabbing hover:border-orange-500/50 hover:bg-zinc-700/50"
-            :class="
-              item.id === selectedPaletteId
-                ? 'border-orange-500/80 bg-zinc-800 text-zinc-100'
-                : 'border-orange-500/25 bg-zinc-800/50 text-zinc-100/90 hover:border-orange-500/70 hover:bg-zinc-800/80'
-            "
-            draggable="true"
-            role="button"
-            tabindex="0"
-            @dragstart="
-              onDragStart($event, palette.find((p) => p.id === item.id)!)
-            "
-            @dragend="onDragEnd"
-            @click="selectPalette(palette.find((p) => p.id === item.id)!)"
-            @dblclick="
-              addNodeFromPalette(palette.find((p) => p.id === item.id)!)
-            "
-            @keydown.enter.prevent="
-              addNodeFromPalette(palette.find((p) => p.id === item.id)!)
-            "
-            @keydown.space.prevent="
-              addNodeFromPalette(palette.find((p) => p.id === item.id)!)
-            "
-          >
-            <div class="flex items-center justify-between gap-2 min-w-0">
-              <span
-                class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold truncate"
-              >
-                {{ item.label }}
-              </span>
-              <span
-                class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 uppercase text-zinc-100/50 flex-shrink-0"
-              >
-                {{ getTranslatedRole(item.role) }}
-              </span>
-            </div>
-            <span
-              class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-normal text-zinc-100/70"
-            >
-              {{ item.summary }}
-            </span>
-          </div>
-        </div>
-        <div
-          class="mt-4 4xs:mt-6 rounded-lg border border-orange-500/30 bg-zinc-800/50 p-3"
-        >
+        <div class="relative flex h-full flex-col scale-[0.95] origin-top-left">
+          <!-- Close button for mobile -->
           <button
             type="button"
-            @click="blockDetailsExpanded = !blockDetailsExpanded"
-            class="flex w-full items-center justify-between text-left"
+            @click="blocksMenuOpen = false"
+            class="lg:hidden absolute top-2 right-2 rounded-md border border-orange-500/30 bg-zinc-800/90 px-2 py-1 text-zinc-100 hover:border-orange-500/70 hover:bg-zinc-800 transition"
+            aria-label="Close blocks menu"
           >
-            <div
-              class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold uppercase tracking-wider text-zinc-100/60"
-            >
-              {{ t("editor.blockDetails") }}
-            </div>
             <svg
-              class="h-3 w-3 4xs:h-4 4xs:w-4 text-zinc-100/60 transition-transform"
-              :class="{ 'rotate-180': blockDetailsExpanded }"
+              class="h-4 w-4"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -362,57 +306,138 @@
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 stroke-width="2"
-                d="M19 9l-7 7-7-7"
+                d="M6 18L18 6M6 6l12 12"
               />
             </svg>
           </button>
           <div
-            v-show="blockDetailsExpanded"
-            class="mt-2 max-h-[40vh] overflow-y-auto space-y-2"
+            class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold uppercase tracking-wider text-zinc-100/60"
           >
-            <div v-if="translatedSelectedPalette" class="space-y-2">
-              <div
-                class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold text-zinc-100"
-              >
-                {{ translatedSelectedPalette.label }}
-              </div>
-              <p
-                class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
-              >
-                {{ translatedSelectedPalette.details }}
-              </p>
-              <div
-                v-if="translatedSelectedPalette.tips?.length"
-                class="space-y-1 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
-              >
-                <div v-for="tip in translatedSelectedPalette.tips" :key="tip">
-                  - {{ tip }}
-                </div>
-              </div>
-              <div class="flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
-                  class="rounded-md border border-orange-500/30 bg-zinc-800/90 px-2 4xs:px-3 py-1.5 4xs:py-2 text-zinc-100 transition hover:border-orange-500/70 hover:bg-zinc-800"
-                  @click="addNodeFromPalette(selectedPalette!)"
-                >
-                  <span
-                    class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold"
-                  >
-                    {{ t("editor.addToCanvas") }}
-                  </span>
-                </button>
+            {{ t("editor.blocks") }}
+          </div>
+          <div class="mt-3 4xs:mt-4 flex-1 overflow-y-auto space-y-2 pr-1">
+            <div
+              v-for="item in translatedPalette"
+              :key="item.id"
+              class="group flex w-full select-none flex-col gap-1 rounded-lg border px-2 4xs:px-2.5 3xs:px-3 py-1.5 4xs:py-2 text-left transition-colors cursor-grab active:cursor-grabbing hover:border-orange-500/50 hover:bg-zinc-700/50"
+              :class="
+                item.id === selectedPaletteId
+                  ? 'border-orange-500/80 bg-zinc-800 text-zinc-100'
+                  : 'border-orange-500/25 bg-zinc-800/50 text-zinc-100/90 hover:border-orange-500/70 hover:bg-zinc-800/80'
+              "
+              draggable="true"
+              role="button"
+              tabindex="0"
+              @dragstart="
+                onDragStart($event, palette.find((p) => p.id === item.id)!)
+              "
+              @dragend="onDragEnd"
+              @click="selectPalette(palette.find((p) => p.id === item.id)!)"
+              @dblclick="
+                addNodeFromPalette(palette.find((p) => p.id === item.id)!)
+              "
+              @keydown.enter.prevent="
+                addNodeFromPalette(palette.find((p) => p.id === item.id)!)
+              "
+              @keydown.space.prevent="
+                addNodeFromPalette(palette.find((p) => p.id === item.id)!)
+              "
+            >
+              <div class="flex items-center justify-between gap-2 min-w-0">
                 <span
-                  class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/50"
+                  class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold truncate"
                 >
-                  {{ t("editor.tipDrag") }}
+                  {{ item.label }}
+                </span>
+                <span
+                  class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 uppercase text-zinc-100/50 flex-shrink-0"
+                >
+                  {{ getTranslatedRole(item.role) }}
                 </span>
               </div>
+              <span
+                class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-normal text-zinc-100/70"
+              >
+                {{ item.summary }}
+              </span>
             </div>
-            <div
-              v-else
-              class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
+          </div>
+          <div
+            class="mt-4 4xs:mt-6 rounded-lg border border-orange-500/30 bg-zinc-800/50 p-2.5"
+          >
+            <button
+              type="button"
+              @click="blockDetailsExpanded = !blockDetailsExpanded"
+              class="flex w-full items-center justify-between text-left"
             >
-              {{ t("editor.clickBlock") }}
+              <div
+                class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold uppercase tracking-wider text-zinc-100/60"
+              >
+                {{ t("editor.blockDetails") }}
+              </div>
+              <svg
+                class="h-3 w-3 4xs:h-4 4xs:w-4 text-zinc-100/60 transition-transform"
+                :class="{ 'rotate-180': blockDetailsExpanded }"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+            <div
+              v-show="blockDetailsExpanded"
+              class="mt-2 max-h-[40vh] overflow-y-auto space-y-2"
+            >
+              <div v-if="translatedSelectedPalette" class="space-y-2">
+                <div
+                  class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold text-zinc-100"
+                >
+                  {{ translatedSelectedPalette.label }}
+                </div>
+                <p
+                  class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
+                >
+                  {{ translatedSelectedPalette.details }}
+                </p>
+                <div
+                  v-if="translatedSelectedPalette.tips?.length"
+                  class="space-y-1 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
+                >
+                  <div v-for="tip in translatedSelectedPalette.tips" :key="tip">
+                    - {{ tip }}
+                  </div>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    class="rounded-md border border-orange-500/30 bg-zinc-800/90 px-2 4xs:px-2.5 py-1 4xs:py-1.5 text-zinc-100 transition hover:border-orange-500/70 hover:bg-zinc-800"
+                    @click="addNodeFromPalette(selectedPalette!)"
+                  >
+                    <span
+                      class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold"
+                    >
+                      {{ t("editor.addToCanvas") }}
+                    </span>
+                  </button>
+                  <span
+                    class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/50"
+                  >
+                    {{ t("editor.tipDrag") }}
+                  </span>
+                </div>
+              </div>
+              <div
+                v-else
+                class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
+              >
+                {{ t("editor.clickBlock") }}
+              </div>
             </div>
           </div>
         </div>
@@ -531,693 +556,122 @@
         :class="[
           'flex w-100 flex-shrink-0 flex-col border-l border-orange-500/30 bg-zinc-800 max-w-[100vw] min-w-0',
           'fixed lg:static right-0 bottom-0 z-50 lg:z-auto',
-          'top-10 4xs:top-10 3xs:top-11 2xs:top-12 xs:top-14 sm:top-12 lg:top-0',
-          'transform transition-transform duration-300 ease-in-out',
+          'top-10 4xs:top-10 3xs:top-11 2xs:top-12 xs:top-14 sm:top-16 md:top-20 lg:top-0 rounded-t-md',
+          'transform transition-transform duration-300 ease-in-out ',
           nodeSettingsMenuOpen
             ? 'translate-x-0'
             : 'translate-x-full lg:translate-x-0',
         ]"
       >
         <div
-          class="flex-shrink-0 border-b border-orange-500/30 px-4 4xs:px-6 py-3 4xs:py-4"
-        >
-          <div class="flex items-start justify-between gap-3 min-w-0">
-            <div class="min-w-0 flex-1">
-              <div
-                class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold uppercase tracking-wider text-zinc-100/60"
-              >
-                {{ t("editor.nodeSettings") }}
-              </div>
-              <div
-                class="mt-1 truncate text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold text-zinc-100"
-              >
-                {{ selectedLabel }}
-              </div>
-            </div>
-            <!-- Close button for mobile -->
-            <button
-              type="button"
-              @click="nodeSettingsMenuOpen = false"
-              class="lg:hidden flex-shrink-0 rounded-md border border-orange-500/30 bg-zinc-800/90 px-2 py-1 text-zinc-100 hover:border-orange-500/70 hover:bg-zinc-800 transition"
-              aria-label="Close node settings menu"
-            >
-              <svg
-                class="h-4 w-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </div>
-          <div class="flex items-start justify-between gap-3 min-w-0 mt-2">
-            <button
-              v-if="selectedNode"
-              type="button"
-              class="flex-shrink-0 rounded-md border border-red-500/30 bg-red-500/20 px-2 4xs:px-3 py-1.5 4xs:py-2 text-red-400 transition hover:border-red-500/70 hover:bg-red-500/30"
-              @click="removeSelectedNode"
-            >
-              <span
-                class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold"
-              >
-                {{ t("editor.delete") }}
-              </span>
-            </button>
-          </div>
-        </div>
-        <div
-          class="flex-1 min-h-0 space-y-4 overflow-y-auto px-4 4xs:px-6 py-3 4xs:py-4"
+          class="relative flex h-full flex-col scale-[0.95] origin-top-right"
         >
           <div
-            v-if="!selectedNode"
-            class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
+            class="flex-shrink-0 border-b border-orange-500/30 px-1 4xs:px-1 py-1 4xs:py-1"
           >
-            {{ t("editor.selectNode") }}
-          </div>
-
-          <template v-else>
-            <div class="space-y-6" :key="selectedNodeId || 'empty'">
-              <div
-                class="rounded-lg border border-orange-500/30 bg-zinc-800/50 p-3"
-              >
+            <div class="flex items-start justify-between gap-1 min-w-0">
+              <div class="min-w-0 flex-1">
                 <div
                   class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold uppercase tracking-wider text-zinc-100/60"
                 >
-                  {{ t("editor.aboutBlock") }}
+                  {{ t("editor.nodeSettings") }}
                 </div>
                 <div
-                  class="mt-1 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold text-zinc-100"
+                  class="mt-1 truncate text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold text-zinc-100"
                 >
-                  {{ translatedSelectedHelp?.label || selectedLabel }}
-                </div>
-                <p
-                  class="mt-1 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
-                >
-                  {{
-                    translatedSelectedHelp?.details ||
-                    t("editor.configureBlock")
-                  }}
-                </p>
-                <div
-                  v-if="translatedSelectedHelp?.tips?.length"
-                  class="mt-2 space-y-1 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
-                >
-                  <div v-for="tip in translatedSelectedHelp.tips" :key="tip">
-                    - {{ tip }}
-                  </div>
+                  {{ selectedLabel }}
                 </div>
               </div>
+              <div class="flex items-center gap-2 flex-shrink-0">
+                <button
+                  v-if="selectedNode"
+                  type="button"
+                  class="inline-flex items-center justify-center rounded-md border border-red-500/30 bg-red-500/20 px-2 4xs:px-2.5 py-1 4xs:py-1.5 text-red-400 transition hover:border-red-500/70 hover:bg-red-500/30"
+                  @click="removeSelectedNode"
+                >
+                  <span
+                    class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold text-center"
+                  >
+                    {{ t("editor.delete") }}
+                  </span>
+                </button>
+                <!-- Close button for mobile -->
+                <button
+                  type="button"
+                  @click="nodeSettingsMenuOpen = false"
+                  class="lg:hidden flex-shrink-0 rounded-md border border-orange-500/30 bg-zinc-800/90 px-2 py-1 text-zinc-100 hover:border-orange-500/70 hover:bg-zinc-800 transition"
+                  aria-label="Close node settings menu"
+                >
+                  <svg
+                    class="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div
+            class="flex-1 min-h-0 space-y-4 overflow-y-auto px-3 4xs:px-5 py-2.5 4xs:py-3"
+          >
+            <div
+              v-if="!selectedNode"
+              class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
+            >
+              {{ t("editor.selectNode") }}
+            </div>
 
-              <div v-if="selectedRole === 'trigger'" class="space-y-4">
-                <!-- Webhook Trigger -->
-                <div v-if="selectedType === 'Webhook'" class="space-y-4">
-                  <!-- How it works -->
+            <template v-else>
+              <div class="space-y-6" :key="selectedNodeId || 'empty'">
+                <div
+                  class="rounded-lg border border-orange-500/30 bg-zinc-800/50 p-3"
+                >
                   <div
-                    class="rounded-lg border border-cyan-500/20 bg-cyan-500/5 p-3"
+                    class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold uppercase tracking-wider text-zinc-100/60"
                   >
-                    <div class="flex items-start gap-2">
-                      <svg
-                        class="h-4 w-4 text-cyan-400 flex-shrink-0 mt-0.5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M13 10V3L4 14h7v7l9-11h-7z"
-                        />
-                      </svg>
-                      <div
-                        class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
-                      >
-                        <div class="font-semibold text-cyan-400 mb-1">
-                          {{ t("editor.webhook.howItWorks") }}
-                        </div>
-                        {{ t("editor.webhook.description") }}
-                      </div>
-                    </div>
+                    {{ t("editor.aboutBlock") }}
                   </div>
-
-                  <!-- Webhook URL -->
-                  <UFormField
-                    :label="t('editor.webhookUrl')"
-                    :ui="formFieldStyles"
-                  >
-                    <div class="flex gap-2">
-                      <UInput
-                        :model-value="webhookEndpoint"
-                        :placeholder="t('editor.saveToGenerateWebhook')"
-                        readonly
-                        :ui="inputStyles"
-                        class="flex-1"
-                      />
-                      <button
-                        v-if="webhookEndpoint"
-                        type="button"
-                        class="px-3 py-2 rounded-md border border-orange-500/50 bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 transition text-[9px] xs:text-[10px] font-semibold"
-                        @click="copyToClipboard(webhookEndpoint)"
-                      >
-                        {{
-                          clipboardCopied === "webhook"
-                            ? "✓"
-                            : t("editor.webhook.copy")
-                        }}
-                      </button>
-                    </div>
-                    <template #hint>
-                      <span
-                        class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
-                      >
-                        {{ t("editor.webhook.urlHint") }}
-                      </span>
-                    </template>
-                  </UFormField>
-
-                  <!-- Generate button if no ID -->
-                  <div v-if="!workflowId" class="flex items-center gap-3">
-                    <button
-                      type="button"
-                      :disabled="saving"
-                      class="rounded-md border border-orange-500 bg-orange-500 px-4 py-2 text-zinc-950 transition hover:brightness-110 disabled:opacity-50"
-                      @click="saveWorkflow"
-                    >
-                      <span
-                        class="text-[9px] xs:text-[10px] sm:text-[11px] font-semibold"
-                      >
-                        {{
-                          saving
-                            ? t("editor.saving")
-                            : t("editor.webhook.generate")
-                        }}
-                      </span>
-                    </button>
-                    <span
-                      class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
-                    >
-                      {{ t("editor.webhook.saveFirst") }}
-                    </span>
-                  </div>
-
-                  <!-- Usage examples -->
                   <div
-                    class="rounded-lg border border-orange-500/20 bg-zinc-900/50 p-3"
+                    class="mt-1 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold text-zinc-100"
                   >
-                    <div
-                      class="text-[9px] xs:text-[10px] sm:text-[11px] font-semibold text-zinc-400 mb-2"
-                    >
-                      {{ t("editor.webhook.usageExamples") }}
-                    </div>
-                    <div class="space-y-2">
-                      <div class="text-[8px] xs:text-[9px] text-zinc-500">
-                        cURL:
-                      </div>
-                      <code
-                        class="block text-[8px] xs:text-[9px] text-orange-400 font-mono bg-zinc-800/50 p-2 rounded break-all"
-                      >
-                        curl -X POST {{ webhookEndpoint || "YOUR_URL" }} -H
-                        "Content-Type: application/json" -d '{"data": "test"}'
-                      </code>
-                    </div>
+                    {{ translatedSelectedHelp?.label || selectedLabel }}
                   </div>
-
-                  <!-- Data flow info -->
-                  <div
-                    class="rounded-lg border border-green-500/20 bg-green-500/5 p-3"
+                  <p
+                    class="mt-1 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
                   >
-                    <div class="flex items-start gap-2">
-                      <svg
-                        class="h-4 w-4 text-green-400 flex-shrink-0 mt-0.5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      <span
-                        class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
-                      >
-                        {{ t("editor.webhook.dataFlowHint") }}
-                      </span>
+                    {{
+                      translatedSelectedHelp?.details ||
+                      t("editor.configureBlock")
+                    }}
+                  </p>
+                  <div
+                    v-if="translatedSelectedHelp?.tips?.length"
+                    class="mt-2 space-y-1 text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 text-zinc-100/70"
+                  >
+                    <div v-for="tip in translatedSelectedHelp.tips" :key="tip">
+                      - {{ tip }}
                     </div>
                   </div>
                 </div>
 
-                <!-- Schedule Trigger -->
-                <div v-if="selectedType === 'Schedule'" class="space-y-4">
-                  <!-- How it works -->
-                  <div
-                    class="rounded-lg border border-cyan-500/20 bg-cyan-500/5 p-3"
-                  >
-                    <div class="flex items-start gap-2">
-                      <svg
-                        class="h-4 w-4 text-cyan-400 flex-shrink-0 mt-0.5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      <div
-                        class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
-                      >
-                        <div class="font-semibold text-cyan-400 mb-1">
-                          {{ t("editor.schedule.howItWorks") }}
-                        </div>
-                        {{ t("editor.schedule.description") }}
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Cron Expression -->
-                  <UFormField
-                    :label="t('editor.cronExpression')"
-                    :ui="formFieldStyles"
-                  >
-                    <UInput
-                      :model-value="String(selectedConfig.cron ?? '')"
-                      placeholder="*/5 * * * *"
-                      :ui="inputStyles"
-                      @update:model-value="
-                        (value) => updateTextConfig('cron', String(value))
-                      "
-                    />
-                    <template #hint>
-                      <span
-                        class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
-                      >
-                        {{ t("editor.schedule.cronHint") }}
-                      </span>
-                    </template>
-                  </UFormField>
-
-                  <!-- Quick cron presets -->
-                  <div class="flex flex-wrap gap-1">
-                    <button
-                      v-for="preset in cronPresets"
-                      :key="preset.value"
-                      type="button"
-                      class="px-2 py-1 rounded text-[8px] xs:text-[9px] font-semibold transition-colors"
-                      :class="
-                        String(selectedConfig.cron ?? '') === preset.value
-                          ? 'bg-orange-500 text-zinc-950'
-                          : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
-                      "
-                      @click="updateTextConfig('cron', preset.value)"
-                    >
-                      {{ preset.label }}
-                    </button>
-                  </div>
-
-                  <!-- Cron format explanation -->
-                  <div
-                    class="rounded-lg border border-orange-500/20 bg-zinc-900/50 p-3"
-                  >
+                <div v-if="selectedRole === 'trigger'" class="space-y-4">
+                  <!-- Webhook Trigger -->
+                  <div v-if="selectedType === 'Webhook'" class="space-y-4">
+                    <!-- How it works -->
                     <div
-                      class="text-[9px] xs:text-[10px] sm:text-[11px] font-semibold text-zinc-400 mb-2"
+                      class="rounded-lg border border-cyan-500/20 bg-cyan-500/5 p-3"
                     >
-                      {{ t("editor.schedule.cronFormat") }}
-                    </div>
-                    <div
-                      class="font-mono text-[9px] xs:text-[10px] text-orange-400 mb-2"
-                    >
-                      ┌─────────────
-                      {{ t("editor.schedule.minute") }} (0-59)<br />
-                      │ ┌───────────
-                      {{ t("editor.schedule.hour") }} (0-23)<br />
-                      │ │ ┌─────────
-                      {{ t("editor.schedule.dayMonth") }} (1-31)<br />
-                      │ │ │ ┌───────
-                      {{ t("editor.schedule.month") }} (1-12)<br />
-                      │ │ │ │ ┌─────
-                      {{ t("editor.schedule.dayWeek") }} (0-6)<br />
-                      * * * * *
-                    </div>
-                    <div
-                      class="text-zinc-500 text-[8px] xs:text-[9px] space-y-1"
-                    >
-                      <div>
-                        <code class="text-orange-400">*</code> —
-                        {{ t("editor.schedule.any") }}
-                      </div>
-                      <div>
-                        <code class="text-orange-400">*/5</code> —
-                        {{ t("editor.schedule.every5") }}
-                      </div>
-                      <div>
-                        <code class="text-orange-400">0,30</code> —
-                        {{ t("editor.schedule.specific") }}
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Timezone -->
-                  <UFormField
-                    :label="t('editor.timezone')"
-                    :ui="formFieldStyles"
-                  >
-                    <div class="flex gap-2">
-                      <UInput
-                        :model-value="String(selectedConfig.timezone ?? 'UTC')"
-                        placeholder="UTC"
-                        :ui="inputStyles"
-                        class="flex-1"
-                        @update:model-value="
-                          (value) => updateTextConfig('timezone', String(value))
-                        "
-                      />
-                    </div>
-                    <template #hint>
-                      <span
-                        class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
-                      >
-                        {{ t("editor.schedule.timezoneHint") }}
-                      </span>
-                    </template>
-                  </UFormField>
-
-                  <!-- Common timezones -->
-                  <div class="flex flex-wrap gap-1">
-                    <button
-                      v-for="tz in commonTimezones"
-                      :key="tz"
-                      type="button"
-                      class="px-2 py-1 rounded text-[8px] xs:text-[9px] font-semibold transition-colors"
-                      :class="
-                        String(selectedConfig.timezone ?? 'UTC') === tz
-                          ? 'bg-orange-500 text-zinc-950'
-                          : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
-                      "
-                      @click="updateTextConfig('timezone', tz)"
-                    >
-                      {{ tz }}
-                    </button>
-                  </div>
-
-                  <!-- Next run preview -->
-                  <div
-                    class="rounded-lg border border-green-500/20 bg-green-500/5 p-3"
-                  >
-                    <div class="flex items-start gap-2">
-                      <svg
-                        class="h-4 w-4 text-green-400 flex-shrink-0 mt-0.5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      <span
-                        class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
-                      >
-                        {{ t("editor.schedule.dataFlowHint") }}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Email Trigger -->
-                <div v-if="selectedType === 'Email'" class="space-y-4">
-                  <!-- How it works -->
-                  <div
-                    class="rounded-lg border border-cyan-500/20 bg-cyan-500/5 p-3"
-                  >
-                    <div class="flex items-start gap-2">
-                      <svg
-                        class="h-4 w-4 text-cyan-400 flex-shrink-0 mt-0.5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                        />
-                      </svg>
-                      <div
-                        class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
-                      >
-                        <div class="font-semibold text-cyan-400 mb-1">
-                          {{ t("editor.emailTrigger.howItWorks") }}
-                        </div>
-                        {{ t("editor.emailTrigger.imapDescription") }}
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- IMAP Email -->
-                  <UFormField
-                    :label="t('editor.emailTrigger.imapEmail')"
-                    :ui="formFieldStyles"
-                  >
-                    <UInput
-                      :model-value="String(selectedConfig.imapEmail ?? '')"
-                      placeholder="your-email@gmail.com"
-                      :ui="inputStyles"
-                      @update:model-value="
-                        (value) => updateTextConfig('imapEmail', String(value))
-                      "
-                    />
-                    <template #hint>
-                      <span
-                        class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
-                      >
-                        {{ t("editor.emailTrigger.imapEmailHint") }}
-                      </span>
-                    </template>
-                  </UFormField>
-
-                  <!-- IMAP Password (App Password) -->
-                  <UFormField
-                    :label="t('editor.emailTrigger.imapPassword')"
-                    :ui="formFieldStyles"
-                  >
-                    <UInput
-                      :model-value="String(selectedConfig.imapPassword ?? '')"
-                      type="password"
-                      :placeholder="
-                        t('editor.emailTrigger.appPasswordPlaceholder')
-                      "
-                      :ui="inputStyles"
-                      @update:model-value="
-                        (value) =>
-                          updateTextConfig('imapPassword', String(value))
-                      "
-                    />
-                    <template #hint>
-                      <span
-                        class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
-                      >
-                        {{ t("editor.emailTrigger.appPasswordHint") }}
-                      </span>
-                    </template>
-                  </UFormField>
-
-                  <!-- App Password Instructions -->
-                  <div
-                    class="rounded-lg border border-amber-500/20 bg-amber-500/5 p-3"
-                  >
-                    <div class="flex items-start gap-2">
-                      <svg
-                        class="h-4 w-4 text-amber-400 flex-shrink-0 mt-0.5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                        />
-                      </svg>
-                      <div
-                        class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
-                      >
-                        <div class="font-semibold text-amber-400 mb-1">
-                          {{ t("editor.emailTrigger.appPasswordTitle") }}
-                        </div>
-                        <div class="space-y-1.5">
-                          <div>
-                            <span class="font-semibold text-zinc-300"
-                              >Gmail:</span
-                            >
-                            <a
-                              href="https://myaccount.google.com/apppasswords"
-                              target="_blank"
-                              class="text-cyan-400 hover:underline ml-1"
-                            >
-                              {{ t("editor.emailTrigger.createAppPassword") }} →
-                            </a>
-                          </div>
-                          <div>
-                            <span class="font-semibold text-zinc-300"
-                              >Mail.ru:</span
-                            >
-                            {{ t("editor.emailTrigger.mailruInstructions") }}
-                          </div>
-                          <div>
-                            <span class="font-semibold text-zinc-300"
-                              >Yandex:</span
-                            >
-                            {{ t("editor.emailTrigger.yandexInstructions") }}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Advanced IMAP Settings (collapsible) -->
-                  <details
-                    class="rounded-lg border border-zinc-700 bg-zinc-800/50"
-                  >
-                    <summary
-                      class="p-3 cursor-pointer text-[9px] xs:text-[10px] sm:text-[11px] font-semibold text-zinc-400 hover:text-zinc-300"
-                    >
-                      {{ t("editor.emailTrigger.advancedSettings") }}
-                    </summary>
-                    <div class="p-3 pt-0 space-y-3">
-                      <!-- IMAP Server -->
-                      <UFormField
-                        :label="t('editor.emailTrigger.imapServer')"
-                        :ui="formFieldStyles"
-                      >
-                        <UInput
-                          :model-value="String(selectedConfig.imapHost ?? '')"
-                          :placeholder="t('editor.emailTrigger.autoDetect')"
-                          :ui="inputStyles"
-                          @update:model-value="
-                            (value) =>
-                              updateTextConfig('imapHost', String(value))
-                          "
-                        />
-                        <template #hint>
-                          <span
-                            class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
-                          >
-                            {{ t("editor.emailTrigger.imapServerHint") }}
-                          </span>
-                        </template>
-                      </UFormField>
-
-                      <!-- IMAP Port -->
-                      <UFormField
-                        :label="t('editor.emailTrigger.imapPort')"
-                        :ui="formFieldStyles"
-                      >
-                        <UInput
-                          :model-value="String(selectedConfig.imapPort ?? '')"
-                          placeholder="993"
-                          type="number"
-                          :ui="inputStyles"
-                          @update:model-value="
-                            (value) =>
-                              updateTextConfig(
-                                'imapPort',
-                                value ? Number(value) : '',
-                              )
-                          "
-                        />
-                      </UFormField>
-
-                      <!-- Folder -->
-                      <UFormField
-                        :label="t('editor.emailTrigger.folder')"
-                        :ui="formFieldStyles"
-                      >
-                        <UInput
-                          :model-value="String(selectedConfig.imapFolder ?? '')"
-                          placeholder="INBOX"
-                          :ui="inputStyles"
-                          @update:model-value="
-                            (value) =>
-                              updateTextConfig('imapFolder', String(value))
-                          "
-                        />
-                      </UFormField>
-
-                      <!-- Filter by sender -->
-                      <UFormField
-                        :label="t('editor.emailTrigger.filterFrom')"
-                        :ui="formFieldStyles"
-                      >
-                        <UInput
-                          :model-value="String(selectedConfig.filterFrom ?? '')"
-                          :placeholder="
-                            t('editor.emailTrigger.filterFromPlaceholder')
-                          "
-                          :ui="inputStyles"
-                          @update:model-value="
-                            (value) =>
-                              updateTextConfig('filterFrom', String(value))
-                          "
-                        />
-                      </UFormField>
-
-                      <!-- Filter by subject -->
-                      <UFormField
-                        :label="t('editor.emailTrigger.filterSubject')"
-                        :ui="formFieldStyles"
-                      >
-                        <UInput
-                          :model-value="
-                            String(selectedConfig.filterSubject ?? '')
-                          "
-                          :placeholder="
-                            t('editor.emailTrigger.filterSubjectPlaceholder')
-                          "
-                          :ui="inputStyles"
-                          @update:model-value="
-                            (value) =>
-                              updateTextConfig('filterSubject', String(value))
-                          "
-                        />
-                      </UFormField>
-                    </div>
-                  </details>
-
-                  <!-- Test Connection Button -->
-                  <div class="flex items-center gap-3">
-                    <button
-                      type="button"
-                      :disabled="
-                        imapTesting ||
-                        !selectedConfig.imapEmail ||
-                        !selectedConfig.imapPassword
-                      "
-                      class="rounded-md border border-cyan-500 bg-cyan-500/20 px-4 py-2 text-cyan-400 transition hover:bg-cyan-500/30 disabled:opacity-50"
-                      @click="testImapConnection"
-                    >
-                      <span
-                        class="text-[9px] xs:text-[10px] sm:text-[11px] font-semibold flex items-center gap-2"
-                      >
+                      <div class="flex items-start gap-2">
                         <svg
-                          v-if="imapTesting"
-                          class="h-3 w-3 animate-spin"
+                          class="h-4 w-4 text-cyan-400 flex-shrink-0 mt-0.5"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -1226,207 +680,1510 @@
                             stroke-linecap="round"
                             stroke-linejoin="round"
                             stroke-width="2"
-                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                            d="M13 10V3L4 14h7v7l9-11h-7z"
                           />
                         </svg>
-                        {{
-                          imapTesting
-                            ? t("editor.emailTrigger.testing")
-                            : t("editor.emailTrigger.testConnection")
-                        }}
-                      </span>
-                    </button>
-                    <span
-                      v-if="imapTestResult"
-                      :class="[
-                        'text-[9px] xs:text-[10px] sm:text-[11px]',
-                        imapTestResult.ok ? 'text-green-400' : 'text-red-400',
-                      ]"
-                    >
-                      {{
-                        imapTestResult.ok
-                          ? t("editor.emailTrigger.connectionSuccess")
-                          : imapTestResult.error
-                      }}
-                    </span>
-                  </div>
-
-                  <!-- Supported providers -->
-                  <div
-                    class="rounded-lg border border-zinc-700 bg-zinc-800/50 p-3"
-                  >
-                    <div
-                      class="text-[9px] xs:text-[10px] sm:text-[11px] font-semibold text-zinc-400 mb-2"
-                    >
-                      {{ t("editor.emailTrigger.supportedProviders") }}
+                        <div
+                          class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                        >
+                          <div class="font-semibold text-cyan-400 mb-1">
+                            {{ t("editor.webhook.howItWorks") }}
+                          </div>
+                          {{ t("editor.webhook.description") }}
+                        </div>
+                      </div>
                     </div>
-                    <div class="flex flex-wrap gap-2">
-                      <span
-                        class="px-2 py-1 rounded bg-zinc-700 text-zinc-300 text-[8px] xs:text-[9px]"
-                        >Gmail</span
-                      >
-                      <span
-                        class="px-2 py-1 rounded bg-zinc-700 text-zinc-300 text-[8px] xs:text-[9px]"
-                        >Mail.ru</span
-                      >
-                      <span
-                        class="px-2 py-1 rounded bg-zinc-700 text-zinc-300 text-[8px] xs:text-[9px]"
-                        >Yandex</span
-                      >
-                      <span
-                        class="px-2 py-1 rounded bg-zinc-700 text-zinc-300 text-[8px] xs:text-[9px]"
-                        >Yahoo</span
-                      >
-                      <span
-                        class="px-2 py-1 rounded bg-zinc-700 text-zinc-300 text-[8px] xs:text-[9px]"
-                        >Outlook</span
-                      >
-                      <span
-                        class="px-2 py-1 rounded bg-zinc-700 text-zinc-300 text-[8px] xs:text-[9px]"
-                        >iCloud</span
-                      >
-                    </div>
-                  </div>
 
-                  <!-- Polling info -->
-                  <div
-                    class="rounded-lg border border-green-500/20 bg-green-500/5 p-3"
-                  >
-                    <div class="flex items-start gap-2">
-                      <svg
-                        class="h-4 w-4 text-green-400 flex-shrink-0 mt-0.5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                    <!-- Webhook URL -->
+                    <UFormField
+                      :label="t('editor.webhookUrl')"
+                      :ui="formFieldStyles"
+                    >
+                      <div class="flex gap-2">
+                        <UInput
+                          :model-value="webhookEndpoint"
+                          :placeholder="t('editor.saveToGenerateWebhook')"
+                          readonly
+                          :ui="inputStyles"
+                          class="flex-1"
                         />
-                      </svg>
+                        <button
+                          v-if="webhookEndpoint"
+                          type="button"
+                          class="px-3 py-2 rounded-md border border-orange-500/50 bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 transition text-[9px] xs:text-[10px] font-semibold"
+                          @click="copyToClipboard(webhookEndpoint)"
+                        >
+                          {{
+                            clipboardCopied === "webhook"
+                              ? "✓"
+                              : t("editor.webhook.copy")
+                          }}
+                        </button>
+                      </div>
+                      <template #hint>
+                        <span
+                          class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                        >
+                          {{ t("editor.webhook.urlHint") }}
+                        </span>
+                      </template>
+                    </UFormField>
+
+                    <!-- Generate button if no ID -->
+                    <div v-if="!workflowId" class="flex items-center gap-3">
+                      <button
+                        type="button"
+                        :disabled="saving"
+                        class="rounded-md border border-orange-500 bg-orange-500 px-4 py-2 text-zinc-950 transition hover:brightness-110 disabled:opacity-50"
+                        @click="saveWorkflow"
+                      >
+                        <span
+                          class="text-[9px] xs:text-[10px] sm:text-[11px] font-semibold"
+                        >
+                          {{
+                            saving
+                              ? t("editor.saving")
+                              : t("editor.webhook.generate")
+                          }}
+                        </span>
+                      </button>
                       <span
                         class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
                       >
-                        {{ t("editor.emailTrigger.pollingInfo") }}
+                        {{ t("editor.webhook.saveFirst") }}
                       </span>
                     </div>
-                  </div>
-                </div>
-              </div>
 
-              <div v-if="selectedRole === 'action'" class="space-y-6">
-                <!-- HTTP Request Action -->
-                <div
-                  v-if="selectedActionType === 'HTTP Request'"
-                  class="space-y-4"
-                >
-                  <!-- URL -->
-                  <UFormField :label="t('editor.url')" :ui="formFieldStyles">
-                    <UInput
-                      :model-value="String(selectedConfig.url ?? '')"
-                      placeholder="https://api.example.com/endpoint"
-                      :ui="inputStyles"
-                      @update:model-value="
-                        (value) => updateTextConfig('url', String(value))
-                      "
-                    />
-                    <template #hint>
-                      <span
-                        class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                    <!-- Usage examples -->
+                    <div
+                      class="rounded-lg border border-orange-500/20 bg-zinc-900/50 p-3"
+                    >
+                      <div
+                        class="text-[9px] xs:text-[10px] sm:text-[11px] font-semibold text-zinc-400 mb-2"
                       >
-                        {{ t("editor.http.urlHint") }}
-                      </span>
-                    </template>
-                  </UFormField>
+                        {{ t("editor.webhook.usageExamples") }}
+                      </div>
+                      <div class="space-y-2">
+                        <div class="text-[8px] xs:text-[9px] text-zinc-500">
+                          cURL:
+                        </div>
+                        <code
+                          class="block text-[8px] xs:text-[9px] text-orange-400 font-mono bg-zinc-800/50 p-2 rounded break-all"
+                        >
+                          curl -X POST {{ webhookEndpoint || "YOUR_URL" }} -H
+                          "Content-Type: application/json" -d '{"data": "test"}'
+                        </code>
+                      </div>
+                    </div>
 
-                  <!-- Method -->
-                  <UFormField :label="t('editor.method')" :ui="formFieldStyles">
-                    <div class="flex gap-1 flex-wrap">
+                    <!-- Data flow info -->
+                    <div
+                      class="rounded-lg border border-green-500/20 bg-green-500/5 p-3"
+                    >
+                      <div class="flex items-start gap-2">
+                        <svg
+                          class="h-4 w-4 text-green-400 flex-shrink-0 mt-0.5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        <span
+                          class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                        >
+                          {{ t("editor.webhook.dataFlowHint") }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Schedule Trigger -->
+                  <div v-if="selectedType === 'Schedule'" class="space-y-4">
+                    <!-- How it works -->
+                    <div
+                      class="rounded-lg border border-cyan-500/20 bg-cyan-500/5 p-3"
+                    >
+                      <div class="flex items-start gap-2">
+                        <svg
+                          class="h-4 w-4 text-cyan-400 flex-shrink-0 mt-0.5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        <div
+                          class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                        >
+                          <div class="font-semibold text-cyan-400 mb-1">
+                            {{ t("editor.schedule.howItWorks") }}
+                          </div>
+                          {{ t("editor.schedule.description") }}
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Cron Expression -->
+                    <UFormField
+                      :label="t('editor.cronExpression')"
+                      :ui="formFieldStyles"
+                    >
+                      <UInput
+                        :model-value="String(selectedConfig.cron ?? '')"
+                        placeholder="*/5 * * * *"
+                        :ui="inputStyles"
+                        @update:model-value="
+                          (value) => updateTextConfig('cron', String(value))
+                        "
+                      />
+                      <template #hint>
+                        <span
+                          class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                        >
+                          {{ t("editor.schedule.cronHint") }}
+                        </span>
+                      </template>
+                    </UFormField>
+
+                    <!-- Quick cron presets -->
+                    <div class="flex flex-wrap gap-1">
                       <button
-                        v-for="method in httpMethods"
-                        :key="method"
+                        v-for="preset in cronPresets"
+                        :key="preset.value"
                         type="button"
-                        class="px-3 py-1.5 rounded text-[9px] xs:text-[10px] sm:text-[11px] font-semibold transition-colors"
+                        class="px-2 py-1 rounded text-[8px] xs:text-[9px] font-semibold transition-colors"
                         :class="
-                          String(selectedConfig.method ?? 'POST') === method
+                          String(selectedConfig.cron ?? '') === preset.value
                             ? 'bg-orange-500 text-zinc-950'
                             : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
                         "
-                        @click="updateTextConfig('method', method)"
+                        @click="updateTextConfig('cron', preset.value)"
                       >
-                        {{ method }}
+                        {{ preset.label }}
                       </button>
                     </div>
-                    <template #hint>
-                      <span
-                        class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
-                      >
-                        {{ t("editor.http.methodHint") }}
-                      </span>
-                    </template>
-                  </UFormField>
 
-                  <!-- Headers -->
-                  <UFormField
-                    :label="t('editor.headers')"
-                    :ui="formFieldStyles"
-                  >
-                    <UTextarea
-                      :model-value="
-                        formatJsonConfig(selectedConfig.headers, '{}')
-                      "
-                      :placeholder="t('editor.http.headersPlaceholder')"
-                      :ui="textareaStyles"
-                      :rows="3"
-                      @update:model-value="
-                        (value) => updateTextConfig('headers', String(value))
-                      "
-                    />
-                    <template #hint>
-                      <span
-                        class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                    <!-- Cron format explanation -->
+                    <div
+                      class="rounded-lg border border-orange-500/20 bg-zinc-900/50 p-3"
+                    >
+                      <div
+                        class="text-[9px] xs:text-[10px] sm:text-[11px] font-semibold text-zinc-400 mb-2"
                       >
-                        {{ t("editor.http.headersHint") }}
-                      </span>
-                    </template>
-                  </UFormField>
-
-                  <!-- Body -->
-                  <UFormField :label="t('editor.body')" :ui="formFieldStyles">
-                    <UTextarea
-                      :model-value="String(selectedConfig.body ?? '')"
-                      :placeholder="t('editor.http.bodyPlaceholder')"
-                      :ui="textareaStyles"
-                      :rows="4"
-                      @update:model-value="
-                        (value) => updateTextConfig('body', String(value))
-                      "
-                    />
-                    <template #hint>
-                      <span
-                        class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                        {{ t("editor.schedule.cronFormat") }}
+                      </div>
+                      <div
+                        class="font-mono text-[9px] xs:text-[10px] text-orange-400 mb-2"
                       >
-                        {{ t("editor.http.bodyHint") }}
-                      </span>
-                    </template>
-                  </UFormField>
+                        ┌─────────────
+                        {{ t("editor.schedule.minute") }} (0-59)<br />
+                        │ ┌───────────
+                        {{ t("editor.schedule.hour") }} (0-23)<br />
+                        │ │ ┌─────────
+                        {{ t("editor.schedule.dayMonth") }} (1-31)<br />
+                        │ │ │ ┌───────
+                        {{ t("editor.schedule.month") }} (1-12)<br />
+                        │ │ │ │ ┌─────
+                        {{ t("editor.schedule.dayWeek") }} (0-6)<br />
+                        * * * * *
+                      </div>
+                      <div
+                        class="text-zinc-500 text-[8px] xs:text-[9px] space-y-1"
+                      >
+                        <div>
+                          <code class="text-orange-400">*</code> —
+                          {{ t("editor.schedule.any") }}
+                        </div>
+                        <div>
+                          <code class="text-orange-400">*/5</code> —
+                          {{ t("editor.schedule.every5") }}
+                        </div>
+                        <div>
+                          <code class="text-orange-400">0,30</code> —
+                          {{ t("editor.schedule.specific") }}
+                        </div>
+                      </div>
+                    </div>
 
-                  <!-- Test HTTP Request -->
-                  <div class="flex flex-col gap-3 pt-2">
+                    <!-- Timezone -->
+                    <UFormField
+                      :label="t('editor.timezone')"
+                      :ui="formFieldStyles"
+                    >
+                      <div class="flex gap-2">
+                        <UInput
+                          :model-value="
+                            String(selectedConfig.timezone ?? 'UTC')
+                          "
+                          placeholder="UTC"
+                          :ui="inputStyles"
+                          class="flex-1"
+                          @update:model-value="
+                            (value) =>
+                              updateTextConfig('timezone', String(value))
+                          "
+                        />
+                      </div>
+                      <template #hint>
+                        <span
+                          class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                        >
+                          {{ t("editor.schedule.timezoneHint") }}
+                        </span>
+                      </template>
+                    </UFormField>
+
+                    <!-- Common timezones -->
+                    <div class="flex flex-wrap gap-1">
+                      <button
+                        v-for="tz in commonTimezones"
+                        :key="tz"
+                        type="button"
+                        class="px-2 py-1 rounded text-[8px] xs:text-[9px] font-semibold transition-colors"
+                        :class="
+                          String(selectedConfig.timezone ?? 'UTC') === tz
+                            ? 'bg-orange-500 text-zinc-950'
+                            : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
+                        "
+                        @click="updateTextConfig('timezone', tz)"
+                      >
+                        {{ tz }}
+                      </button>
+                    </div>
+
+                    <!-- Next run preview -->
+                    <div
+                      class="rounded-lg border border-green-500/20 bg-green-500/5 p-3"
+                    >
+                      <div class="flex items-start gap-2">
+                        <svg
+                          class="h-4 w-4 text-green-400 flex-shrink-0 mt-0.5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        <span
+                          class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                        >
+                          {{ t("editor.schedule.dataFlowHint") }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Email Trigger -->
+                  <div v-if="selectedType === 'Email'" class="space-y-4">
+                    <!-- How it works -->
+                    <div
+                      class="rounded-lg border border-cyan-500/20 bg-cyan-500/5 p-3"
+                    >
+                      <div class="flex items-start gap-2">
+                        <svg
+                          class="h-4 w-4 text-cyan-400 flex-shrink-0 mt-0.5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                          />
+                        </svg>
+                        <div
+                          class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                        >
+                          <div class="font-semibold text-cyan-400 mb-1">
+                            {{ t("editor.emailTrigger.howItWorks") }}
+                          </div>
+                          {{ t("editor.emailTrigger.imapDescription") }}
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- IMAP Email -->
+                    <UFormField
+                      :label="t('editor.emailTrigger.imapEmail')"
+                      :ui="formFieldStyles"
+                    >
+                      <UInput
+                        :model-value="String(selectedConfig.imapEmail ?? '')"
+                        placeholder="your-email@gmail.com"
+                        :ui="inputStyles"
+                        @update:model-value="
+                          (value) =>
+                            updateTextConfig('imapEmail', String(value))
+                        "
+                      />
+                      <template #hint>
+                        <span
+                          class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                        >
+                          {{ t("editor.emailTrigger.imapEmailHint") }}
+                        </span>
+                      </template>
+                    </UFormField>
+
+                    <!-- IMAP Password (App Password) -->
+                    <UFormField
+                      :label="t('editor.emailTrigger.imapPassword')"
+                      :ui="formFieldStyles"
+                    >
+                      <UInput
+                        :model-value="String(selectedConfig.imapPassword ?? '')"
+                        type="password"
+                        :placeholder="
+                          t('editor.emailTrigger.appPasswordPlaceholder')
+                        "
+                        :ui="inputStyles"
+                        @update:model-value="
+                          (value) =>
+                            updateTextConfig('imapPassword', String(value))
+                        "
+                      />
+                      <template #hint>
+                        <span
+                          class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                        >
+                          {{ t("editor.emailTrigger.appPasswordHint") }}
+                        </span>
+                      </template>
+                    </UFormField>
+
+                    <!-- App Password Instructions -->
+                    <div
+                      class="rounded-lg border border-amber-500/20 bg-amber-500/5 p-3"
+                    >
+                      <div class="flex items-start gap-2">
+                        <svg
+                          class="h-4 w-4 text-amber-400 flex-shrink-0 mt-0.5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                          />
+                        </svg>
+                        <div
+                          class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                        >
+                          <div class="font-semibold text-amber-400 mb-1">
+                            {{ t("editor.emailTrigger.appPasswordTitle") }}
+                          </div>
+                          <div class="space-y-1.5">
+                            <div>
+                              <span class="font-semibold text-zinc-300"
+                                >Gmail:</span
+                              >
+                              <a
+                                href="https://myaccount.google.com/apppasswords"
+                                target="_blank"
+                                class="text-cyan-400 hover:underline ml-1"
+                              >
+                                {{ t("editor.emailTrigger.createAppPassword") }}
+                                →
+                              </a>
+                            </div>
+                            <div>
+                              <span class="font-semibold text-zinc-300"
+                                >Mail.ru:</span
+                              >
+                              {{ t("editor.emailTrigger.mailruInstructions") }}
+                            </div>
+                            <div>
+                              <span class="font-semibold text-zinc-300"
+                                >Yandex:</span
+                              >
+                              {{ t("editor.emailTrigger.yandexInstructions") }}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Advanced IMAP Settings (collapsible) -->
+                    <details
+                      class="rounded-lg border border-zinc-700 bg-zinc-800/50"
+                    >
+                      <summary
+                        class="p-3 cursor-pointer text-[9px] xs:text-[10px] sm:text-[11px] font-semibold text-zinc-400 hover:text-zinc-300"
+                      >
+                        {{ t("editor.emailTrigger.advancedSettings") }}
+                      </summary>
+                      <div class="p-3 pt-0 space-y-3">
+                        <!-- IMAP Server -->
+                        <UFormField
+                          :label="t('editor.emailTrigger.imapServer')"
+                          :ui="formFieldStyles"
+                        >
+                          <UInput
+                            :model-value="String(selectedConfig.imapHost ?? '')"
+                            :placeholder="t('editor.emailTrigger.autoDetect')"
+                            :ui="inputStyles"
+                            @update:model-value="
+                              (value) =>
+                                updateTextConfig('imapHost', String(value))
+                            "
+                          />
+                          <template #hint>
+                            <span
+                              class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                            >
+                              {{ t("editor.emailTrigger.imapServerHint") }}
+                            </span>
+                          </template>
+                        </UFormField>
+
+                        <!-- IMAP Port -->
+                        <UFormField
+                          :label="t('editor.emailTrigger.imapPort')"
+                          :ui="formFieldStyles"
+                        >
+                          <UInput
+                            :model-value="String(selectedConfig.imapPort ?? '')"
+                            placeholder="993"
+                            type="number"
+                            :ui="inputStyles"
+                            @update:model-value="
+                              (value) =>
+                                updateTextConfig(
+                                  'imapPort',
+                                  value ? Number(value) : '',
+                                )
+                            "
+                          />
+                        </UFormField>
+
+                        <!-- Folder -->
+                        <UFormField
+                          :label="t('editor.emailTrigger.folder')"
+                          :ui="formFieldStyles"
+                        >
+                          <UInput
+                            :model-value="
+                              String(selectedConfig.imapFolder ?? '')
+                            "
+                            placeholder="INBOX"
+                            :ui="inputStyles"
+                            @update:model-value="
+                              (value) =>
+                                updateTextConfig('imapFolder', String(value))
+                            "
+                          />
+                        </UFormField>
+
+                        <!-- Filter by sender -->
+                        <UFormField
+                          :label="t('editor.emailTrigger.filterFrom')"
+                          :ui="formFieldStyles"
+                        >
+                          <UInput
+                            :model-value="
+                              String(selectedConfig.filterFrom ?? '')
+                            "
+                            :placeholder="
+                              t('editor.emailTrigger.filterFromPlaceholder')
+                            "
+                            :ui="inputStyles"
+                            @update:model-value="
+                              (value) =>
+                                updateTextConfig('filterFrom', String(value))
+                            "
+                          />
+                        </UFormField>
+
+                        <!-- Filter by subject -->
+                        <UFormField
+                          :label="t('editor.emailTrigger.filterSubject')"
+                          :ui="formFieldStyles"
+                        >
+                          <UInput
+                            :model-value="
+                              String(selectedConfig.filterSubject ?? '')
+                            "
+                            :placeholder="
+                              t('editor.emailTrigger.filterSubjectPlaceholder')
+                            "
+                            :ui="inputStyles"
+                            @update:model-value="
+                              (value) =>
+                                updateTextConfig('filterSubject', String(value))
+                            "
+                          />
+                        </UFormField>
+                      </div>
+                    </details>
+
+                    <!-- Test Connection Button -->
                     <div class="flex items-center gap-3">
                       <button
                         type="button"
-                        :disabled="!canTestHttp || httpTesting"
+                        :disabled="
+                          imapTesting ||
+                          !selectedConfig.imapEmail ||
+                          !selectedConfig.imapPassword
+                        "
+                        class="rounded-md border border-cyan-500 bg-cyan-500/20 px-4 py-2 text-cyan-400 transition hover:bg-cyan-500/30 disabled:opacity-50"
+                        @click="testImapConnection"
+                      >
+                        <span
+                          class="text-[9px] xs:text-[10px] sm:text-[11px] font-semibold flex items-center gap-2"
+                        >
+                          <svg
+                            v-if="imapTesting"
+                            class="h-3 w-3 animate-spin"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                            />
+                          </svg>
+                          {{
+                            imapTesting
+                              ? t("editor.emailTrigger.testing")
+                              : t("editor.emailTrigger.testConnection")
+                          }}
+                        </span>
+                      </button>
+                      <span
+                        v-if="imapTestResult"
+                        :class="[
+                          'text-[9px] xs:text-[10px] sm:text-[11px]',
+                          imapTestResult.ok ? 'text-green-400' : 'text-red-400',
+                        ]"
+                      >
+                        {{
+                          imapTestResult.ok
+                            ? t("editor.emailTrigger.connectionSuccess")
+                            : imapTestResult.error
+                        }}
+                      </span>
+                    </div>
+
+                    <!-- Supported providers -->
+                    <div
+                      class="rounded-lg border border-zinc-700 bg-zinc-800/50 p-3"
+                    >
+                      <div
+                        class="text-[9px] xs:text-[10px] sm:text-[11px] font-semibold text-zinc-400 mb-2"
+                      >
+                        {{ t("editor.emailTrigger.supportedProviders") }}
+                      </div>
+                      <div class="flex flex-wrap gap-2">
+                        <span
+                          class="px-2 py-1 rounded bg-zinc-700 text-zinc-300 text-[8px] xs:text-[9px]"
+                          >Gmail</span
+                        >
+                        <span
+                          class="px-2 py-1 rounded bg-zinc-700 text-zinc-300 text-[8px] xs:text-[9px]"
+                          >Mail.ru</span
+                        >
+                        <span
+                          class="px-2 py-1 rounded bg-zinc-700 text-zinc-300 text-[8px] xs:text-[9px]"
+                          >Yandex</span
+                        >
+                        <span
+                          class="px-2 py-1 rounded bg-zinc-700 text-zinc-300 text-[8px] xs:text-[9px]"
+                          >Yahoo</span
+                        >
+                        <span
+                          class="px-2 py-1 rounded bg-zinc-700 text-zinc-300 text-[8px] xs:text-[9px]"
+                          >Outlook</span
+                        >
+                        <span
+                          class="px-2 py-1 rounded bg-zinc-700 text-zinc-300 text-[8px] xs:text-[9px]"
+                          >iCloud</span
+                        >
+                      </div>
+                    </div>
+
+                    <!-- Polling info -->
+                    <div
+                      class="rounded-lg border border-green-500/20 bg-green-500/5 p-3"
+                    >
+                      <div class="flex items-start gap-2">
+                        <svg
+                          class="h-4 w-4 text-green-400 flex-shrink-0 mt-0.5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        <span
+                          class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                        >
+                          {{ t("editor.emailTrigger.pollingInfo") }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-if="selectedRole === 'action'" class="space-y-6">
+                  <!-- HTTP Request Action -->
+                  <div
+                    v-if="selectedActionType === 'HTTP Request'"
+                    class="space-y-4"
+                  >
+                    <!-- URL -->
+                    <UFormField :label="t('editor.url')" :ui="formFieldStyles">
+                      <UInput
+                        :model-value="String(selectedConfig.url ?? '')"
+                        placeholder="https://api.example.com/endpoint"
+                        :ui="inputStyles"
+                        @update:model-value="
+                          (value) => updateTextConfig('url', String(value))
+                        "
+                      />
+                      <template #hint>
+                        <span
+                          class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                        >
+                          {{ t("editor.http.urlHint") }}
+                        </span>
+                      </template>
+                    </UFormField>
+
+                    <!-- Method -->
+                    <UFormField
+                      :label="t('editor.method')"
+                      :ui="formFieldStyles"
+                    >
+                      <div class="flex gap-1 flex-wrap">
+                        <button
+                          v-for="method in httpMethods"
+                          :key="method"
+                          type="button"
+                          class="px-3 py-1.5 rounded text-[9px] xs:text-[10px] sm:text-[11px] font-semibold transition-colors"
+                          :class="
+                            String(selectedConfig.method ?? 'POST') === method
+                              ? 'bg-orange-500 text-zinc-950'
+                              : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
+                          "
+                          @click="updateTextConfig('method', method)"
+                        >
+                          {{ method }}
+                        </button>
+                      </div>
+                      <template #hint>
+                        <span
+                          class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                        >
+                          {{ t("editor.http.methodHint") }}
+                        </span>
+                      </template>
+                    </UFormField>
+
+                    <!-- Headers -->
+                    <UFormField
+                      :label="t('editor.headers')"
+                      :ui="formFieldStyles"
+                    >
+                      <UTextarea
+                        :model-value="
+                          formatJsonConfig(selectedConfig.headers, '{}')
+                        "
+                        :placeholder="t('editor.http.headersPlaceholder')"
+                        :ui="textareaStyles"
+                        :rows="3"
+                        @update:model-value="
+                          (value) => updateTextConfig('headers', String(value))
+                        "
+                      />
+                      <template #hint>
+                        <span
+                          class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                        >
+                          {{ t("editor.http.headersHint") }}
+                        </span>
+                      </template>
+                    </UFormField>
+
+                    <!-- Body -->
+                    <UFormField :label="t('editor.body')" :ui="formFieldStyles">
+                      <UTextarea
+                        :model-value="String(selectedConfig.body ?? '')"
+                        :placeholder="t('editor.http.bodyPlaceholder')"
+                        :ui="textareaStyles"
+                        :rows="4"
+                        @update:model-value="
+                          (value) => updateTextConfig('body', String(value))
+                        "
+                      />
+                      <template #hint>
+                        <span
+                          class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                        >
+                          {{ t("editor.http.bodyHint") }}
+                        </span>
+                      </template>
+                    </UFormField>
+
+                    <!-- Test HTTP Request -->
+                    <div class="flex flex-col gap-3 pt-2">
+                      <div class="flex items-center gap-3">
+                        <button
+                          type="button"
+                          :disabled="!canTestHttp || httpTesting"
+                          class="rounded-md border border-cyan-500/50 bg-cyan-500/20 px-3 py-2 text-cyan-400 transition hover:bg-cyan-500/30 hover:border-cyan-500 disabled:opacity-40 disabled:cursor-not-allowed"
+                          @click="testHttpRequest"
+                        >
+                          <span
+                            class="text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs font-semibold flex items-center gap-2"
+                          >
+                            <svg
+                              v-if="httpTesting"
+                              class="animate-spin h-3 w-3"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <circle
+                                class="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                stroke-width="4"
+                              ></circle>
+                              <path
+                                class="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                              ></path>
+                            </svg>
+                            <svg
+                              v-else
+                              class="h-3 w-3"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M13 10V3L4 14h7v7l9-11h-7z"
+                              />
+                            </svg>
+                            {{
+                              httpTesting
+                                ? t("editor.http.testing")
+                                : t("editor.http.testRequest")
+                            }}
+                          </span>
+                        </button>
+                      </div>
+
+                      <!-- HTTP Response Preview -->
+                      <div
+                        v-if="httpTestResult"
+                        class="rounded-lg border p-3 text-[9px] xs:text-[10px] sm:text-[11px]"
+                        :class="
+                          httpTestResult.ok
+                            ? 'border-green-500/30 bg-green-500/10'
+                            : 'border-red-500/30 bg-red-500/10'
+                        "
+                      >
+                        <div class="flex items-center gap-2 mb-2">
+                          <span
+                            class="px-2 py-0.5 rounded font-mono font-bold"
+                            :class="
+                              httpTestResult.ok
+                                ? 'bg-green-500/20 text-green-400'
+                                : 'bg-red-500/20 text-red-400'
+                            "
+                          >
+                            {{ httpTestResult.status }}
+                          </span>
+                          <span
+                            :class="
+                              httpTestResult.ok
+                                ? 'text-green-400'
+                                : 'text-red-400'
+                            "
+                          >
+                            {{
+                              httpTestResult.ok
+                                ? t("editor.http.success")
+                                : t("editor.http.failed")
+                            }}
+                          </span>
+                        </div>
+                        <pre
+                          class="text-zinc-300 whitespace-pre-wrap break-all max-h-32 overflow-auto font-mono text-[8px] xs:text-[9px]"
+                          >{{ httpTestResult.data }}</pre
+                        >
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Email Action -->
+                  <div v-if="selectedActionType === 'Email'" class="space-y-4">
+                    <!-- Email Provider Selector -->
+                    <div class="space-y-2">
+                      <div
+                        class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px] font-semibold"
+                      >
+                        {{ t("editor.email.provider") }}
+                      </div>
+                      <div class="flex flex-wrap gap-2">
+                        <button
+                          v-for="provider in emailProviders"
+                          :key="provider.id"
+                          type="button"
+                          class="px-3 py-1.5 rounded text-[9px] xs:text-[10px] font-semibold transition-colors flex items-center gap-1.5"
+                          :class="
+                            emailProvider === provider.id
+                              ? 'bg-orange-500 text-zinc-950'
+                              : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
+                          "
+                          @click="setEmailProvider(provider.id)"
+                        >
+                          <span v-html="provider.icon" class="w-3 h-3"></span>
+                          {{ provider.name }}
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Provider Info Box -->
+                    <div
+                      class="rounded-lg border border-cyan-500/20 bg-cyan-500/5 p-3"
+                    >
+                      <div class="flex items-start gap-2">
+                        <svg
+                          class="h-4 w-4 text-cyan-400 flex-shrink-0 mt-0.5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        <div
+                          class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                        >
+                          <div
+                            v-if="emailProvider === 'gmail'"
+                            class="space-y-1"
+                          >
+                            <div class="font-semibold text-cyan-400">
+                              {{ t("editor.email.gmailTitle") }}
+                            </div>
+                            <p>{{ t("editor.email.gmailDesc") }}</p>
+                            <a
+                              href="https://myaccount.google.com/apppasswords"
+                              target="_blank"
+                              class="text-orange-400 hover:underline block"
+                            >
+                              {{ t("editor.email.getAppPassword") }} →
+                            </a>
+                          </div>
+                          <div
+                            v-else-if="emailProvider === 'sendgrid'"
+                            class="space-y-1"
+                          >
+                            <div class="font-semibold text-cyan-400">
+                              {{ t("editor.email.sendgridTitle") }}
+                            </div>
+                            <p>{{ t("editor.email.sendgridDesc") }}</p>
+                            <a
+                              href="https://app.sendgrid.com/settings/api_keys"
+                              target="_blank"
+                              class="text-orange-400 hover:underline block"
+                            >
+                              {{ t("editor.email.getSendGridKey") }} →
+                            </a>
+                          </div>
+                          <div v-else class="space-y-1">
+                            <div class="font-semibold text-cyan-400">
+                              {{ t("editor.email.resendTitle") }}
+                            </div>
+                            <p>{{ t("editor.email.resendDesc") }}</p>
+                            <a
+                              href="https://resend.com/api-keys"
+                              target="_blank"
+                              class="text-orange-400 hover:underline block"
+                            >
+                              {{ t("editor.email.getResendKey") }} →
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Gmail SMTP Settings -->
+                    <div
+                      v-if="emailProvider === 'gmail'"
+                      class="space-y-3 rounded-lg border border-zinc-700 bg-zinc-800/50 p-3"
+                    >
+                      <div
+                        class="text-[9px] xs:text-[10px] sm:text-[11px] font-semibold text-zinc-400"
+                      >
+                        {{ t("editor.email.gmailSettings") }}
+                      </div>
+                      <UFormField
+                        :label="t('editor.email.gmailEmail')"
+                        :ui="formFieldStyles"
+                      >
+                        <UInput
+                          :model-value="String(selectedConfig.smtpEmail ?? '')"
+                          placeholder="your-email@gmail.com"
+                          type="email"
+                          :ui="inputStyles"
+                          @update:model-value="
+                            (value) =>
+                              updateGmailConfig('smtpEmail', String(value))
+                          "
+                        />
+                      </UFormField>
+                      <UFormField
+                        :label="t('editor.email.appPassword')"
+                        :ui="formFieldStyles"
+                      >
+                        <UInput
+                          :model-value="
+                            String(selectedConfig.smtpPassword ?? '')
+                          "
+                          placeholder="xxxx xxxx xxxx xxxx"
+                          type="password"
+                          :ui="inputStyles"
+                          @update:model-value="
+                            (value) =>
+                              updateGmailConfig('smtpPassword', String(value))
+                          "
+                        />
+                        <template #hint>
+                          <span
+                            class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                          >
+                            {{ t("editor.email.appPasswordHint") }}
+                          </span>
+                        </template>
+                      </UFormField>
+                    </div>
+
+                    <!-- SendGrid Settings -->
+                    <div
+                      v-if="emailProvider === 'sendgrid'"
+                      class="space-y-3 rounded-lg border border-zinc-700 bg-zinc-800/50 p-3"
+                    >
+                      <div
+                        class="text-[9px] xs:text-[10px] sm:text-[11px] font-semibold text-zinc-400"
+                      >
+                        {{ t("editor.email.sendgridSettings") }}
+                      </div>
+                      <UFormField
+                        :label="t('editor.email.sendgridApiKey')"
+                        :ui="formFieldStyles"
+                      >
+                        <UInput
+                          :model-value="
+                            String(selectedConfig.sendgridApiKey ?? '')
+                          "
+                          placeholder="SG.xxx..."
+                          type="password"
+                          :ui="inputStyles"
+                          @update:model-value="
+                            (value) =>
+                              updateSendGridConfig(
+                                'sendgridApiKey',
+                                String(value),
+                              )
+                          "
+                        />
+                      </UFormField>
+                      <UFormField
+                        :label="t('editor.email.senderEmail')"
+                        :ui="formFieldStyles"
+                      >
+                        <UInput
+                          :model-value="String(selectedConfig.from ?? '')"
+                          placeholder="noreply@yourdomain.com"
+                          type="email"
+                          :ui="inputStyles"
+                          @update:model-value="
+                            (value) => updateTextConfig('from', String(value))
+                          "
+                        />
+                        <template #hint>
+                          <span
+                            class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                          >
+                            {{ t("editor.email.senderHint") }}
+                          </span>
+                        </template>
+                      </UFormField>
+                    </div>
+
+                    <!-- Test Connection Button -->
+                    <div class="flex items-center gap-3">
+                      <button
+                        type="button"
+                        :disabled="!canTestEmail || emailSmtpTesting"
+                        class="px-3 py-1.5 rounded text-[9px] xs:text-[10px] font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        :class="
+                          canTestEmail
+                            ? 'bg-cyan-600 text-white hover:bg-cyan-500'
+                            : 'bg-zinc-700 text-zinc-400'
+                        "
+                        @click="testEmailConnection"
+                      >
+                        <span class="flex items-center gap-1.5">
+                          <svg
+                            v-if="emailSmtpTesting"
+                            class="h-3 w-3 animate-spin"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                            />
+                          </svg>
+                          {{
+                            emailSmtpTesting
+                              ? t("editor.email.testing")
+                              : t("editor.email.testConnection")
+                          }}
+                        </span>
+                      </button>
+                      <span
+                        v-if="emailSmtpTestResult"
+                        :class="[
+                          'text-[9px] xs:text-[10px] sm:text-[11px]',
+                          emailSmtpTestResult.ok
+                            ? 'text-green-400'
+                            : 'text-red-400',
+                        ]"
+                      >
+                        {{
+                          emailSmtpTestResult.ok
+                            ? t("editor.email.connectionSuccess")
+                            : emailSmtpTestResult.error
+                        }}
+                      </span>
+                    </div>
+
+                    <hr class="border-zinc-700" />
+
+                    <!-- Recipient -->
+                    <UFormField :label="t('editor.to')" :ui="formFieldStyles">
+                      <UInput
+                        :model-value="String(selectedConfig.to ?? '')"
+                        placeholder="user@example.com"
+                        type="email"
+                        :ui="inputStyles"
+                        @update:model-value="
+                          (value) => updateTextConfig('to', String(value))
+                        "
+                      />
+                      <template #hint>
+                        <span
+                          class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                        >
+                          {{ t("editor.email.toHint") }}
+                        </span>
+                      </template>
+                    </UFormField>
+
+                    <!-- Subject -->
+                    <UFormField
+                      :label="t('editor.subject')"
+                      :ui="formFieldStyles"
+                    >
+                      <UInput
+                        :model-value="String(selectedConfig.subject ?? '')"
+                        :placeholder="t('editor.email.subjectPlaceholder')"
+                        :ui="inputStyles"
+                        @update:model-value="
+                          (value) => updateTextConfig('subject', String(value))
+                        "
+                      />
+                      <template #hint>
+                        <span
+                          class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                        >
+                          {{ t("editor.email.subjectHint") }}
+                        </span>
+                      </template>
+                    </UFormField>
+
+                    <!-- Content Type Toggle -->
+                    <div class="flex items-center gap-3">
+                      <span
+                        class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px] font-semibold"
+                      >
+                        {{ t("editor.email.contentType") }}:
+                      </span>
+                      <div class="flex gap-1">
+                        <button
+                          type="button"
+                          class="px-2 py-1 rounded text-[9px] xs:text-[10px] font-semibold transition-colors"
+                          :class="
+                            emailContentMode === 'html'
+                              ? 'bg-orange-500 text-zinc-950'
+                              : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
+                          "
+                          @click="emailContentMode = 'html'"
+                        >
+                          HTML
+                        </button>
+                        <button
+                          type="button"
+                          class="px-2 py-1 rounded text-[9px] xs:text-[10px] font-semibold transition-colors"
+                          :class="
+                            emailContentMode === 'text'
+                              ? 'bg-orange-500 text-zinc-950'
+                              : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
+                          "
+                          @click="emailContentMode = 'text'"
+                        >
+                          Text
+                        </button>
+                        <button
+                          type="button"
+                          class="px-2 py-1 rounded text-[9px] xs:text-[10px] font-semibold transition-colors"
+                          :class="
+                            emailContentMode === 'both'
+                              ? 'bg-orange-500 text-zinc-950'
+                              : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
+                          "
+                          @click="emailContentMode = 'both'"
+                        >
+                          {{ t("editor.email.both") }}
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- HTML Content -->
+                    <UFormField
+                      v-if="
+                        emailContentMode === 'html' ||
+                        emailContentMode === 'both'
+                      "
+                      :label="t('editor.html')"
+                      :ui="formFieldStyles"
+                    >
+                      <UTextarea
+                        :model-value="String(selectedConfig.html ?? '')"
+                        :placeholder="t('editor.email.htmlPlaceholder')"
+                        :ui="textareaStyles"
+                        :rows="5"
+                        @update:model-value="
+                          (value) => updateTextConfig('html', String(value))
+                        "
+                      />
+                      <template #hint>
+                        <span
+                          class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                        >
+                          {{ t("editor.email.htmlHint") }}
+                        </span>
+                      </template>
+                    </UFormField>
+
+                    <!-- Text Content -->
+                    <UFormField
+                      v-if="
+                        emailContentMode === 'text' ||
+                        emailContentMode === 'both'
+                      "
+                      :label="t('editor.text')"
+                      :ui="formFieldStyles"
+                    >
+                      <UTextarea
+                        :model-value="String(selectedConfig.text ?? '')"
+                        :placeholder="t('editor.email.textPlaceholder')"
+                        :ui="textareaStyles"
+                        :rows="4"
+                        @update:model-value="
+                          (value) => updateTextConfig('text', String(value))
+                        "
+                      />
+                      <template #hint>
+                        <span
+                          class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                        >
+                          {{ t("editor.email.textHint") }}
+                        </span>
+                      </template>
+                    </UFormField>
+
+                    <!-- Send Test Email Button -->
+                    <div class="flex items-center gap-3">
+                      <button
+                        type="button"
+                        :disabled="!canSendTestEmail || emailSending"
+                        class="px-3 py-1.5 rounded text-[9px] xs:text-[10px] font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        :class="
+                          canSendTestEmail
+                            ? 'bg-green-600 text-white hover:bg-green-500'
+                            : 'bg-zinc-700 text-zinc-400'
+                        "
+                        @click="sendTestEmail"
+                      >
+                        <span class="flex items-center gap-1.5">
+                          <svg
+                            v-if="emailSending"
+                            class="h-3 w-3 animate-spin"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                            />
+                          </svg>
+                          <svg
+                            v-else
+                            class="h-3 w-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                            />
+                          </svg>
+                          {{
+                            emailSending
+                              ? t("editor.email.sending")
+                              : t("editor.email.sendTest")
+                          }}
+                        </span>
+                      </button>
+                      <span
+                        v-if="emailSendResult"
+                        :class="[
+                          'text-[9px] xs:text-[10px] sm:text-[11px]',
+                          emailSendResult.ok
+                            ? 'text-green-400'
+                            : 'text-red-400',
+                        ]"
+                      >
+                        {{
+                          emailSendResult.ok
+                            ? t("editor.email.sendSuccess")
+                            : emailSendResult.error
+                        }}
+                      </span>
+                    </div>
+
+                    <!-- Auto-send info -->
+                    <div
+                      class="rounded-lg border border-orange-500/20 bg-zinc-900/50 p-3"
+                    >
+                      <div class="flex items-start gap-2">
+                        <svg
+                          class="h-4 w-4 text-orange-400 flex-shrink-0 mt-0.5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        <span
+                          class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                        >
+                          {{ t("editor.email.autoContentHint") }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    v-if="selectedActionType === 'Telegram'"
+                    class="space-y-4"
+                  >
+                    <!-- Bot Token -->
+                    <UFormField
+                      :label="t('editor.botToken')"
+                      :ui="formFieldStyles"
+                    >
+                      <UInput
+                        :model-value="String(selectedConfig.botToken ?? '')"
+                        placeholder="123456789:ABCdefGHI..."
+                        type="password"
+                        :ui="inputStyles"
+                        @update:model-value="
+                          (value) => updateTextConfig('botToken', String(value))
+                        "
+                      />
+                      <template #hint>
+                        <span
+                          class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                        >
+                          {{ t("editor.telegram.botTokenHint") }}
+                          <a
+                            href="https://t.me/BotFather"
+                            target="_blank"
+                            class="text-orange-400 hover:text-orange-300 underline"
+                          >
+                            @BotFather
+                          </a>
+                        </span>
+                      </template>
+                    </UFormField>
+
+                    <!-- Chat ID -->
+                    <UFormField
+                      :label="t('editor.chatId')"
+                      :ui="formFieldStyles"
+                    >
+                      <UInput
+                        :model-value="String(selectedConfig.chatId ?? '')"
+                        placeholder="123456789"
+                        :ui="inputStyles"
+                        @update:model-value="
+                          (value) => updateTextConfig('chatId', String(value))
+                        "
+                      />
+                      <template #hint>
+                        <span
+                          class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                        >
+                          {{ t("editor.telegram.chatIdHint") }}
+                          <a
+                            href="https://t.me/userinfobot"
+                            target="_blank"
+                            class="text-orange-400 hover:text-orange-300 underline"
+                          >
+                            @userinfobot
+                          </a>
+                        </span>
+                      </template>
+                    </UFormField>
+
+                    <!-- Message -->
+                    <UFormField
+                      :label="t('editor.message')"
+                      :ui="formFieldStyles"
+                    >
+                      <UTextarea
+                        :model-value="String(selectedConfig.message ?? '')"
+                        :placeholder="t('editor.telegram.messagePlaceholder')"
+                        :ui="textareaStyles"
+                        :rows="3"
+                        @update:model-value="
+                          (value) => updateTextConfig('message', String(value))
+                        "
+                      />
+                      <template #hint>
+                        <span
+                          class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                        >
+                          {{ t("editor.telegram.messageHint") }}
+                        </span>
+                      </template>
+                    </UFormField>
+
+                    <!-- Parse Mode -->
+                    <UFormField
+                      :label="t('editor.parseMode')"
+                      :ui="formFieldStyles"
+                    >
+                      <USelect
+                        :items="telegramParseModes"
+                        :model-value="
+                          String(selectedConfig.parseMode ?? 'Markdown')
+                        "
+                        :ui="selectStyles"
+                        @update:model-value="
+                          (value) =>
+                            updateTextConfig('parseMode', String(value))
+                        "
+                      />
+                      <template #hint>
+                        <span
+                          class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                        >
+                          {{ t("editor.telegram.parseModeHint") }}
+                        </span>
+                      </template>
+                    </UFormField>
+
+                    <!-- Formatting preview -->
+                    <div
+                      v-if="selectedConfig.message"
+                      class="rounded-lg border border-orange-500/20 bg-zinc-900/50 p-3"
+                    >
+                      <div
+                        class="text-[9px] xs:text-[10px] sm:text-[11px] font-semibold text-zinc-400 mb-2"
+                      >
+                        {{ t("editor.telegram.preview") }}
+                      </div>
+                      <div
+                        class="text-zinc-100 text-[10px] xs:text-[11px] sm:text-xs whitespace-pre-wrap break-words"
+                      >
+                        {{ String(selectedConfig.message ?? "") }}
+                      </div>
+                    </div>
+
+                    <!-- Test button -->
+                    <div class="flex items-center gap-3 pt-2">
+                      <button
+                        type="button"
+                        :disabled="!canTestTelegram || telegramTesting"
                         class="rounded-md border border-cyan-500/50 bg-cyan-500/20 px-3 py-2 text-cyan-400 transition hover:bg-cyan-500/30 hover:border-cyan-500 disabled:opacity-40 disabled:cursor-not-allowed"
-                        @click="testHttpRequest"
+                        @click="testTelegramMessage"
                       >
                         <span
                           class="text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs font-semibold flex items-center gap-2"
                         >
                           <svg
-                            v-if="httpTesting"
+                            v-if="telegramTesting"
                             class="animate-spin h-3 w-3"
                             fill="none"
                             viewBox="0 0 24 24"
@@ -1456,1169 +2213,490 @@
                               stroke-linecap="round"
                               stroke-linejoin="round"
                               stroke-width="2"
-                              d="M13 10V3L4 14h7v7l9-11h-7z"
+                              d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
                             />
                           </svg>
                           {{
-                            httpTesting
-                              ? t("editor.http.testing")
-                              : t("editor.http.testRequest")
+                            telegramTesting
+                              ? t("editor.telegram.sending")
+                              : t("editor.telegram.testSend")
                           }}
                         </span>
                       </button>
-                    </div>
-
-                    <!-- HTTP Response Preview -->
-                    <div
-                      v-if="httpTestResult"
-                      class="rounded-lg border p-3 text-[9px] xs:text-[10px] sm:text-[11px]"
-                      :class="
-                        httpTestResult.ok
-                          ? 'border-green-500/30 bg-green-500/10'
-                          : 'border-red-500/30 bg-red-500/10'
-                      "
-                    >
-                      <div class="flex items-center gap-2 mb-2">
-                        <span
-                          class="px-2 py-0.5 rounded font-mono font-bold"
-                          :class="
-                            httpTestResult.ok
-                              ? 'bg-green-500/20 text-green-400'
-                              : 'bg-red-500/20 text-red-400'
-                          "
-                        >
-                          {{ httpTestResult.status }}
-                        </span>
-                        <span
-                          :class="
-                            httpTestResult.ok
-                              ? 'text-green-400'
-                              : 'text-red-400'
-                          "
-                        >
-                          {{
-                            httpTestResult.ok
-                              ? t("editor.http.success")
-                              : t("editor.http.failed")
-                          }}
-                        </span>
-                      </div>
-                      <pre
-                        class="text-zinc-300 whitespace-pre-wrap break-all max-h-32 overflow-auto font-mono text-[8px] xs:text-[9px]"
-                        >{{ httpTestResult.data }}</pre
-                      >
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Email Action -->
-                <div v-if="selectedActionType === 'Email'" class="space-y-4">
-                  <!-- Email Provider Selector -->
-                  <div class="space-y-2">
-                    <div
-                      class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px] font-semibold"
-                    >
-                      {{ t("editor.email.provider") }}
-                    </div>
-                    <div class="flex flex-wrap gap-2">
-                      <button
-                        v-for="provider in emailProviders"
-                        :key="provider.id"
-                        type="button"
-                        class="px-3 py-1.5 rounded text-[9px] xs:text-[10px] font-semibold transition-colors flex items-center gap-1.5"
+                      <span
+                        v-if="telegramTestResult"
+                        class="text-[9px] xs:text-[10px] sm:text-[11px]"
                         :class="
-                          emailProvider === provider.id
-                            ? 'bg-orange-500 text-zinc-950'
-                            : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
+                          telegramTestResult.ok
+                            ? 'text-green-400'
+                            : 'text-red-400'
                         "
-                        @click="setEmailProvider(provider.id)"
                       >
-                        <span v-html="provider.icon" class="w-3 h-3"></span>
-                        {{ provider.name }}
-                      </button>
+                        {{ telegramTestResult.message }}
+                      </span>
                     </div>
                   </div>
 
-                  <!-- Provider Info Box -->
+                  <!-- Database Action -->
                   <div
-                    class="rounded-lg border border-cyan-500/20 bg-cyan-500/5 p-3"
+                    v-if="selectedActionType === 'Database'"
+                    class="space-y-4"
                   >
-                    <div class="flex items-start gap-2">
-                      <svg
-                        class="h-4 w-4 text-cyan-400 flex-shrink-0 mt-0.5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      <div
-                        class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
-                      >
-                        <div v-if="emailProvider === 'gmail'" class="space-y-1">
-                          <div class="font-semibold text-cyan-400">
-                            {{ t("editor.email.gmailTitle") }}
-                          </div>
-                          <p>{{ t("editor.email.gmailDesc") }}</p>
-                          <a
-                            href="https://myaccount.google.com/apppasswords"
-                            target="_blank"
-                            class="text-orange-400 hover:underline block"
-                          >
-                            {{ t("editor.email.getAppPassword") }} →
-                          </a>
-                        </div>
-                        <div
-                          v-else-if="emailProvider === 'sendgrid'"
-                          class="space-y-1"
-                        >
-                          <div class="font-semibold text-cyan-400">
-                            {{ t("editor.email.sendgridTitle") }}
-                          </div>
-                          <p>{{ t("editor.email.sendgridDesc") }}</p>
-                          <a
-                            href="https://app.sendgrid.com/settings/api_keys"
-                            target="_blank"
-                            class="text-orange-400 hover:underline block"
-                          >
-                            {{ t("editor.email.getSendGridKey") }} →
-                          </a>
-                        </div>
-                        <div v-else class="space-y-1">
-                          <div class="font-semibold text-cyan-400">
-                            {{ t("editor.email.resendTitle") }}
-                          </div>
-                          <p>{{ t("editor.email.resendDesc") }}</p>
-                          <a
-                            href="https://resend.com/api-keys"
-                            target="_blank"
-                            class="text-orange-400 hover:underline block"
-                          >
-                            {{ t("editor.email.getResendKey") }} →
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Gmail SMTP Settings -->
-                  <div
-                    v-if="emailProvider === 'gmail'"
-                    class="space-y-3 rounded-lg border border-zinc-700 bg-zinc-800/50 p-3"
-                  >
-                    <div
-                      class="text-[9px] xs:text-[10px] sm:text-[11px] font-semibold text-zinc-400"
-                    >
-                      {{ t("editor.email.gmailSettings") }}
-                    </div>
+                    <!-- Model Selection -->
                     <UFormField
-                      :label="t('editor.email.gmailEmail')"
+                      :label="t('editor.model')"
                       :ui="formFieldStyles"
                     >
-                      <UInput
-                        :model-value="String(selectedConfig.smtpEmail ?? '')"
-                        placeholder="your-email@gmail.com"
-                        type="email"
-                        :ui="inputStyles"
-                        @update:model-value="
-                          (value) =>
-                            updateGmailConfig('smtpEmail', String(value))
-                        "
-                      />
-                    </UFormField>
-                    <UFormField
-                      :label="t('editor.email.appPassword')"
-                      :ui="formFieldStyles"
-                    >
-                      <UInput
-                        :model-value="String(selectedConfig.smtpPassword ?? '')"
-                        placeholder="xxxx xxxx xxxx xxxx"
-                        type="password"
-                        :ui="inputStyles"
-                        @update:model-value="
-                          (value) =>
-                            updateGmailConfig('smtpPassword', String(value))
-                        "
-                      />
-                      <template #hint>
-                        <span
-                          class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
-                        >
-                          {{ t("editor.email.appPasswordHint") }}
-                        </span>
-                      </template>
-                    </UFormField>
-                  </div>
-
-                  <!-- SendGrid Settings -->
-                  <div
-                    v-if="emailProvider === 'sendgrid'"
-                    class="space-y-3 rounded-lg border border-zinc-700 bg-zinc-800/50 p-3"
-                  >
-                    <div
-                      class="text-[9px] xs:text-[10px] sm:text-[11px] font-semibold text-zinc-400"
-                    >
-                      {{ t("editor.email.sendgridSettings") }}
-                    </div>
-                    <UFormField
-                      :label="t('editor.email.sendgridApiKey')"
-                      :ui="formFieldStyles"
-                    >
-                      <UInput
-                        :model-value="
-                          String(selectedConfig.sendgridApiKey ?? '')
-                        "
-                        placeholder="SG.xxx..."
-                        type="password"
-                        :ui="inputStyles"
-                        @update:model-value="
-                          (value) =>
-                            updateSendGridConfig(
-                              'sendgridApiKey',
-                              String(value),
-                            )
-                        "
-                      />
-                    </UFormField>
-                    <UFormField
-                      :label="t('editor.email.senderEmail')"
-                      :ui="formFieldStyles"
-                    >
-                      <UInput
-                        :model-value="String(selectedConfig.from ?? '')"
-                        placeholder="noreply@yourdomain.com"
-                        type="email"
-                        :ui="inputStyles"
-                        @update:model-value="
-                          (value) => updateTextConfig('from', String(value))
-                        "
-                      />
-                      <template #hint>
-                        <span
-                          class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
-                        >
-                          {{ t("editor.email.senderHint") }}
-                        </span>
-                      </template>
-                    </UFormField>
-                  </div>
-
-                  <!-- Test Connection Button -->
-                  <div class="flex items-center gap-3">
-                    <button
-                      type="button"
-                      :disabled="!canTestEmail || emailSmtpTesting"
-                      class="px-3 py-1.5 rounded text-[9px] xs:text-[10px] font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                      :class="
-                        canTestEmail
-                          ? 'bg-cyan-600 text-white hover:bg-cyan-500'
-                          : 'bg-zinc-700 text-zinc-400'
-                      "
-                      @click="testEmailConnection"
-                    >
-                      <span class="flex items-center gap-1.5">
-                        <svg
-                          v-if="emailSmtpTesting"
-                          class="h-3 w-3 animate-spin"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                          />
-                        </svg>
-                        {{
-                          emailSmtpTesting
-                            ? t("editor.email.testing")
-                            : t("editor.email.testConnection")
-                        }}
-                      </span>
-                    </button>
-                    <span
-                      v-if="emailSmtpTestResult"
-                      :class="[
-                        'text-[9px] xs:text-[10px] sm:text-[11px]',
-                        emailSmtpTestResult.ok
-                          ? 'text-green-400'
-                          : 'text-red-400',
-                      ]"
-                    >
-                      {{
-                        emailSmtpTestResult.ok
-                          ? t("editor.email.connectionSuccess")
-                          : emailSmtpTestResult.error
-                      }}
-                    </span>
-                  </div>
-
-                  <hr class="border-zinc-700" />
-
-                  <!-- Recipient -->
-                  <UFormField :label="t('editor.to')" :ui="formFieldStyles">
-                    <UInput
-                      :model-value="String(selectedConfig.to ?? '')"
-                      placeholder="user@example.com"
-                      type="email"
-                      :ui="inputStyles"
-                      @update:model-value="
-                        (value) => updateTextConfig('to', String(value))
-                      "
-                    />
-                    <template #hint>
-                      <span
-                        class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
-                      >
-                        {{ t("editor.email.toHint") }}
-                      </span>
-                    </template>
-                  </UFormField>
-
-                  <!-- Subject -->
-                  <UFormField
-                    :label="t('editor.subject')"
-                    :ui="formFieldStyles"
-                  >
-                    <UInput
-                      :model-value="String(selectedConfig.subject ?? '')"
-                      :placeholder="t('editor.email.subjectPlaceholder')"
-                      :ui="inputStyles"
-                      @update:model-value="
-                        (value) => updateTextConfig('subject', String(value))
-                      "
-                    />
-                    <template #hint>
-                      <span
-                        class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
-                      >
-                        {{ t("editor.email.subjectHint") }}
-                      </span>
-                    </template>
-                  </UFormField>
-
-                  <!-- Content Type Toggle -->
-                  <div class="flex items-center gap-3">
-                    <span
-                      class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px] font-semibold"
-                    >
-                      {{ t("editor.email.contentType") }}:
-                    </span>
-                    <div class="flex gap-1">
-                      <button
-                        type="button"
-                        class="px-2 py-1 rounded text-[9px] xs:text-[10px] font-semibold transition-colors"
-                        :class="
-                          emailContentMode === 'html'
-                            ? 'bg-orange-500 text-zinc-950'
-                            : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
-                        "
-                        @click="emailContentMode = 'html'"
-                      >
-                        HTML
-                      </button>
-                      <button
-                        type="button"
-                        class="px-2 py-1 rounded text-[9px] xs:text-[10px] font-semibold transition-colors"
-                        :class="
-                          emailContentMode === 'text'
-                            ? 'bg-orange-500 text-zinc-950'
-                            : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
-                        "
-                        @click="emailContentMode = 'text'"
-                      >
-                        Text
-                      </button>
-                      <button
-                        type="button"
-                        class="px-2 py-1 rounded text-[9px] xs:text-[10px] font-semibold transition-colors"
-                        :class="
-                          emailContentMode === 'both'
-                            ? 'bg-orange-500 text-zinc-950'
-                            : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
-                        "
-                        @click="emailContentMode = 'both'"
-                      >
-                        {{ t("editor.email.both") }}
-                      </button>
-                    </div>
-                  </div>
-
-                  <!-- HTML Content -->
-                  <UFormField
-                    v-if="
-                      emailContentMode === 'html' || emailContentMode === 'both'
-                    "
-                    :label="t('editor.html')"
-                    :ui="formFieldStyles"
-                  >
-                    <UTextarea
-                      :model-value="String(selectedConfig.html ?? '')"
-                      :placeholder="t('editor.email.htmlPlaceholder')"
-                      :ui="textareaStyles"
-                      :rows="5"
-                      @update:model-value="
-                        (value) => updateTextConfig('html', String(value))
-                      "
-                    />
-                    <template #hint>
-                      <span
-                        class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
-                      >
-                        {{ t("editor.email.htmlHint") }}
-                      </span>
-                    </template>
-                  </UFormField>
-
-                  <!-- Text Content -->
-                  <UFormField
-                    v-if="
-                      emailContentMode === 'text' || emailContentMode === 'both'
-                    "
-                    :label="t('editor.text')"
-                    :ui="formFieldStyles"
-                  >
-                    <UTextarea
-                      :model-value="String(selectedConfig.text ?? '')"
-                      :placeholder="t('editor.email.textPlaceholder')"
-                      :ui="textareaStyles"
-                      :rows="4"
-                      @update:model-value="
-                        (value) => updateTextConfig('text', String(value))
-                      "
-                    />
-                    <template #hint>
-                      <span
-                        class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
-                      >
-                        {{ t("editor.email.textHint") }}
-                      </span>
-                    </template>
-                  </UFormField>
-
-                  <!-- Send Test Email Button -->
-                  <div class="flex items-center gap-3">
-                    <button
-                      type="button"
-                      :disabled="!canSendTestEmail || emailSending"
-                      class="px-3 py-1.5 rounded text-[9px] xs:text-[10px] font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                      :class="
-                        canSendTestEmail
-                          ? 'bg-green-600 text-white hover:bg-green-500'
-                          : 'bg-zinc-700 text-zinc-400'
-                      "
-                      @click="sendTestEmail"
-                    >
-                      <span class="flex items-center gap-1.5">
-                        <svg
-                          v-if="emailSending"
-                          class="h-3 w-3 animate-spin"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                          />
-                        </svg>
-                        <svg
-                          v-else
-                          class="h-3 w-3"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-                          />
-                        </svg>
-                        {{
-                          emailSending
-                            ? t("editor.email.sending")
-                            : t("editor.email.sendTest")
-                        }}
-                      </span>
-                    </button>
-                    <span
-                      v-if="emailSendResult"
-                      :class="[
-                        'text-[9px] xs:text-[10px] sm:text-[11px]',
-                        emailSendResult.ok ? 'text-green-400' : 'text-red-400',
-                      ]"
-                    >
-                      {{
-                        emailSendResult.ok
-                          ? t("editor.email.sendSuccess")
-                          : emailSendResult.error
-                      }}
-                    </span>
-                  </div>
-
-                  <!-- Auto-send info -->
-                  <div
-                    class="rounded-lg border border-orange-500/20 bg-zinc-900/50 p-3"
-                  >
-                    <div class="flex items-start gap-2">
-                      <svg
-                        class="h-4 w-4 text-orange-400 flex-shrink-0 mt-0.5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      <span
-                        class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
-                      >
-                        {{ t("editor.email.autoContentHint") }}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div v-if="selectedActionType === 'Telegram'" class="space-y-4">
-                  <!-- Bot Token -->
-                  <UFormField
-                    :label="t('editor.botToken')"
-                    :ui="formFieldStyles"
-                  >
-                    <UInput
-                      :model-value="String(selectedConfig.botToken ?? '')"
-                      placeholder="123456789:ABCdefGHI..."
-                      type="password"
-                      :ui="inputStyles"
-                      @update:model-value="
-                        (value) => updateTextConfig('botToken', String(value))
-                      "
-                    />
-                    <template #hint>
-                      <span
-                        class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
-                      >
-                        {{ t("editor.telegram.botTokenHint") }}
-                        <a
-                          href="https://t.me/BotFather"
-                          target="_blank"
-                          class="text-orange-400 hover:text-orange-300 underline"
-                        >
-                          @BotFather
-                        </a>
-                      </span>
-                    </template>
-                  </UFormField>
-
-                  <!-- Chat ID -->
-                  <UFormField :label="t('editor.chatId')" :ui="formFieldStyles">
-                    <UInput
-                      :model-value="String(selectedConfig.chatId ?? '')"
-                      placeholder="123456789"
-                      :ui="inputStyles"
-                      @update:model-value="
-                        (value) => updateTextConfig('chatId', String(value))
-                      "
-                    />
-                    <template #hint>
-                      <span
-                        class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
-                      >
-                        {{ t("editor.telegram.chatIdHint") }}
-                        <a
-                          href="https://t.me/userinfobot"
-                          target="_blank"
-                          class="text-orange-400 hover:text-orange-300 underline"
-                        >
-                          @userinfobot
-                        </a>
-                      </span>
-                    </template>
-                  </UFormField>
-
-                  <!-- Message -->
-                  <UFormField
-                    :label="t('editor.message')"
-                    :ui="formFieldStyles"
-                  >
-                    <UTextarea
-                      :model-value="String(selectedConfig.message ?? '')"
-                      :placeholder="t('editor.telegram.messagePlaceholder')"
-                      :ui="textareaStyles"
-                      :rows="3"
-                      @update:model-value="
-                        (value) => updateTextConfig('message', String(value))
-                      "
-                    />
-                    <template #hint>
-                      <span
-                        class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
-                      >
-                        {{ t("editor.telegram.messageHint") }}
-                      </span>
-                    </template>
-                  </UFormField>
-
-                  <!-- Parse Mode -->
-                  <UFormField
-                    :label="t('editor.parseMode')"
-                    :ui="formFieldStyles"
-                  >
-                    <USelect
-                      :items="telegramParseModes"
-                      :model-value="
-                        String(selectedConfig.parseMode ?? 'Markdown')
-                      "
-                      :ui="selectStyles"
-                      @update:model-value="
-                        (value) => updateTextConfig('parseMode', String(value))
-                      "
-                    />
-                    <template #hint>
-                      <span
-                        class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
-                      >
-                        {{ t("editor.telegram.parseModeHint") }}
-                      </span>
-                    </template>
-                  </UFormField>
-
-                  <!-- Formatting preview -->
-                  <div
-                    v-if="selectedConfig.message"
-                    class="rounded-lg border border-orange-500/20 bg-zinc-900/50 p-3"
-                  >
-                    <div
-                      class="text-[9px] xs:text-[10px] sm:text-[11px] font-semibold text-zinc-400 mb-2"
-                    >
-                      {{ t("editor.telegram.preview") }}
-                    </div>
-                    <div
-                      class="text-zinc-100 text-[10px] xs:text-[11px] sm:text-xs whitespace-pre-wrap break-words"
-                    >
-                      {{ String(selectedConfig.message ?? "") }}
-                    </div>
-                  </div>
-
-                  <!-- Test button -->
-                  <div class="flex items-center gap-3 pt-2">
-                    <button
-                      type="button"
-                      :disabled="!canTestTelegram || telegramTesting"
-                      class="rounded-md border border-cyan-500/50 bg-cyan-500/20 px-3 py-2 text-cyan-400 transition hover:bg-cyan-500/30 hover:border-cyan-500 disabled:opacity-40 disabled:cursor-not-allowed"
-                      @click="testTelegramMessage"
-                    >
-                      <span
-                        class="text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs font-semibold flex items-center gap-2"
-                      >
-                        <svg
-                          v-if="telegramTesting"
-                          class="animate-spin h-3 w-3"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            class="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            stroke-width="4"
-                          ></circle>
-                          <path
-                            class="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          ></path>
-                        </svg>
-                        <svg
-                          v-else
-                          class="h-3 w-3"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-                          />
-                        </svg>
-                        {{
-                          telegramTesting
-                            ? t("editor.telegram.sending")
-                            : t("editor.telegram.testSend")
-                        }}
-                      </span>
-                    </button>
-                    <span
-                      v-if="telegramTestResult"
-                      class="text-[9px] xs:text-[10px] sm:text-[11px]"
-                      :class="
-                        telegramTestResult.ok
-                          ? 'text-green-400'
-                          : 'text-red-400'
-                      "
-                    >
-                      {{ telegramTestResult.message }}
-                    </span>
-                  </div>
-                </div>
-
-                <!-- Database Action -->
-                <div v-if="selectedActionType === 'Database'" class="space-y-4">
-                  <!-- Model Selection -->
-                  <UFormField :label="t('editor.model')" :ui="formFieldStyles">
-                    <div class="flex flex-wrap gap-1 mb-2">
-                      <button
-                        v-for="model in availableDbModels"
-                        :key="model.value"
-                        type="button"
-                        class="px-2 py-1 rounded text-[9px] xs:text-[10px] font-semibold transition-colors"
-                        :class="
-                          String(selectedConfig.model ?? '') === model.value
-                            ? 'bg-orange-500 text-zinc-950'
-                            : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
-                        "
-                        @click="updateTextConfig('model', model.value)"
-                      >
-                        {{ model.label }}
-                      </button>
-                    </div>
-                    <UInput
-                      :model-value="String(selectedConfig.model ?? '')"
-                      :placeholder="t('editor.db.modelPlaceholder')"
-                      :ui="inputStyles"
-                      @update:model-value="
-                        (value) => updateTextConfig('model', String(value))
-                      "
-                    />
-                    <template #hint>
-                      <span
-                        class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
-                      >
-                        {{ t("editor.db.modelHint") }}
-                      </span>
-                    </template>
-                  </UFormField>
-
-                  <!-- Operation Selection -->
-                  <UFormField
-                    :label="t('editor.operation')"
-                    :ui="formFieldStyles"
-                  >
-                    <div class="grid grid-cols-3 gap-1">
-                      <button
-                        v-for="op in dbOperationsWithDesc"
-                        :key="op.value"
-                        type="button"
-                        class="flex flex-col items-start px-2 py-1.5 rounded text-left transition-colors"
-                        :class="
-                          String(selectedConfig.operation ?? 'create') ===
-                          op.value
-                            ? 'bg-orange-500 text-zinc-950'
-                            : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
-                        "
-                        @click="
-                          updateTextConfig('operation', op.value);
-                          updateDbArgsTemplate(op.value);
-                        "
-                      >
-                        <span class="text-[9px] xs:text-[10px] font-bold">{{
-                          op.label
-                        }}</span>
-                        <span class="text-[7px] xs:text-[8px] opacity-70">{{
-                          op.desc
-                        }}</span>
-                      </button>
-                    </div>
-                  </UFormField>
-
-                  <!-- Args with template -->
-                  <UFormField :label="t('editor.args')" :ui="formFieldStyles">
-                    <UTextarea
-                      :model-value="formatJsonConfig(selectedConfig.args, '{}')"
-                      :placeholder="
-                        getDbArgsPlaceholder(
-                          String(selectedConfig.operation ?? 'create'),
-                        )
-                      "
-                      :ui="textareaStyles"
-                      :rows="6"
-                      @update:model-value="
-                        (value) => updateTextConfig('args', String(value))
-                      "
-                    />
-                    <template #hint>
-                      <span
-                        class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
-                      >
-                        {{ t("editor.db.argsHint") }}
-                      </span>
-                    </template>
-                  </UFormField>
-
-                  <!-- Args Template Helper -->
-                  <div
-                    class="rounded-lg border border-orange-500/20 bg-zinc-900/50 p-3"
-                  >
-                    <div
-                      class="text-[9px] xs:text-[10px] sm:text-[11px] font-semibold text-zinc-400 mb-2"
-                    >
-                      {{ t("editor.db.exampleFor") }}
-                      {{ selectedConfig.operation ?? "create" }}:
-                    </div>
-                    <pre
-                      class="text-zinc-300 text-[8px] xs:text-[9px] font-mono whitespace-pre-wrap"
-                      >{{
-                        getDbArgsExample(
-                          String(selectedConfig.operation ?? "create"),
-                        )
-                      }}</pre
-                    >
-                    <button
-                      type="button"
-                      class="mt-2 text-[9px] xs:text-[10px] text-orange-400 hover:text-orange-300 underline"
-                      @click="
-                        applyDbArgsTemplate(
-                          String(selectedConfig.operation ?? 'create'),
-                        )
-                      "
-                    >
-                      {{ t("editor.db.useTemplate") }}
-                    </button>
-                  </div>
-
-                  <!-- Auto-data info -->
-                  <div
-                    class="rounded-lg border border-cyan-500/20 bg-cyan-500/5 p-3"
-                  >
-                    <div class="flex items-start gap-2">
-                      <svg
-                        class="h-4 w-4 text-cyan-400 flex-shrink-0 mt-0.5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      <span
-                        class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
-                      >
-                        {{ t("editor.db.autoDataHint") }}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Transformation Action -->
-                <div
-                  v-if="selectedActionType === 'Transformation'"
-                  class="space-y-4"
-                >
-                  <!-- Mode Toggle -->
-                  <div class="flex items-center gap-3">
-                    <span
-                      class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px] font-semibold"
-                    >
-                      {{ t("editor.transform.mode") }}:
-                    </span>
-                    <div class="flex gap-1">
-                      <button
-                        type="button"
-                        class="px-2 py-1 rounded text-[9px] xs:text-[10px] font-semibold transition-colors"
-                        :class="
-                          transformMode === 'expression'
-                            ? 'bg-orange-500 text-zinc-950'
-                            : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
-                        "
-                        @click="transformMode = 'expression'"
-                      >
-                        {{ t("editor.transform.expression") }}
-                      </button>
-                      <button
-                        type="button"
-                        class="px-2 py-1 rounded text-[9px] xs:text-[10px] font-semibold transition-colors"
-                        :class="
-                          transformMode === 'mapping'
-                            ? 'bg-orange-500 text-zinc-950'
-                            : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
-                        "
-                        @click="transformMode = 'mapping'"
-                      >
-                        {{ t("editor.transform.mapping") }}
-                      </button>
-                    </div>
-                  </div>
-
-                  <!-- Expression Mode -->
-                  <template v-if="transformMode === 'expression'">
-                    <UFormField
-                      :label="t('editor.expression')"
-                      :ui="formFieldStyles"
-                    >
-                      <UTextarea
-                        :model-value="String(selectedConfig.expression ?? '')"
-                        :placeholder="
-                          t('editor.transform.expressionPlaceholder')
-                        "
-                        :ui="textareaStyles"
-                        :rows="4"
-                        @update:model-value="
-                          (value) =>
-                            updateTextConfig('expression', String(value))
-                        "
-                      />
-                      <template #hint>
-                        <span
-                          class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
-                        >
-                          {{ t("editor.transform.expressionHint") }}
-                        </span>
-                      </template>
-                    </UFormField>
-
-                    <!-- Expression Examples -->
-                    <div
-                      class="rounded-lg border border-orange-500/20 bg-zinc-900/50 p-3"
-                    >
-                      <div
-                        class="text-[9px] xs:text-[10px] sm:text-[11px] font-semibold text-zinc-400 mb-2"
-                      >
-                        {{ t("editor.transform.examples") }}:
-                      </div>
-                      <div class="space-y-2">
+                      <div class="flex flex-wrap gap-1 mb-2">
                         <button
-                          v-for="(example, idx) in expressionExamples"
-                          :key="idx"
+                          v-for="model in availableDbModels"
+                          :key="model.value"
                           type="button"
-                          class="w-full text-left p-2 rounded bg-zinc-800/50 hover:bg-zinc-700/50 transition-colors"
-                          @click="updateTextConfig('expression', example.code)"
+                          class="px-2 py-1 rounded text-[9px] xs:text-[10px] font-semibold transition-colors"
+                          :class="
+                            String(selectedConfig.model ?? '') === model.value
+                              ? 'bg-orange-500 text-zinc-950'
+                              : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
+                          "
+                          @click="updateTextConfig('model', model.value)"
                         >
-                          <div
-                            class="text-[8px] xs:text-[9px] text-zinc-500 mb-1"
-                          >
-                            {{ example.desc }}
-                          </div>
-                          <code
-                            class="text-[8px] xs:text-[9px] text-orange-400 font-mono"
-                            >{{ example.code }}</code
-                          >
+                          {{ model.label }}
                         </button>
                       </div>
-                    </div>
-                  </template>
+                      <UInput
+                        :model-value="String(selectedConfig.model ?? '')"
+                        :placeholder="t('editor.db.modelPlaceholder')"
+                        :ui="inputStyles"
+                        @update:model-value="
+                          (value) => updateTextConfig('model', String(value))
+                        "
+                      />
+                      <template #hint>
+                        <span
+                          class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                        >
+                          {{ t("editor.db.modelHint") }}
+                        </span>
+                      </template>
+                    </UFormField>
 
-                  <!-- Mapping Mode -->
-                  <template v-if="transformMode === 'mapping'">
+                    <!-- Operation Selection -->
                     <UFormField
-                      :label="t('editor.mapping')"
+                      :label="t('editor.operation')"
                       :ui="formFieldStyles"
                     >
+                      <div class="grid grid-cols-3 gap-1">
+                        <button
+                          v-for="op in dbOperationsWithDesc"
+                          :key="op.value"
+                          type="button"
+                          class="flex flex-col items-start px-2 py-1.5 rounded text-left transition-colors"
+                          :class="
+                            String(selectedConfig.operation ?? 'create') ===
+                            op.value
+                              ? 'bg-orange-500 text-zinc-950'
+                              : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
+                          "
+                          @click="
+                            updateTextConfig('operation', op.value);
+                            updateDbArgsTemplate(op.value);
+                          "
+                        >
+                          <span class="text-[9px] xs:text-[10px] font-bold">{{
+                            op.label
+                          }}</span>
+                          <span class="text-[7px] xs:text-[8px] opacity-70">{{
+                            op.desc
+                          }}</span>
+                        </button>
+                      </div>
+                    </UFormField>
+
+                    <!-- Args with template -->
+                    <UFormField :label="t('editor.args')" :ui="formFieldStyles">
                       <UTextarea
                         :model-value="
-                          formatJsonConfig(selectedConfig.mapping, '{}')
+                          formatJsonConfig(selectedConfig.args, '{}')
                         "
-                        :placeholder="t('editor.transform.mappingPlaceholder')"
+                        :placeholder="
+                          getDbArgsPlaceholder(
+                            String(selectedConfig.operation ?? 'create'),
+                          )
+                        "
                         :ui="textareaStyles"
                         :rows="6"
                         @update:model-value="
-                          (value) => updateTextConfig('mapping', String(value))
+                          (value) => updateTextConfig('args', String(value))
                         "
                       />
                       <template #hint>
                         <span
                           class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
                         >
-                          {{ t("editor.transform.mappingHint") }}
+                          {{ t("editor.db.argsHint") }}
                         </span>
                       </template>
                     </UFormField>
 
-                    <!-- Mapping Builder -->
+                    <!-- Args Template Helper -->
                     <div
                       class="rounded-lg border border-orange-500/20 bg-zinc-900/50 p-3"
                     >
                       <div
                         class="text-[9px] xs:text-[10px] sm:text-[11px] font-semibold text-zinc-400 mb-2"
                       >
-                        {{ t("editor.transform.mappingBuilder") }}:
+                        {{ t("editor.db.exampleFor") }}
+                        {{ selectedConfig.operation ?? "create" }}:
                       </div>
-                      <div class="space-y-2">
-                        <div
-                          v-for="(field, idx) in mappingFields"
-                          :key="idx"
-                          class="flex gap-2 items-center"
+                      <pre
+                        class="text-zinc-300 text-[8px] xs:text-[9px] font-mono whitespace-pre-wrap"
+                        >{{
+                          getDbArgsExample(
+                            String(selectedConfig.operation ?? "create"),
+                          )
+                        }}</pre
+                      >
+                      <button
+                        type="button"
+                        class="mt-2 text-[9px] xs:text-[10px] text-orange-400 hover:text-orange-300 underline"
+                        @click="
+                          applyDbArgsTemplate(
+                            String(selectedConfig.operation ?? 'create'),
+                          )
+                        "
+                      >
+                        {{ t("editor.db.useTemplate") }}
+                      </button>
+                    </div>
+
+                    <!-- Auto-data info -->
+                    <div
+                      class="rounded-lg border border-cyan-500/20 bg-cyan-500/5 p-3"
+                    >
+                      <div class="flex items-start gap-2">
+                        <svg
+                          class="h-4 w-4 text-cyan-400 flex-shrink-0 mt-0.5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
                         >
-                          <UInput
-                            :model-value="field.key"
-                            placeholder="outputField"
-                            :ui="{
-                              ...inputStyles,
-                              base: inputStyles.base + ' text-[9px]',
-                            }"
-                            class="flex-1"
-                            @update:model-value="
-                              (v) => updateMappingField(idx, 'key', String(v))
-                            "
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                           />
-                          <span class="text-zinc-500">←</span>
-                          <UInput
-                            :model-value="field.value"
-                            placeholder="input.fieldPath"
-                            :ui="{
-                              ...inputStyles,
-                              base: inputStyles.base + ' text-[9px]',
-                            }"
-                            class="flex-1"
-                            @update:model-value="
-                              (v) => updateMappingField(idx, 'value', String(v))
-                            "
-                          />
-                          <button
-                            type="button"
-                            class="p-1 text-red-400 hover:text-red-300"
-                            @click="removeMappingField(idx)"
-                          >
-                            <svg
-                              class="h-4 w-4"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12"
-                              />
-                            </svg>
-                          </button>
-                        </div>
+                        </svg>
+                        <span
+                          class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                        >
+                          {{ t("editor.db.autoDataHint") }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Transformation Action -->
+                  <div
+                    v-if="selectedActionType === 'Transformation'"
+                    class="space-y-4"
+                  >
+                    <!-- Mode Toggle -->
+                    <div class="flex items-center gap-3">
+                      <span
+                        class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px] font-semibold"
+                      >
+                        {{ t("editor.transform.mode") }}:
+                      </span>
+                      <div class="flex gap-1">
                         <button
                           type="button"
-                          class="text-[9px] xs:text-[10px] text-orange-400 hover:text-orange-300"
-                          @click="addMappingField"
+                          class="px-2 py-1 rounded text-[9px] xs:text-[10px] font-semibold transition-colors"
+                          :class="
+                            transformMode === 'expression'
+                              ? 'bg-orange-500 text-zinc-950'
+                              : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
+                          "
+                          @click="transformMode = 'expression'"
                         >
-                          + {{ t("editor.transform.addField") }}
+                          {{ t("editor.transform.expression") }}
+                        </button>
+                        <button
+                          type="button"
+                          class="px-2 py-1 rounded text-[9px] xs:text-[10px] font-semibold transition-colors"
+                          :class="
+                            transformMode === 'mapping'
+                              ? 'bg-orange-500 text-zinc-950'
+                              : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
+                          "
+                          @click="transformMode = 'mapping'"
+                        >
+                          {{ t("editor.transform.mapping") }}
                         </button>
                       </div>
                     </div>
-                  </template>
 
-                  <!-- Data flow explanation -->
-                  <div
-                    class="rounded-lg border border-cyan-500/20 bg-cyan-500/5 p-3"
-                  >
-                    <div class="flex items-start gap-2">
-                      <svg
-                        class="h-4 w-4 text-cyan-400 flex-shrink-0 mt-0.5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+                    <!-- Expression Mode -->
+                    <template v-if="transformMode === 'expression'">
+                      <UFormField
+                        :label="t('editor.expression')"
+                        :ui="formFieldStyles"
                       >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        <UTextarea
+                          :model-value="String(selectedConfig.expression ?? '')"
+                          :placeholder="
+                            t('editor.transform.expressionPlaceholder')
+                          "
+                          :ui="textareaStyles"
+                          :rows="4"
+                          @update:model-value="
+                            (value) =>
+                              updateTextConfig('expression', String(value))
+                          "
                         />
-                      </svg>
-                      <span
-                        class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                        <template #hint>
+                          <span
+                            class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                          >
+                            {{ t("editor.transform.expressionHint") }}
+                          </span>
+                        </template>
+                      </UFormField>
+
+                      <!-- Expression Examples -->
+                      <div
+                        class="rounded-lg border border-orange-500/20 bg-zinc-900/50 p-3"
                       >
-                        {{ t("editor.transform.dataFlowHint") }}
-                      </span>
+                        <div
+                          class="text-[9px] xs:text-[10px] sm:text-[11px] font-semibold text-zinc-400 mb-2"
+                        >
+                          {{ t("editor.transform.examples") }}:
+                        </div>
+                        <div class="space-y-2">
+                          <button
+                            v-for="(example, idx) in expressionExamples"
+                            :key="idx"
+                            type="button"
+                            class="w-full text-left p-2 rounded bg-zinc-800/50 hover:bg-zinc-700/50 transition-colors"
+                            @click="
+                              updateTextConfig('expression', example.code)
+                            "
+                          >
+                            <div
+                              class="text-[8px] xs:text-[9px] text-zinc-500 mb-1"
+                            >
+                              {{ example.desc }}
+                            </div>
+                            <code
+                              class="text-[8px] xs:text-[9px] text-orange-400 font-mono"
+                              >{{ example.code }}</code
+                            >
+                          </button>
+                        </div>
+                      </div>
+                    </template>
+
+                    <!-- Mapping Mode -->
+                    <template v-if="transformMode === 'mapping'">
+                      <UFormField
+                        :label="t('editor.mapping')"
+                        :ui="formFieldStyles"
+                      >
+                        <UTextarea
+                          :model-value="
+                            formatJsonConfig(selectedConfig.mapping, '{}')
+                          "
+                          :placeholder="
+                            t('editor.transform.mappingPlaceholder')
+                          "
+                          :ui="textareaStyles"
+                          :rows="6"
+                          @update:model-value="
+                            (value) =>
+                              updateTextConfig('mapping', String(value))
+                          "
+                        />
+                        <template #hint>
+                          <span
+                            class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                          >
+                            {{ t("editor.transform.mappingHint") }}
+                          </span>
+                        </template>
+                      </UFormField>
+
+                      <!-- Mapping Builder -->
+                      <div
+                        class="rounded-lg border border-orange-500/20 bg-zinc-900/50 p-3"
+                      >
+                        <div
+                          class="text-[9px] xs:text-[10px] sm:text-[11px] font-semibold text-zinc-400 mb-2"
+                        >
+                          {{ t("editor.transform.mappingBuilder") }}:
+                        </div>
+                        <div class="space-y-2">
+                          <div
+                            v-for="(field, idx) in mappingFields"
+                            :key="idx"
+                            class="flex gap-2 items-center"
+                          >
+                            <UInput
+                              :model-value="field.key"
+                              placeholder="outputField"
+                              :ui="{
+                                ...inputStyles,
+                                base: inputStyles.base + ' text-[9px]',
+                              }"
+                              class="flex-1"
+                              @update:model-value="
+                                (v) => updateMappingField(idx, 'key', String(v))
+                              "
+                            />
+                            <span class="text-zinc-500">←</span>
+                            <UInput
+                              :model-value="field.value"
+                              placeholder="input.fieldPath"
+                              :ui="{
+                                ...inputStyles,
+                                base: inputStyles.base + ' text-[9px]',
+                              }"
+                              class="flex-1"
+                              @update:model-value="
+                                (v) =>
+                                  updateMappingField(idx, 'value', String(v))
+                              "
+                            />
+                            <button
+                              type="button"
+                              class="p-1 text-red-400 hover:text-red-300"
+                              @click="removeMappingField(idx)"
+                            >
+                              <svg
+                                class="h-4 w-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-width="2"
+                                  d="M6 18L18 6M6 6l12 12"
+                                />
+                              </svg>
+                            </button>
+                          </div>
+                          <button
+                            type="button"
+                            class="text-[9px] xs:text-[10px] text-orange-400 hover:text-orange-300"
+                            @click="addMappingField"
+                          >
+                            + {{ t("editor.transform.addField") }}
+                          </button>
+                        </div>
+                      </div>
+                    </template>
+
+                    <!-- Data flow explanation -->
+                    <div
+                      class="rounded-lg border border-cyan-500/20 bg-cyan-500/5 p-3"
+                    >
+                      <div class="flex items-start gap-2">
+                        <svg
+                          class="h-4 w-4 text-cyan-400 flex-shrink-0 mt-0.5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        <span
+                          class="text-zinc-400 text-[9px] xs:text-[10px] sm:text-[11px]"
+                        >
+                          {{ t("editor.transform.dataFlowHint") }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="border-t border-orange-500/30 pt-4">
+                    <div
+                      class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold text-zinc-100"
+                    >
+                      {{ t("editor.errorHandling") }}
+                    </div>
+                    <div class="mt-3 space-y-3">
+                      <UFormField
+                        :label="t('editor.retryCount')"
+                        :ui="formFieldStyles"
+                      >
+                        <UInput
+                          type="number"
+                          :model-value="String(selectedConfig.retryCount ?? 0)"
+                          :ui="inputStyles"
+                          @update:model-value="
+                            (value) => updateNumberConfig('retryCount', value)
+                          "
+                        />
+                      </UFormField>
+                      <UFormField
+                        :label="t('editor.retryDelay')"
+                        :ui="formFieldStyles"
+                      >
+                        <UInput
+                          type="number"
+                          :model-value="
+                            String(selectedConfig.retryDelayMs ?? 0)
+                          "
+                          :ui="inputStyles"
+                          @update:model-value="
+                            (value) => updateNumberConfig('retryDelayMs', value)
+                          "
+                        />
+                      </UFormField>
+                      <UFormField
+                        :label="t('editor.onError')"
+                        :ui="formFieldStyles"
+                      >
+                        <USelect
+                          :items="errorModes"
+                          :model-value="
+                            String(selectedConfig.onError ?? 'fail')
+                          "
+                          :ui="selectStyles"
+                          @update:model-value="
+                            (value) =>
+                              updateTextConfig('onError', String(value))
+                          "
+                        />
+                      </UFormField>
+                      <UFormField
+                        :label="t('editor.notifyEmail')"
+                        :ui="formFieldStyles"
+                      >
+                        <UInput
+                          :model-value="
+                            String(selectedConfig.notifyEmail ?? '')
+                          "
+                          placeholder="alerts@example.com"
+                          :ui="inputStyles"
+                          @update:model-value="
+                            (value) =>
+                              updateTextConfig('notifyEmail', String(value))
+                          "
+                        />
+                      </UFormField>
                     </div>
                   </div>
                 </div>
-
-                <div class="border-t border-orange-500/30 pt-4">
-                  <div
-                    class="text-[5px] 4xs:text-[6px] 3xs:text-[7px] 2xs:text-[9px] xs:text-[10px] sm:text-[11px] md:text-xs lg:text-sm 2xl:text-base 3xl:text-lg/8 4xl:text-2xl/10 5xl:text-3xl/12 font-semibold text-zinc-100"
-                  >
-                    {{ t("editor.errorHandling") }}
-                  </div>
-                  <div class="mt-3 space-y-3">
-                    <UFormField
-                      :label="t('editor.retryCount')"
-                      :ui="formFieldStyles"
-                    >
-                      <UInput
-                        type="number"
-                        :model-value="String(selectedConfig.retryCount ?? 0)"
-                        :ui="inputStyles"
-                        @update:model-value="
-                          (value) => updateNumberConfig('retryCount', value)
-                        "
-                      />
-                    </UFormField>
-                    <UFormField
-                      :label="t('editor.retryDelay')"
-                      :ui="formFieldStyles"
-                    >
-                      <UInput
-                        type="number"
-                        :model-value="String(selectedConfig.retryDelayMs ?? 0)"
-                        :ui="inputStyles"
-                        @update:model-value="
-                          (value) => updateNumberConfig('retryDelayMs', value)
-                        "
-                      />
-                    </UFormField>
-                    <UFormField
-                      :label="t('editor.onError')"
-                      :ui="formFieldStyles"
-                    >
-                      <USelect
-                        :items="errorModes"
-                        :model-value="String(selectedConfig.onError ?? 'fail')"
-                        :ui="selectStyles"
-                        @update:model-value="
-                          (value) => updateTextConfig('onError', String(value))
-                        "
-                      />
-                    </UFormField>
-                    <UFormField
-                      :label="t('editor.notifyEmail')"
-                      :ui="formFieldStyles"
-                    >
-                      <UInput
-                        :model-value="String(selectedConfig.notifyEmail ?? '')"
-                        placeholder="alerts@example.com"
-                        :ui="inputStyles"
-                        @update:model-value="
-                          (value) =>
-                            updateTextConfig('notifyEmail', String(value))
-                        "
-                      />
-                    </UFormField>
-                  </div>
-                </div>
               </div>
-            </div>
-          </template>
+            </template>
+          </div>
         </div>
       </aside>
     </div>
@@ -2954,11 +3032,36 @@ const imapTestResult = ref<{
 } | null>(null);
 const blocksMenuOpen = ref(false);
 const nodeSettingsMenuOpen = ref(false);
+const editorPanelOpen = useState<boolean>("editorPanelOpen", () => false);
 const mobileHintDismissed = ref(false);
 const multiSelectHintDismissed = ref(false);
 const selectedEdgeId = ref<string | null>(null);
 const telegramTesting = ref(false);
 const telegramTestResult = ref<{ ok: boolean; message: string } | null>(null);
+
+const isMobileViewport = () =>
+  typeof window !== "undefined" && window.innerWidth < 1024;
+
+watch(blocksMenuOpen, (open) => {
+  if (open && isMobileViewport()) {
+    nodeSettingsMenuOpen.value = false;
+    editorPanelOpen.value = false;
+  }
+});
+
+watch(nodeSettingsMenuOpen, (open) => {
+  if (open && isMobileViewport()) {
+    blocksMenuOpen.value = false;
+    editorPanelOpen.value = false;
+  }
+});
+
+watch(editorPanelOpen, (open) => {
+  if (open && isMobileViewport()) {
+    blocksMenuOpen.value = false;
+    nodeSettingsMenuOpen.value = false;
+  }
+});
 
 // HTTP Request test state
 const httpTesting = ref(false);
@@ -3593,7 +3696,6 @@ const selectedHelp = computed(() => {
   );
 });
 const { t } = useI18n();
-const editorPanelOpen = useState<boolean>("editorPanelOpen", () => false);
 
 function getTranslatedPaletteItem(item: PaletteItem): PaletteItem {
   const key = item.id;
@@ -4041,6 +4143,7 @@ function onNodeClick(
   // Open right panel on mobile when node is clicked
   if (typeof window !== "undefined" && window.innerWidth < 1024) {
     nodeSettingsMenuOpen.value = true;
+    blocksMenuOpen.value = false;
   }
 }
 
